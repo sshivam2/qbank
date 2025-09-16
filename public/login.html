@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Secure Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Preload background -->
+  <link rel="preload" href="bg.webp" as="image">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, sans-serif;
+
+      /* Background image settings */
+      background: url("bg.webp") center center / cover no-repeat fixed;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Blur overlay */
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4); /* dark overlay */
+      backdrop-filter: blur(10px);     /* blur effect */
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 0;
+    }
+
+    .login-box {
+      position: relative;
+      z-index: 1;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+  <div class="login-box rounded-2xl p-8 shadow-2xl max-w-sm w-full text-white">
+    <h2 class="text-3xl font-bold mb-6 text-center">Welcome Back</h2>
+
+    <input id="email" type="email" placeholder="Email"
+      class="w-full mb-4 p-3 rounded-lg bg-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-white/70" />
+
+    <input id="password" type="password" placeholder="Password"
+      class="w-full mb-6 p-3 rounded-lg bg-white/20 focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-white/70" />
+
+    <button id="signin"
+      class="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 transition rounded-lg py-3 font-semibold">
+      Sign In
+    </button>
+
+    <p class="text-center mt-4 text-sm opacity-80">
+      To access contact 
+      <a href="https://t.me/YOUR_TELEGRAM_USERNAME" target="_blank" class="text-blue-400 underline hover:text-blue-300">
+        admin
+      </a>
+    </p>
+
+    <pre id="out" class="mt-4 text-sm opacity-80"></pre>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+    const SUPA_URL = 'https://mxymburfwdjqrbhsqzod.supabase.co'
+    const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14eW1idXJmd2RqcXJiaHNxem9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwMzc0NDYsImV4cCI6MjA3MzYxMzQ0Nn0.9xRwH5la1vqpDsGKGif5zM8wnaVWJbDbA6ARrZfg5pU'
+    const supabase = createClient(SUPA_URL, SUPA_ANON)
+    const out = t => document.getElementById('out').textContent = t
+
+    document.getElementById('signin').onclick = async () => {
+      const email = document.getElementById('email').value
+      const password = document.getElementById('password').value
+      out('Signing in...')
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+	  if (error) { out('Error: ' + error.message); return }
+	  const access_token = data?.session?.access_token
+	  if (!access_token) { out('No token returned'); return }
+
+	  // NEW: call Vercel API instead of Netlify
+	  const r = await fetch('/api/set-session', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ access_token })
+		})
+
+	  if (!r.ok) {
+		const t = await r.text()
+		out('Server cookie set failed: ' + t)
+		return
+	  }
+
+	  out('Logged in. Redirecting...')
+	  location.href = '/index.html'   // redirect after successful login
+
+    }
+  </script>
+</body>
+</html>
