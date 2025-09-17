@@ -1,14 +1,19 @@
 // middleware.js
-// Completely disabled middleware for testing
-
 import { NextResponse } from 'next/server';
 
 export async function middleware(request) {
-  // Do nothing - just pass through all requests
+  const pathname = request.nextUrl.pathname;
+  
+  if (pathname === '/' || pathname === '/index.html') {
+    const cookies = request.headers.get('cookie') || '';
+    if (!cookies.includes('sessionid')) {
+      return NextResponse.redirect(new URL('/login.html', request.url));
+    }
+  }
+  
   return NextResponse.next();
 }
 
-// Empty matcher = middleware doesn't run on any routes
 export const config = {
-  matcher: [],
+  matcher: ['/', '/index.html'],
 };
