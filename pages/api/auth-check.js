@@ -1,41 +1,50 @@
 // pages/api/auth-check.js
-import { getSession } from './set-session.js'
-import { createClient } from '@supabase/supabase-js'
+// Pages-router API that validates the cookie and returns session info.
+import cookie from 'cookie';
 
-const supabaseUrl = 'https://mxymburfwdjqrbhsqzod.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14eW1idXJmd2RqcXJiaHNxem9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwMzc0NDYsImV4cCI6MjA3MzYxMzQ0Nn0.9xRwH5la1vqpDsGKGif5zM8wnaVWJbDbA6ARrZfg5pU'
-
-export async function authCheck(req) {
-  try {
-    const session = await getSession(req)
-    if (!session || !session.accessToken) {
-      return { authenticated: false, message: 'User not authenticated' }
-    }
-
-    // Verify the session with Supabase
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
-    const { data: { user }, error } = await supabase.auth.getUser(session.accessToken)
-    
-    if (error || !user) {
-      return { authenticated: false, message: 'Invalid session' }
-    }
-
-    return { 
-      authenticated: true, 
-      session: { ...session, user } 
-    }
-  } catch (error) {
-    console.error('Auth check error:', error)
-    return { authenticated: false, message: error.message }
-  }
+function safeJsonParse(s) {
+  try { return JSON.parse(s); } catch { return null; }
+}
+function base64UrlDecode(input) {
+  if (!input || typeof input !== 'string') return null;
+  input = input.replace(/-/g, '+').replace(/_/g, '/');
+  const pad = input.length % 4;
+  if (pad) input += '='.repeat(4 - pad);
+  try { return Buffer.from(input, 'base64').toString('utf8'); } catch { return null; }
+}
+function jwtIsExpired(token) {
+  if (!token || typeof token !== 'string') return false;
+  const parts = token.split('.');
+  if (parts.length !== 3) return false;
+  const payload = base64UrlDecode(parts[1]);
+  if (!payload) return false;
+  try { const obj = JSON.parse(payload); return !!obj.exp && Math.floor(Date.now() / 1000) >= obj.exp; } catch { return false; }
 }
 
-// Helper function to get user info from middleware headers
-export function getUserFromHeaders(request) {
-  const userId = request.headers.get('x-user-id')
-  const email = request.headers.get('x-user-email')
-  
-  if (!userId) return null
-  
-  return { userId, email }
+export default function handler(req, res) {
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+
+  const header = req.headers.cookie || '';
+  const cookies = cookie.parse(header || '');
+  const raw = cookies.sessionid;
+
+  if (!raw) return res.status(401).json({ authenticated: false });
+
+  let val = raw;
+  try { val = decodeURIComponent(raw); } catch {}
+  if (val.startsWith('"') && val.endsWith('"')) val = val.slice(1, -1);
+
+  const parsed = safeJsonParse(val);
+  if (parsed && parsed.accessToken) {
+    if (jwtIsExpired(parsed.accessToken)) return res.status(401).json({ authenticated: false });
+    return res.status(200).json({ authenticated: true, session: parsed });
+  }
+
+  // If cookie itself is a JWT
+  if (typeof val === 'string' && val.split('.').length === 3) {
+    if (jwtIsExpired(val)) return res.status(401).json({ authenticated: false });
+    return res.status(200).json({ authenticated: true });
+  }
+
+  return res.status(401).json({ authenticated: false });
 }
