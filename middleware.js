@@ -2,41 +2,36 @@
 import { NextResponse } from 'next/server';
 
 export async function middleware(request) {
-  const pathname = request.nextUrl.pathname;
-  
+  const { pathname } = request.nextUrl;
+
   if (pathname === '/' || pathname === '/index.html') {
-    const cookieHeader = request.headers.get('cookie');
-    
-    if (!cookieHeader) {
-      return NextResponse.redirect(new URL('/login.html', request.url));
-    }
-    
-    // Parse cookies with URL decoding
-    const cookies = {};
-    cookieHeader.split(';').forEach(cookie => {
-      const [key, ...valueParts] = cookie.trim().split('=');
-      if (key && valueParts.length > 0) {
-        // URL decode the cookie value
-        cookies[key] = decodeURIComponent(valueParts.join('='));
-      }
-    });
-    
-    if (!cookies.sessionid) {
-      return NextResponse.redirect(new URL('/login.html', request.url));
-    }
-    
-    // Try to parse the JSON to make sure it's valid
+    // Preferred API to read cookies in Next middleware
+    const cookie = request.cookies.get('sessionid')?.value;
+
+    // If cookie missing -> redirect
+    if (!cookie) return NextResponse.redirect(new URL('/login.html', request.url));
+
+    // If cookie is a JSON string you control, parse it safely.
+    // If it's a token/JWT, do not JSON.parse. Do a simple sanity check.
     try {
-      const sessionData = JSON.parse(cookies.sessionid);
-      if (!sessionData.accessToken) {
-        return NextResponse.redirect(new URL('/login.html', request.url));
+      // Example: if you expect JSON, validate; otherwise skip parse.
+      if (cookie.startsWith('{') || cookie.startsWith('[')) {
+        const sessionData = JSON.parse(cookie);
+        if (!sessionData?.accessToken) {
+          return NextResponse.redirect(new URL('/login.html', request.url));
+        }
+      } else {
+        // token format sanity check: not empty and not too short
+        if (typeof cookie !== 'string' || cookie.length < 10) {
+          return NextResponse.redirect(new URL('/login.html', request.url));
+        }
       }
-    } catch (error) {
-      console.error('Cookie parsing error:', error);
+    } catch (err) {
+      // parsing failed -> treat as invalid
       return NextResponse.redirect(new URL('/login.html', request.url));
     }
   }
-  
+
   return NextResponse.next();
 }
 
