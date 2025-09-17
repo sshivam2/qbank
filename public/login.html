@@ -81,26 +81,25 @@
       const password = document.getElementById('password').value
       out('Signing in...')
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-	  if (error) { out('Error: ' + error.message); return }
-	  const access_token = data?.session?.access_token
-	  if (!access_token) { out('No token returned'); return }
+      if (error) { out('Error: ' + error.message); return }
+      const access_token = data?.session?.access_token
+      if (!access_token) { out('No token returned'); return }
 
-	  // NEW: call Vercel API instead of Netlify
-	  const r = await fetch('/api/set-session', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ access_token })
-		})
+      // Call Vercel API to set HttpOnly cookie
+      const r = await fetch('/api/set-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token })
+      })
 
-	  if (!r.ok) {
-		const t = await r.text()
-		out('Server cookie set failed: ' + t)
-		return
-	  }
+      if (!r.ok) {
+        const t = await r.text()
+        out('Server cookie set failed: ' + t)
+        return
+      }
 
-	  out('Logged in. Redirecting...')
-	  location.href = '/index.html'   // redirect after successful login
-
+      out('Logged in. Redirecting...')
+      location.href = '/index.html'   // ✅ redirect directly to protected page
     }
   </script>
 </body>
