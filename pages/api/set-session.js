@@ -1,5 +1,5 @@
-// set-session.js  
-// Functions related to session management for login
+// set-session.js
+// Functions related to session management for login (Server-side only)
 
 import { serialize, parse } from 'cookie';
 
@@ -15,7 +15,7 @@ export async function setSession(res, sessionData) {
       maxAge: 60 * 60 * 24 * 7, // 7 days
     });
 
-    // Handle different response object types (Node.js vs Web API)
+    // Handle different response object types
     if (res.setHeader) {
       // Node.js/Express style response
       res.setHeader('Set-Cookie', cookie);
@@ -58,7 +58,7 @@ export async function getSession(req) {
 
     if (!cookieHeader) return null;
 
-    // Parse cookies manually
+    // Parse cookies using cookie library
     const cookies = parse(cookieHeader);
     const sessionString = cookies[sessionCookieName];
     
