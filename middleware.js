@@ -1,44 +1,28 @@
 // middleware.js
 import { NextResponse } from 'next/server';
+import { jwtVerify } from 'jose';
 
 function safeJsonParse(s) {
   try { return JSON.parse(s); } catch { return null; }
 }
 
-function base64UrlDecode(input) {
-  if (!input || typeof input !== 'string') return null;
-  input = input.replace(/-/g, '+').replace(/_/g, '/');
-  const pad = input.length % 4;
-  if (pad) input += '='.repeat(4 - pad);
+async function verifyJWT(token) {
   try {
-    if (typeof globalThis.atob === 'function') return globalThis.atob(input);
-    return Buffer.from(input, 'base64').toString('utf8');
-  } catch { return null; }
-}
-
-function jwtIsExpired(token) {
-  if (!token || typeof token !== 'string') return false;
-  const parts = token.split('.');
-  if (parts.length !== 3) return false;
-  const payload = base64UrlDecode(parts[1]);
-  if (!payload) return false;
-  try {
-    const obj = JSON.parse(payload);
-    if (!obj.exp) return false;
-    return Math.floor(Date.now() / 1000) >= obj.exp;
-  } catch { return false; }
+    // load secret key from env (must be the same you use to sign JWTs)
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    const { payload } = await jwtVerify(token, secret, {
+      issuer: process.env.JWT_ISSUER,   // optional
+      audience: process.env.JWT_AUDIENCE // optional
+    });
+    return payload;
+  } catch (err) {
+    console.error('JWT verify failed:', err.message);
+    return null;
+  }
 }
 
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
-
-  // safe debug logging (remove in production)
-  try {
-    console.log('cookies object:', Object.fromEntries(request.cookies));
-    console.log('sessionid raw:', request.cookies.get('sessionid')?.value);
-  } catch (e) {
-    console.log('cookie logging failed', e);
-  }
 
   if (pathname === '/' || pathname === '/index.html') {
     const raw = request.cookies.get('sessionid')?.value;
@@ -46,26 +30,22 @@ export async function middleware(request) {
 
     let cookieValue = raw;
     try { cookieValue = decodeURIComponent(raw); } catch {}
+    if (cookieValue.startsWith('"') && cookieValue.endsWith('"')) cookieValue = cookieValue.slice(1,-1);
 
-    if (cookieValue.startsWith('"') && cookieValue.endsWith('"')) {
-      cookieValue = cookieValue.slice(1, -1);
-    }
-
+    // If cookie is JSON { accessToken }
     const parsed = safeJsonParse(cookieValue);
-    if (parsed) {
-      if (!parsed.accessToken) return NextResponse.redirect(new URL('/login.html', request.url));
-      if (typeof parsed.accessToken === 'string' && jwtIsExpired(parsed.accessToken)) {
-        return NextResponse.redirect(new URL('/login.html', request.url));
-      }
+    if (parsed?.accessToken) {
+      const verified = await verifyJWT(parsed.accessToken);
+      if (!verified) return NextResponse.redirect(new URL('/login.html', request.url));
       return NextResponse.next();
     }
 
+    // If cookie is a JWT string itself
     if (typeof cookieValue === 'string' && cookieValue.split('.').length === 3) {
-      if (jwtIsExpired(cookieValue)) return NextResponse.redirect(new URL('/login.html', request.url));
+      const verified = await verifyJWT(cookieValue);
+      if (!verified) return NextResponse.redirect(new URL('/login.html', request.url));
       return NextResponse.next();
     }
-
-    if (typeof cookieValue === 'string' && cookieValue.length >= 10) return NextResponse.next();
 
     return NextResponse.redirect(new URL('/login.html', request.url));
   }
