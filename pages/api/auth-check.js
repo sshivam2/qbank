@@ -1,36 +1,41 @@
-// auth-check.js
-// Server-side authentication check (not for middleware)
+// pages/api/auth-check.js
+import { getSession } from './set-session.js'
+import { createClient } from '@supabase/supabase-js'
 
-import { getSession } from './set-session.js';
+const supabaseUrl = 'https://mxymburfwdjqrbhsqzod.supabase.co'
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im14eW1idXJmd2RqcXJiaHNxem9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgwMzc0NDYsImV4cCI6MjA3MzYxMzQ0Nn0.9xRwH5la1vqpDsGKGif5zM8wnaVWJbDbA6ARrZfg5pU'
 
 export async function authCheck(req) {
   try {
-    const session = await getSession(req);
-    if (!session) {
-      return { authenticated: false, message: 'User not authenticated' };
+    const session = await getSession(req)
+    if (!session || !session.accessToken) {
+      return { authenticated: false, message: 'User not authenticated' }
     }
 
-    // Check session expiry
-    const sessionAge = Date.now() - session.loginTime;
-    const maxAge = 60 * 60 * 24 * 7 * 1000; // 7 days
+    // Verify the session with Supabase
+    const supabase = createClient(supabaseUrl, supabaseAnonKey)
+    const { data: { user }, error } = await supabase.auth.getUser(session.accessToken)
     
-    if (sessionAge > maxAge) {
-      return { authenticated: false, message: 'Session expired' };
+    if (error || !user) {
+      return { authenticated: false, message: 'Invalid session' }
     }
 
-    return { authenticated: true, session };
+    return { 
+      authenticated: true, 
+      session: { ...session, user } 
+    }
   } catch (error) {
-    console.error('Auth check error:', error);
-    return { authenticated: false, message: error.message };
+    console.error('Auth check error:', error)
+    return { authenticated: false, message: error.message }
   }
 }
 
 // Helper function to get user info from middleware headers
 export function getUserFromHeaders(request) {
-  const userId = request.headers.get('x-user-id');
-  const username = request.headers.get('x-username');
+  const userId = request.headers.get('x-user-id')
+  const email = request.headers.get('x-user-email')
   
-  if (!userId) return null;
+  if (!userId) return null
   
-  return { userId, username };
+  return { userId, email }
 }
