@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>13_Alcohol-Related Disorders - Marrow Psychiatry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">13_Alcohol-Related Disorders</h1>
+                <p class="text-gray-600 mt-2">Marrow • Psychiatry • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/14</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 14</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 199,
+    "text": "Q1. Which of the following is the most common substance abused in India?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Alcohol",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Cannabis",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Inhalants",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Caffeine",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Among the given options, alcohol is the most commonly abused substance. Note: Cannabis is the most commonly used illegal drug in the world.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "13_Alcohol-Related Disorders",
+    "deck_id": 1755954606942,
+    "correctAnswer": "A. Alcohol"
+  },
+  {
+    "id": 200,
+    "text": "Q2. Which of the following is not a criterion for substance use disorder under DSM-5?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Substance is taken in larger amounts or for longer than intended",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Use despite substance-related legal problems",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Prior unsuccessful efforts to control substance use",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Use causes arguments with spouse and domestic abuse",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">175 The use of illegal drugs or drug-related legal problems is not an exclusive criterion to diagnose substance use disorder under DSM-5. Substance use disorder can occur with legally available substances like alcohol, tobacco and some prescription drugs. Substance use disorder is defined as a maladaptive pattern of substance use leading to clinically significant impairment. It is manifested by 2 or more out of 11 criteria occurring within a 12-month period. DSM-5 criteria for diagnosing substance use disorder: * Recurrent substance use resulting in failure to fulfill obligations at work, school, or home. e. g. , substance-related absences or expulsions from school. * Recurrent substance use even in physically hazardous situations e. g. , driving an automobile when impaired by substance use. * Continued substance use despite having persistent social problems caused by the effects of the substance e. g. , arguments with the spouse. * Continued substance use despite having a physical or psychological problem that is likely to have been caused by the substance. * The substance is often taken in larger amounts or over a longer period than was intended. ¢ Efforts are made to cut down or control substance use but are unsuccessful. * Tolerance - there is markedly diminished desired effect with continued use of the same amount of the substance, hence there is a need for increased amounts of the substance to achieve intoxication. ¢ Withdrawal - developing characteristic withdrawal symptoms for the substance, which can be relieved by taking the same or closely related substance. * Craving or a strong desire or urge to use a specific substance. - A great deal of time is spent to obtain the substance, use the substance, or recover from its effects. * Important activities are given up or reduced because of substance use.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "13_Alcohol-Related Disorders",
+    "deck_id": 1755954606942,
+    "correctAnswer": "B. Use despite substance-related legal problems"
+  },
+  {
+    "id": 201,
+    "text": "Q3. 49-year-old man was brought to the casualty by the local police after they found him lying in a roadside drain. On examination, his speech was slurred and he was unable to recall any of the events that happened in the past 2 hours. His serum alcohol level was 260 mg/dl. His cognitive deficits can be attributed to the action of alcohol on which of the following receptors?",
+    "options": [
+      {
+        "label": "A",
+        "text": "GABA-A receptor",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "GABA-B receptor",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "NMDA receptor",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Glycine receptor",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given scenario describes a case of an alcoholic blackout. NMDA receptor is implicated in many aspects of cognitive function including learning and memory. \"Blackouts\" are periods of anterograde memory loss that occur due to alcohol intoxication when the blood level of alcohol is between 200-300 mg/dl. It is due to the inhibition of the action of glutamate on NMDA receptors. Impairment likely to be seen at various blood alcohol levels is shown below: 176 20-30 Slowed motor performance a nd decreased thinking ability 30-80 Increase in motor and cogniti ve problems 80-200 Increase in incoordination an d judgment errorsMood labili tyDeterioration in cognition 200-300 NystagmusMarked slurring o f speechAlcoholicblackouts &gt;300 Impaired vital signs and poss ible death</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "13_Alcohol-Related Disorders",
+    "deck_id": 1755954606942,
+    "correctAnswer": "C. NMDA receptor"
+  },
+  {
+    "id": 202,
+    "text": "Q4. 171 In the clinical assessment of patients with alcohol use disorder, which of the following is not used?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Fagerstrom tolerance questionaire",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "SADQ questionaire",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "CAGE questionaire",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "AUDIT test",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Fagerstrém tolerance questionnaire and its revision, Fagerstr6m Test for Nicotine Dependence (FTND) are used in the assessment of nicotine addiction related to cigarette smoking. It contains six items that evaluate the quantity of cigarette consumption, the compulsion to use, and dependence. Option B: Severity of Alcohol Dependence Questionnaire (SADQ-Q) was developed to assess the severity of alcohol dependence. Option C: The CAGE questionnaire is used to assess whether or not there is a problem with dependence. * C - Have you ever felt you ought to cut down on your drinking? * A - Have people annoyed you by criticizing your drinking? * G - Have you ever felt guilty or bad about your drinking? * E - Have you ever had a drink first thing in the morning to steady your nerves or get rid of a hangover (eye-opener)? One 'yes' response raises a suspicion of an alcohol use problem and more than one is a strong indication of abuse or dependence. Option D: The Alcohol Use Disorders Identification Test (AUDIT) is a 10-item screening tool developed by the World Health Organization (WHO) to assess alcohol consumption, drinking behaviors, and alcohol-related problems. The AUDIT also helps to identify alcohol dependence and some specific consequences of harmful drinking.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "13_Alcohol-Related Disorders",
+    "deck_id": 1755954606942,
+    "correctAnswer": "A. Fagerstrom tolerance questionaire"
+  },
+  {
+    "id": 203,
+    "text": "Q5. The police charged two college students with drunken driving and brought them to the hospital for confirmation of their alcohol levels. On examination, the driver did not appear drunk and denied the charges, while the other student was clearly drunk and was barely conscious. However, the blood reports came back suggesting both of them having similarly elevated levels of alcohol. Which of the following is a possible explanation for this observation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Mellanby effect",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Intermediate syndrome",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Reverse tolerance",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Grand Rapids effect",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given situation can be best explained by the Mellanby effect. 177 The Mellanby effect is the phenomenon where an individual’s perceived level of impairment at identical blood alcohol concentration (BAC) levels is greater when the BAC is rising (while drinking) than when it is falling (after drinking). The clip below describes the Mellanby effect seen originally in a dog experiment. Ps Time Option B: Intermediate syndrome is a delayed-onset of muscular weakness and paralysis following an episode of organophosphate (acute cholinesterase inhibitor) poisoning. Option C: Reverse tolerance refers to the phenomenon when an individual requires a lesser dose of alcohol (drug) to obtain the same effect as before. Option D: Grand Rapids effect or dip is a controversial effect noted in certain studies where a BAC of 0. 01—0. 04% slightly lowered the risk of being in a vehicle accident when compared to a BAC of 0. 00%</div><br/><img alt=\"Image\" src=\"data:image/webp;base64,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\" style=\"max-width: 100%; height: auto; margin: 10px auto; display: block; border-radius: 8px;\"/><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "13_Alcohol-Related Disorders",
+    "deck_id": 1755954606942,
+    "correctAnswer": "A. Mellanby effect"
+  },
+  {
+    "id": 204,
+    "text": "Q6. middle-aged man has been regularly consuming around 750 mL of alcohol for the past 20 years. Of late, he has noticed that he is able to obtain the same effect with just a quarter bottle. What is this phenomenon called?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Tachyphylaxis",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Desensitization",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Reverse tolerance",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Cross tolerance",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">When an individual requires a lesser dose of alcohol (drug) to obtain the same effect as before, this phenomenon is known as reverse tolerance. In alcoholics, it is a sign of late-stage alcoholism, where the patient has developed cirrhosis. The liver doesn’t produce enough enzymes like before to metabolize alcohol leading to increased blood alcohol levels. Option A: Tachyphylaxis is the rapid development of tolerance when a drug is repeatedly used in quick succession, resulting in a marked reduction in response. Option B: Desensitization may be equivalent to drug tolerance and refers to a diminished response/effect with continued use of the same dose of the substance. Option D: Cross-tolerance is a phenomenon that occurs when tolerance to the effects of one drug produces tolerance to another drug. It often happens between two drugs with similar pharmacological actions. eg. alcohol and benzodiazepines (both are depressants). 178 Note: A quarter bottle is approximately 180 ml.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "13_Alcohol-Related Disorders",
+    "deck_id": 1755954606942,
+    "correctAnswer": "C. Reverse tolerance"
+  },
+  {
+    "id": 205,
+    "text": "Q7. Which among the following is not an anti-craving drug?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Acamprosate",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Naltrexone 172",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Disulfiram",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "SSRI",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Disulfiram is a deterrent agent, not an anti-craving drug. It is an irreversible aldehyde dehydrogenase inhibitor. Acetaldehyde is the first breakdown product of alcohol, which is further metabolized by aldehyde dehydrogenase. If a patient who is on disulfiram consumes alcohol, it results in toxic levels of acetaldehyde. This causes symptoms such as flushing, pulsating headache, nausea, vomiting, respiratory difficulties, chest pain, and autonomic manifestations, collectively termed as disulfiram ethanol reaction (DER). Other deterrent agents include citrated calcium carbamide and metronidazole. Anti-craving drugs used in alcohol deaddiction include: * Baclofen ¢ Acamprosate * Naltrexone * Newer drugs are topiramate, SSRI and ondansetron Alcohol deaddiction treatment involves the following phases: 1. Intervention - aimed at maximizing the motivation for treatment and continued abstinence. 2. Detoxification - involves minimizing withdrawal symptoms. 3. Rehabilitation and maintenance - includes three major components: * Continued efforts to increase and maintain high levels of motivation for abstinence * Work to help the patient readjust to a lifestyle free of alcohol * Relapse prevention</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "13_Alcohol-Related Disorders",
+    "deck_id": 1755954606942,
+    "correctAnswer": "C. Disulfiram"
+  },
+  {
+    "id": 206,
+    "text": "Q8. patient has been admitted to the psychiatry wards for alcohol deaddiction. Which of the following medications will not be used in the maintenance phase?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Chlordiazepoxide",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Naltrexone",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Acamprosate",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Disulfiram",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Chlordiazepoxide is a benzodiazepine drug used in alcohol withdrawal and the detoxification phase of management. All the other given drugs are approved for maintenance therapy and to prevent relapse: * Naltrexone - It is an orally active opioid antagonist. « Acamprosate - An NMDA receptor antagonist with modest GABA A receptor agonistic activity. * Disulfiram - A deterrent drug that works by inhibiting the aldehyde dehydrogenase enzyme. 179</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "13_Alcohol-Related Disorders",
+    "deck_id": 1755954606942,
+    "correctAnswer": "A. Chlordiazepoxide"
+  },
+  {
+    "id": 207,
+    "text": "Q9. In a patient experiencing alcohol withdrawal, which of the following is the first symptom that becomes clinically noticeable?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Delirium",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Seizure",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Nausea and vomiting",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Tremulousness",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Tremulousness is the first withdrawal symptom of alcohol abuse. It is commonly called shakes or jitters and develops 6 to 8 hours after the cessation of drinking. It is the classical sign of alcohol withdrawal.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "13_Alcohol-Related Disorders",
+    "deck_id": 1755954606942,
+    "correctAnswer": "D. Tremulousness"
+  },
+  {
+    "id": 208,
+    "text": "Q10. 40-year-old man was admitted to the COVID ICU. On the third day, he developed diffuse tremors and breathing difficulty, and was noted to be restless. Suddenly he started scratching and tearing at his skin, screaming of insects crawling all over his body. He then had one episode of seizures which was controlled with lorazepam. On probing further, it was found out that he is a chronic alcoholic. What is the likely diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "ICU psychosis",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Alcohol intoxication",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Wernicke-Korsakoff Psychosis",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Delirium tremens",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario of a chronic alcoholic patient who has not consumed alcohol in the last few days (due to ICU admission) with tremors, hallucinations, and seizures, is suggestive of delirium tremens. Delirium tremens is a medical emergency that occurs during alcohol withdrawal. It is an acute condition with symptoms of both delirium and alcohol withdrawal. It develops within 48-72 hours after the last drink. Clinical features include: * Clouding of consciousness with disorientation * Perceptual distortions, most frequently visual or tactile hallucinations ¢ Autonomic hyperactivity with tachycardia, fever, anxiety, insomnia, hypertension, sweating * Fluctuating levels of psychomotor activity, ranging from agitation to lethargy * Altered sleep-wake cycle Note: Alcoholic hallucinosis occurs during alcohol intoxication as well as withdrawal.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "13_Alcohol-Related Disorders",
+    "deck_id": 1755954606942,
+    "correctAnswer": "D. Delirium tremens"
+  },
+  {
+    "id": 209,
+    "text": "Q11. 173 Which of the following is not a treatment option in alcohol withdrawal delirium?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Lorazepam",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Antipsychotics",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Chlordiazepoxide",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "High calorie diet with multivitamins",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Antipsychotics are not the treatment option of alcohol withdrawal delirium. Antipsychotic medications may reduce the seizure threshold in these patients and should be avoided. The best treatment for delirium tremens is prevention. Patients withdrawing from alcohol who exhibit withdrawal phenomena should receive benzodiazepines, such as 25 to 50 mg of chlordiazepoxide every 2 to 4 hours until they seem to be out of danger. Once the delirium appears, 50 to 100 mg of chlordiazepoxide should be given every 4 hours orally, or lorazepam should be given intravenously (IV) if oral medication is not possible. A high-calorie, high-carbohydrate diet supplemented by multivitamins is also important. Carbohydrates increase the serotonin levels similar to alcohol, lowering the rates of withdrawal seizures.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "13_Alcohol-Related Disorders",
+    "deck_id": 1755954606942,
+    "correctAnswer": "B. Antipsychotics"
+  },
+  {
+    "id": 210,
+    "text": "Q12. 52-year-old man, with a history of alcohol use presented after a fall. He appeared malnourished, confused, and had grossly impaired memory. On neurological examination, he had reduced coordination, an ataxic gait, dysarthria, and tremors. Despite initiating treatment for alcohol withdrawal and detoxification, his symptoms persisted. An MRI of his brain revealed symmetrical demyelination of the corpus callosum. Which of the following statements is true regarding the given condition?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Patients usually have ophthalmoplegia.",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Medial thalamic nuclei and mammillary bodies are involved.",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "MRI shows &apos;sandwich&apos; sign.",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "It is a complication of acute alcohol intoxication.",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">180 The given clinical scenario is suggestive of Marchiafava Bignami disease (MBD). It is characteristically associated with a 'sandwich' sign on MRI. MBD is a rare, idiopathic CNS disorder seen as a complication of chronic alcoholism. Early symptoms may include depression, paranoia, psychosis, or dementia. Seizures, hemiparesis, aphasia, and abnormal movements, and ataxia are also seen. If not promptly identified and treated may progress to coma and death. It is associated with central degeneration of corpus callosum, sparing the dorsal and ventral parts. This characteristic pattern of degeneration presents as the 'sandwich' sign, best visualized on sagittal MRI of the brain. Clinically, conditions such as Wernicke’s encephalopathy, delirium tremens, or pontine demyelination may have similar presentations and their features may overlap. Hence neuroimaging plays a significant role in the accurate diagnosis of MB disease. Ophthalmoplegia and involvement of mamillary bodies and medial thalamic nuclei are associated with Wernicke-Korsakoff syndrome, not MBD. The sagittal MRI image given below shows the characteristic 'sandwich' sign in Marchiafava Bignami disease. AL. = a = , - ary ee Sta r i ag a - ¢ * 7 ? P 7 a — . a : a&gt; “ Be = « -</div><br/><img alt=\"Image\" src=\"data:image/webp;base64,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\" style=\"max-width: 100%; height: auto; margin: 10px auto; display: block; border-radius: 8px;\"/><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "13_Alcohol-Related Disorders",
+    "deck_id": 1755954606942,
+    "correctAnswer": "C. MRI shows &apos;sandwich&apos; sign."
+  },
+  {
+    "id": 211,
+    "text": "Q13. 64-year-old man was brought to the casualty with confusion and gait instability. Medical history is significant for alcohol use disorder, requiring multiple hospitalizations in the past. On examination, he appears inattentive, has bilateral horizontal nystagmus, and his gait is slow and wide-based. What is the next step in management?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Administer IV dextrose",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Give haloperidol injection",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Give thiamine injection",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Correct electrolytes",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario is suggestive of Wernicke's encephalopathy, which is a medical emergency. Thiamine administration (100 mg IV or IM for 3 days followed by two to three times a day orally for 1 to 2 weeks) may reduce the risk of it progressing to chronic Korsakoff psychosis which is irreversible. Wernicke-Korsakoff syndrome is seen due to the deficiency of thiamine (vitamin B1). Thiamine is a cofactor (TPP) in glucose metabolism. Thus, starting dextrose infusions before thiamine administration will exacerbate the existing thiamine deficiency, precipitating Wernicke’s disease. Thiamine is also involved in the conduction of the axon potential and synaptic transmission. 181 Alcohol abuse leads to thiamine deficiency by the following mechanisms: * Poor nutritional habits * Folate deficiency - reduces thiamine absorption from the gastrointestinal tract * Direct damage of the intestinal mucosa Wernicke's encephalopathy/alcoholic encephalopathy is an acute neurological disorder characterized by the clinical triad (GOA): * Global Confusion * Ophthalmoplegia ( first symptom to improve with thiamine +dextrose infusion) * Ataxia</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "13_Alcohol-Related Disorders",
+    "deck_id": 1755954606942,
+    "correctAnswer": "C. Give thiamine injection"
+  },
+  {
+    "id": 212,
+    "text": "Q14. psychiatry resident is evaluating a chronic alcoholic patient admitted to the ward. When asked about his day, he correctly remembered that he was wheeled out of the ward, but then went on to tell a story of a trip he made to the nearby park, which did not occur. He also 174 made up random names as he went on talking about his children. What is the most likely diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Alcohol withdrawal ee ee ee ee ee | ec Detailed Explanations Solution to Question 1: Among the given options, alcohol is the most commonly abused substance. Note: Cannabis is the most commonly used illegal drug in the world. Solution to Question 2: 175",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Acute alcohol intoxication",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Wernicke’s encephalopathy",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Korsakoff&apos;s psychosis a ee ee ee",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario is suggestive of confabulation. It is one of the features of Korsafkoffs psychosis. Confabulation is filling up gaps in memory with false stories. Korsakoffs psychosis is a chronic amnestic syndrome that can follow Wernicke's encephalopathy due to thiamine deficiency (secondary to alcoholism). The cardinal features are impaired mental syndrome and anterograde amnesia. Only 20% of patients recover with treatment (whereas in Wernicke's encephalopathy there is complete reversal with treatment). Clinical features: ¢ Impaired mental syndrome - especially recent memory ¢ Striking inability to form new memories - severe anterograde amnesia * Retrograde amnesia is less severe. * Present with confabulation as an attempt to cover the memory deficit * There is a lack of insight and no intellectual functional loss. * Overall intact intelligence * Implicit learning (e. g. , learning procedures) is preserved. * Long-term and immediate memory is normal. Treatment: Thiamine is given 100mg orally two to three times daily for 3 to 12 months. 182</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "13_Alcohol-Related Disorders",
+    "deck_id": 1755954606942,
+    "correctAnswer": "D. Korsakoff&apos;s psychosis a ee ee ee"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>

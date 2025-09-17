@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18_Obesity - Marrow Medicine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">18_Obesity</h1>
+                <p class="text-gray-600 mt-2">Marrow • Medicine • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/13</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 13</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 367,
+    "text": "Q1. The hormone leptin is derived from which of the following?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Arcuate nucleus",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Adipocytes Cc) Chief cells",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Paneth cells",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Leptin is an adipocyte-derived hormone. It acts through brain circuits (predominantly in the hypothalamus) to influence appetite, energy expenditure, and neuroendocrine function. High leptin levels reduce appetite and increase energy expenditure. The arcuate nucleus in the hypothalamus plays an important role in the regulation of appetite.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Obesity",
+    "deck_id": 1755954606765,
+    "correctAnswer": "B. Adipocytes Cc) Chief cells"
+  },
+  {
+    "id": 368,
+    "text": "Q2. 25-year-old woman has been fasting all day as part of a new diet. Which of the following is gut peptide that will be increased in this woman?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Peptide YY",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Ghrelin",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Cholecystokinin",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Orexin",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">In the fasting state, high levels of ghrelin are seen. It is a gut-peptide produced in the stomach and stimulates hunger and appetite.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Obesity",
+    "deck_id": 1755954606765,
+    "correctAnswer": "B. Ghrelin"
+  },
+  {
+    "id": 369,
+    "text": "Q3. 16-year-old boy ate two pieces of cake, a sandwich, and two scoops of ice cream at his friend&apos;s birthday party an hour ago. Levels of which of the following are likely to be high in this boy?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Neuropeptide Y(NPY)",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Melanin-concentrating hormone(MCH)",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "oMelanocyte-stimulating hormone(a-MSH)",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Agouti-related peptide (AgRP)",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">This boy is likely to have high levels of a-Melanocyte-stimulating hormone (a-MSH). It is a hypothalamic peptide that decreases appetite and hence would be increased in the fed state.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Obesity",
+    "deck_id": 1755954606765,
+    "correctAnswer": "C. oMelanocyte-stimulating hormone(a-MSH)"
+  },
+  {
+    "id": 370,
+    "text": "Q4. Which of the following is a key transcription factor involved in the differentiation of mesenchymal preadipocytes to adipose cells? 238",
+    "options": [
+      {
+        "label": "A",
+        "text": "RARy",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Rev-erbAB",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "RXRo",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "PPARy",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">One of the key transcription factors involved in the differentiation of mesenchymal preadipocytes to adipose cells is the peroxisome proliferator-activated receptor y (PPARY). It is a nuclear receptor that also binds the thiazolidinedione class of insulin-sensitizing drugs used in the treatment of type 2 diabetes mellitus. Note: Saroglitazar has a dual action on PPARa and PPARM receptors. It reduces blood sugar and lipid levels in diabetic patients.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Obesity",
+    "deck_id": 1755954606765,
+    "correctAnswer": "D. PPARy"
+  },
+  {
+    "id": 371,
+    "text": "Q5. Which of the following statements is incorrect regarding adiponectin?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Its levels are increased in obesity",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "It increases insulin sensitivity",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Promotes lipid oxidation",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Has vascular protective effects",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Adiponectin levels are reduced in obesity. It is an abundant adipose-derived protein with the following characteristics: * Its levels are reduced in obesity * It enhances insulin sensitivity and lipid oxidation 242 * Has vascular-protective effects On the other hand, resistin and RBP4 levels, which are also secreted by adipocytes, may induce insulin resistance.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Obesity",
+    "deck_id": 1755954606765,
+    "correctAnswer": "A. Its levels are increased in obesity"
+  },
+  {
+    "id": 372,
+    "text": "Q6. 2-year-old girl is referred to an endocrinologist with severe obesity and insatiable hunger despite adequate nutrition. Due to the early-onset severe obesity, genetic testing was done and revealed inactivating mutations in the leptin gene. Which of the following neuroendocrine abnormalities is this child most likely to develop?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Central hypothyroidism",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Growth retardation",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Hypogonadotropic hypogonadism",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Diabetes mellitus",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The most prominent neuroendocrine abnormality seen in obese individuals with inactivating mutations in the leptin (ob gene) or leptin receptor (db gene) is hypogonadotropic hypogonadism. Leptin mutations are responsible for a rare form of obesity that runs in families. These mutations prevent leptin from delivering satiety signals. Hence, the brain perceives starvation despite adequate nutrition. It results in morbid, early-onset obesity. Mutations in the following genes can cause obesity in humans: * Lep (ob) * LepR (db) * POMC ° PC-1 *MC4R</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Obesity",
+    "deck_id": 1755954606765,
+    "correctAnswer": "C. Hypogonadotropic hypogonadism"
+  },
+  {
+    "id": 373,
+    "text": "Q7. Genetic mutations causing pro-opiomelanocortin (POMC) deficiency presents with all of the following except:",
+    "options": [
+      {
+        "label": "A",
+        "text": "o-MSH deficiency",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Cachexia",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Red hair pigmentation",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Adrenal insufficiency",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Cachexia is not a feature of mutations of the pro-opiomelanocortin (POMC) gene. It is associated with the following characteristics: * Absence of a-MSH * Severe obesity - a-MSH inhibits appetite in the hypothalamus * Pale skin and red hair * Absence of ACTH * Secondary adrenal insufficiency</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Obesity",
+    "deck_id": 1755954606765,
+    "correctAnswer": "B. Cachexia"
+  },
+  {
+    "id": 374,
+    "text": "Q8. 239 The production of which of the following hormones is increased in obesity?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Insulin",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Thyroxine",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Growth hormone",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Adiponectin",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Insulin levels are increased in obesity. It stimulates the synthesis of fatty acids and TAG and decreases the rate of lipolysis. Thyroxine, growth hormone, and adiponectin have lipolytic effects, hence their levels are reduced in obesity. Hyperinsulinemia and insulin resistance are consistent features of obesity. Insulin resistance is more strongly linked to intra-abdominal fat than to fat in other areas. 243 Adiponectin (Option D) is an anti-inflammatory cytokine that is produced by adipocytes. It performs vital functions that are reduced in obesity - like, increasing insulin sensitivity and the inhibition of gluconeogenic enzymes. It also enhances fatty acid oxidation. Insulin resistance in obesity occurs as a result of the following: * Insulin receptor downregulation * Increased FFA (free fatty acids) and capable of impairing insulin action * Intracellular lipid accumulation * Circulating peptides produced by adipocytes such as TNF-a, IL-6, RBP4, and resistin modify insulin action.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Obesity",
+    "deck_id": 1755954606765,
+    "correctAnswer": "A. Insulin"
+  },
+  {
+    "id": 375,
+    "text": "Q9. In a child with obesity, hypogonadism, and mental retardation, which of the following would you not suspect ?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Prader-Willi syndrome",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Laurence-Moon-Bardet-Biedl syndrome",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Carpenter syndrome",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Angelman syndrome",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Children with Angelman syndrome present with mental retardation but do not have obesity and hypogonadism. It occurs due to the deletion of band qi2 of the maternal chromosome 15. The following syndromes present with obesity, hypogonadism, and mental retardation * Prader-Willi syndrome - deletion of band qi2 of the paternal chromosome 15. ¢ Laurence-Moon-Bardet-Biedl syndrome * Carpenter syndrome * Cohen syndrome The following image shows a child with Prader-Willi syndrome. i —a pods : — Je a —_——— 7 I = a</div><br/><img alt=\"Image\" src=\"data:image/webp;base64,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\" style=\"max-width: 100%; height: auto; margin: 10px auto; display: block; border-radius: 8px;\"/><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Obesity",
+    "deck_id": 1755954606765,
+    "correctAnswer": "D. Angelman syndrome"
+  },
+  {
+    "id": 376,
+    "text": "Q10. Obesity is not seen in patients with which of the following conditions?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Craniopharyngioma",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Pickwickian syndrome",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Prader-Willi syndrome",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Sipple syndrome",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Sipple syndrome is characterized by pheochromocytoma which is associated with weight loss. 244 Obesity is seen in the following syndromes: * Cushing's syndrome * Prader-Willi syndrome * Pickwickian syndrome * Hypothyroidism * Insulinoma * Craniopharyngioma and other hypothalamic disorders ¢ Laurence-Moon-Bardet-Biedl syndrome * Carpenter syndrome * Cohen syndrome</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Obesity",
+    "deck_id": 1755954606765,
+    "correctAnswer": "D. Sipple syndrome"
+  },
+  {
+    "id": 377,
+    "text": "Q11. 40-year-old woman is being evaluated for high blood glucose levels. On examination, acanthosis nigricans is noted, and her BMI is 34 kg/m? . How would you classify her weight?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Overweight",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Class I obesity Cc) Class II obesity",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Class III obesity",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">According to the WHO classification, a BMI of 34 kg/m? would be classified as class I obesity. The revised BMI classification for Asians/Indians is as follows: * Underweight - BMI &amp;lt; 18. 5 kg/m2 * Normal or lean - BMI 18. 5—22. 9 kg/m2 * Overweight - BMI 23. 0 —24. 9 kg/m2 * Obese BMI 225 kg/m2 Note: As the question does not specify Asian/Indian, the answer is given according to WHO classification. a ee 9 gh</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Obesity",
+    "deck_id": 1755954606765,
+    "correctAnswer": "B. Class I obesity Cc) Class II obesity"
+  },
+  {
+    "id": 378,
+    "text": "Q12. 240",
+    "options": [
+      {
+        "label": "A",
+        "text": "known patient of type 2 diabetes mellitus on oral medication presents to your OPD for review. His blood pressure is 150/90 mm Hg and his BMI is 28.4 kg/m2. His fasting glucose is 118 mg/dl and postprandial glucose is 154 mg/dl. He consumes a low-calorie diet and exercises regularly. How will you manage his obesity? Start him on a more intense diet and exercise regimen",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Anti-obesity drugs in combination with proper diet and exercise",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Refer for bariatric surgery",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Anti-obesity drugs alone as lifestyle changes have not been effective",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">245 This obese man with a BMI of 28. 4 kg/m? along with comorbidities must be managed with anti-obesity drugs as an adjunct to comprehensive lifestyle modifications. The recommendations for management of obesity are as follows: * Diet, exercise, behavioral therapy: ¢ BMI - 25-29. 9 with comorbidities - BMI &gt; 30 « Adjunctive pharmacotherapy: ¢ BMI - 27-29. 9 with comorbidities - BMI &gt; 30 ¢ Bariatric surgery: ¢ BMI - 35-39. 9 with comorbidities - BMI &gt; 40</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Obesity",
+    "deck_id": 1755954606765,
+    "correctAnswer": "B. Anti-obesity drugs in combination with proper diet and exercise"
+  },
+  {
+    "id": 379,
+    "text": "Q13. Which of the following anti-obesity drugs is a selective 5-HT2C receptor agonist?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Orlistat ee ee rr ee ee ee ee ee ee ee ee ee rr er ee ee a ee 241",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Phentermine",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Lorcaserin",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Topiramate",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Lorcaserin is a selective 5-HT2C receptor agonist with a functional selectivity ~15 times that of 5-HT2A receptors and 100 times that of 5-HT2B receptors. 246</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Obesity",
+    "deck_id": 1755954606765,
+    "correctAnswer": "C. Lorcaserin"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>

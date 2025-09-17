@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>31_Neurodevelopmental Motor Disorders - Marrow Psychiatry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">31_Neurodevelopmental Motor Disorders</h1>
+                <p class="text-gray-600 mt-2">Marrow • Psychiatry • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/8</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 8</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 401,
+    "text": "Q1. worried mother brought her son to the OPD due to poor performance in sports as he struggles to perform activities such as jumping, running, or catching a ball. He also exhibits difficulty in assembling jigsaw pieces, using scissors or drawing. What is the most likely diagnosis in this child?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Tic disorder",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Attention deficit hyperactivity disorder",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Cerebral palsy",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Developmental coordination disorder",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Based on the clinical features mentioned above, the diagnosis is developmental coordination disorder. Developmental coordination disorder is a neurodevelopmental disorder in which a child's fine and/or gross motor coordination is slower, less accurate, and more variable than in peers of the same age, which cannot be correlated with any specific neurological disorder or damage. 339 Diagnosis of developmental coordination disorder is based on the following: * A history of the child's delay in achieving early motor milestones. * Association with below-normal scores on performance subtests of standardized intelligence tests and normal or above-normal scores on verbal subtests. These children struggle to perform accurately the gross motor activities of daily life, such as jumping, hopping, running, or catching a ball. They also exhibit difficulty in fine motor skills like assembling jigsaw pieces, using scissors, drawing, or tracing. This results in poor performance in sports and even in academic achievement because of poor writing skills. Yet, they excel at verbal skills. Three general areas of deficits contribute to the disorder: * Poor predictive control of motor movements * Deficits in rhythmic coordination and timing * Deficits in executive functions, including working memory, inhibition, and attention.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "31_Neurodevelopmental Motor Disorders",
+    "deck_id": 1755954606959,
+    "correctAnswer": "D. Developmental coordination disorder"
+  },
+  {
+    "id": 402,
+    "text": "Q2. Which of the following is true regarding stereotypic movement disorder?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The movements are typically non-rhythmic.",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "The movements often appear to be self-soothing.",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "They are associated with purposeful movements.",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "These movements don&apos;t interfere with social activities.",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Stereotypic movements often appear to be self-soothing or self-stimulating; however, they can result in self-injury in some cases. According to DSM-5, stereotypic movement disorder is characterized by repetitive, seemingly driven, apparently purposeless motor behaviour, that interferes with social, academic, or other activities and may result in self-harm. These movements are typically rhythmic, such as hand-flapping, body-rocking, hand-waving, hair-twirling, lip-licking, skin-picking, or self-hitting.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "31_Neurodevelopmental Motor Disorders",
+    "deck_id": 1755954606959,
+    "correctAnswer": "B. The movements often appear to be self-soothing."
+  },
+  {
+    "id": 403,
+    "text": "Q3. 9-year-old boy is brought to the OPD with complaints of repeated shoulder-shrugging movements. His mother says she first observed this behaviour 1 year back and the symptoms have been occurring on and off over the year. On questioning, the boy said he feels an urge to move his shoulder and experience uneasiness if he doesn&apos;t move his shoulder often. The boy is otherwise healthy, playful and has attained all milestones for his age. What is the most probable diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Juvenile myoclonus",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Tourette&apos;s syndrome",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Persistent motor tic disorder",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Late onset autism 337",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario is suggestive of persistent motor tic disorder which is characterized by motor tics persisting for more than 1 year. Persistent/chronic motor tic disorder: ¢ Presence of motor tics in the absence of vocal tics for more than 1 year * Tics may wax and wane over the course of illness * School-age boys are at the highest risk * Generally follows a benign course with symptoms remitting by adolescence Option A: Juvenile myoclonus is not characterized by an urge to move and it generally follows a progressive course. Option B: Tourette's syndrome will have both motor and vocal tics. Option C: Normal social milestones rule out autism. 340</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "31_Neurodevelopmental Motor Disorders",
+    "deck_id": 1755954606959,
+    "correctAnswer": "C. Persistent motor tic disorder"
+  },
+  {
+    "id": 404,
+    "text": "Q4. Palilalia is a type of which of the following tics?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Simple motor tic",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Simple vocal tic",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Complex motor tic",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Complex vocal tic",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Palilalia is a type of complex vocal tic. Tics are semi-voluntary neuropsychiatric events characterized by brief rapid motor movements or vocalizations. These are typically performed in response to irresistible premonitory urges. Motor and vocal tics are divided into simple and complex types. Composed of repetitive, rapid | More purposeful and ritualist contractions of functionally s | ic than simple tics. imilar muscle groups. Examples: Eye-blinkingNeck-j | Examples: Grooming behavio erkingShoulder-shruggingFac | rsThe smelling of objectsJum ial-grimacingHead shaking pingTouching behaviorsEcho praxia(imitation of observed behavior)Copropraxia(display of obscene gestures) It consists ofsoundsthat don | Repeatingwords or phraseso ot form words. ut of context. Examples: CoughingThroat-cl | Examples: Coprolalia(use of o earingGruntingSniffingSnorti | bscene words or phrases)Pali ngBarking lalia(a person's repeating his or her words)Echolalia(repeti tion of the last-heard words o f others)</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "31_Neurodevelopmental Motor Disorders",
+    "deck_id": 1755954606959,
+    "correctAnswer": "D. Complex vocal tic"
+  },
+  {
+    "id": 405,
+    "text": "Q5. 7-year-old boy is sent to the principal&apos;s office for shouting and speaking obscene words abruptly in front of the class during a puppet show. On informing his parents, the child&apos;s concerned mother brings him to the psychiatry OPD for a consult. These symptoms are associated with which of the following disorders?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Stereotypic movement disorder",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Tourette&apos;s disorder",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Avoidant personality disorder",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Conduct disorder",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given history is suggestive of coprolalia, a symptom involving shouting or speaking socially unacceptable or obscene words, occurring in patients with Tourette's disorder. Mental coprolalia, in which a patient experiences a sudden, intrusive, socially unacceptable thought or obscene word, occurs more often than coprolalia.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "31_Neurodevelopmental Motor Disorders",
+    "deck_id": 1755954606959,
+    "correctAnswer": "B. Tourette&apos;s disorder"
+  },
+  {
+    "id": 406,
+    "text": "Q6. Which of the following is not a characteristic feature of a patient with Tourette&apos;s syndrome?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Onset before 18 years",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Persistence of tics for at least 6 months",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Severity peaks between 10 and 12 years",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Presence of at least one vocal tic",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Tourette's syndrome is diagnosed when there is a persistence of tics for at least 1 year. According to DSM-5 criteria, a diagnosis of Tourette's disorder depends on: 341 * A history of multiple motor tics and the emergence of at least one vocal tic at some point. * Tics may wax and wane in frequency but must have persisted for more than a year. * The average age of onset of tics is between 4 years and 6 years of age, although the peak age for the severity of tics is between 10 and 12 years. * The onset of symptoms must occur before the age of 18 years. No tic-free period of more than three consecutive months in 1 year.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "31_Neurodevelopmental Motor Disorders",
+    "deck_id": 1755954606959,
+    "correctAnswer": "B. Persistence of tics for at least 6 months"
+  },
+  {
+    "id": 407,
+    "text": "Q7. 16-year-old boy presented to the psychiatric outpatient department with a 2-year history of repetitive involuntary blinking, shoulder shrugging, sniffing, vocalization, and whistling. Which of the following drugs is not used in the treatment of this disorder?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Risperidone",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Clozapine 338",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Clonidine",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Pimozide",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given history is suggestive of Tourette's syndrome. Clozapine, contrary to many other atypical antipsychotics, has not been found to be useful in the treatment of tics (including Tourette's syndrome). Treatment modalities used for Tourette's syndrome (in order of preference): * Detection and treatment of co-morbidities like OCD, ADHD, depression, and anxiety. ¢ Education and behavioral treatments - habit reversal, exposure, and response prevention are the behavioral treatments of choice. « Adrenergic alpha-2 agonists (always to be tried first before starting antipsychotics) - clonidine and guanfacine are found to be effective. ¢ Antipsychotics - aripiprazole and risperidone are effective and preferred over typical antipsychotics. Pimozide and haloperidol may be more efficient but are often poorly tolerated and need constant monitoring. Note: Botulinum toxin has been used to treat painful focal motor tics affecting the neck muscles.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "31_Neurodevelopmental Motor Disorders",
+    "deck_id": 1755954606959,
+    "correctAnswer": "B. Clozapine 338"
+  },
+  {
+    "id": 408,
+    "text": "Q8. 10-year-old boy, came to the clinic for an evaluation of tics in the head and neck, occasional coughing and grunting, and a new symptom of throat-clearing several times per day. Which of the following is used in the treatment of this disorder?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Systemic desensitization ee ee Detailed Explanations Solution to Question 1: Based on the clinical features mentioned above, the diagnosis is developmental coordination disorder. Developmental coordination disorder is a neurodevelopmental disorder in which a child&apos;s fine and/or gross motor coordination is slower, less accurate, and more variable than in peers of the same age, which cannot be correlated with any specific neurological disorder or damage. 339",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Habit reversal training",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Flooding",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Aversion therapy ee ee ee ee ee ee ee re ee ee ee ee ee ee",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario points to a diagnosis of Tourette's syndrome. Habit reversal training is used in the treatment of tic disorders like Tourette's. The components of habit reversal training are: « Awareness training in which the patient is taught self-monitoring to enhance awareness of tic behaviours and urges or sensations indicating that a tic is about to occur. * Competing-response training in which the patient is taught to voluntarily perform a behaviour that is physically incompatible with the tic. Options A and C: Systemic desensitization and flooding are used in the treatment of phobias. Option D: Aversion therapy is used in the treatment of alcohol abuse, impulsive behaviours, etc. 342</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "31_Neurodevelopmental Motor Disorders",
+    "deck_id": 1755954606959,
+    "correctAnswer": "B. Habit reversal training"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>76_Peripheral Neuropathy - Marrow Medicine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">76_Peripheral Neuropathy</h1>
+                <p class="text-gray-600 mt-2">Marrow • Medicine • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/15</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 15</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 1403,
+    "text": "Q1. Which of the following functions are likely to be impaired in patients with peripheral neuropathy?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sensory or motor function only",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Sensory or autonomic function only",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Motor or autonomic function only",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Sensory, motor or autonomic function",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Peripheral neuropathies can impair sensory, motor, or autonomic function, either singly or in combination. Peripheral nerves are composed of sensory, motor, and autonomic elements. Peripheral neuropathies are classified into those that primarily affect the * Cell body - neuronopathy or ganglionopathy * Myelin - myelinopathy * Axon - axonopathy</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "76_Peripheral Neuropathy",
+    "deck_id": 1755954606193,
+    "correctAnswer": "D. Sensory, motor or autonomic function"
+  },
+  {
+    "id": 1404,
+    "text": "Q2. Disorders of autonomic function should be considered in patients with:",
+    "options": [
+      {
+        "label": "A",
+        "text": "2 and 4",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "3 and5 c)1,2and5",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "1, 3, and 4",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Disorders of autonomic function (dysautonomia) is usually considered in patients with: * Unexplained orthostatic hypotension (OH) * Syncope * Sleep dysfunction ¢ Altered sweating (hyperhidrosis or hypohidrosis) * Impotence * Constipation or other GI symptoms like bloating, nausea, vomiting of old food, diarrhea. ¢ Bladder disorders such as urinary frequency, hesitancy, or incontinence.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "76_Peripheral Neuropathy",
+    "deck_id": 1755954606193,
+    "correctAnswer": "C. 1, 3, and 4"
+  },
+  {
+    "id": 1405,
+    "text": "Q3. 50-year-old woman complains of numbness of her hands, generalized weakness, and easy fatiguability. She is a vegetarian. She looks very pale and her peripheral smear reveals macrocytic hypochromic anemia. If untreated, she is at risk of developing which of the following conditions?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Proprioceptive loss",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Stabbing pain",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Temperature loss",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Burning pain",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">1137 The given clinical scenario of macrocytic anemia and a vegetarian diet is suggestive of vitamin B12 deficiency. This typically leads to large fiber neuropathy which presents with loss of proprioception and vibration. Smaller-diameter myelinated and unmyelinated fibers transmit pain and temperature sensation. Hence, small fiber neuropathies present as temperature loss or burning or stabbing pain.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "76_Peripheral Neuropathy",
+    "deck_id": 1755954606193,
+    "correctAnswer": "A. Proprioceptive loss"
+  },
+  {
+    "id": 1406,
+    "text": "Q4. Small fiber neuropathies can be seen in patients with all of the following conditions, except: 1132",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sjogren’s syndrome",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "HIV",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Hansen&apos;s disease",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Amyloidosis",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Sjogren’s syndrome does not cause small fiber neuropathy. It causes preferential large fiber sensory neuropathy.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "76_Peripheral Neuropathy",
+    "deck_id": 1755954606193,
+    "correctAnswer": "A. Sjogren’s syndrome"
+  },
+  {
+    "id": 1407,
+    "text": "Q5. 30-year-old man presents with weakness of both the lower limbs. On examination, there is sensory loss in the lower limbs and both the proximal and distal leg muscles have reduced power. This presentation is characteristic of which of the following conditions?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Acquired immune demyelinating polyneuropathies",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Amyotrophic lateral sclerosis",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Mononeuropathy multiplex",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Diabetic plexopathy",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario suggests symmetric proximal and distal weakness with sensory loss. This pattern is characteristic of acquired immune demyelinating polyneuropathies. It consists of: * Acute form - Acute inflammatory demyelinating polyneuropathy [AIDP] also known as Guillain-Barré syndrome [GBS] * Chronic form - Chronic inflammatory demyelinating polyneuropathy [CIDP] Option B: Amyotrophic lateral sclerosis (ALS) is a multiple degenerative motor neuron disease. It leads to muscle weakness and disability in the absence of sensory symptoms and signs. Option C: Mononeuropathy multiplex refers to multiple compressive mononeuropathies. It presents as asymmetric subacute or acute sensory and motor symptoms and signs. Option D: Polyradiculopathy or plexopathy due to diabetes mellitus presents with asymmetric weakness.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "76_Peripheral Neuropathy",
+    "deck_id": 1755954606193,
+    "correctAnswer": "A. Acquired immune demyelinating polyneuropathies"
+  },
+  {
+    "id": 1408,
+    "text": "Q6. patient presented with peripheral neuropathy with asymmetric distal weakness without sensory loss. The differential diagnosis for this condition would include all except:",
+    "options": [
+      {
+        "label": "A",
+        "text": "Motor neuron disease",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Juvenile monomelic amyotrophy",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Hereditary motor neuropathy",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Multifocal motor neuropathy",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Hereditary motor neuropathy does not present with asymmetric distal weakness without sensory loss. It presents with symmetric distal weakness without sensory loss.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "76_Peripheral Neuropathy",
+    "deck_id": 1755954606193,
+    "correctAnswer": "C. Hereditary motor neuropathy"
+  },
+  {
+    "id": 1409,
+    "text": "Q7. What is the most common type of hereditary neuropathy?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Parsonage-Turner syndrome",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Friedreich’s ataxia",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Charcot-Marie-Tooth disease",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Familial amyloid polyneuropathy",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Charcot-Marie-Tooth (CMT) disease is the most common type of hereditary neuropathy. Other examples of rare hereditary neuropathies are Friedreich’s ataxia, familial amyloid polyneuropathy and Tangier disease. 1138</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "76_Peripheral Neuropathy",
+    "deck_id": 1755954606193,
+    "correctAnswer": "C. Charcot-Marie-Tooth disease"
+  },
+  {
+    "id": 1410,
+    "text": "Q8. 1133 All of the following are associated with autonomic neuropathies, except:",
+    "options": [
+      {
+        "label": "A",
+        "text": "Diabetes",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Acquired amyloidosis",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Hyperthyroidism",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Porphyria",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">In hyperthyroidism, excessive thyroxine causes sympathetic autonomic overactivity, not neuropathy. Hypothyroidism can be associated with peripheral neuropathy, most typically carpal tunnel syndrome. Treatment is the correction of hypothyroidism.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "76_Peripheral Neuropathy",
+    "deck_id": 1755954606193,
+    "correctAnswer": "C. Hyperthyroidism"
+  },
+  {
+    "id": 1411,
+    "text": "Q9. young woman presents with complaints of insomnia due to her feet becoming very hot and painful at night. On examination, she has multiple superficial foot ulcers, and she is unable to feel light touch and crude touch. What is your diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "HSAN I",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Dejerine-Roussy syndrome",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Riley-Day syndrome",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Charcot Marie Tooth disease",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given case scenario is suggestive of burning feet syndrome, seen in HSAN 1. There are five types of hereditary sensory and autonomic neuropathies (HSAN I-V), of which the most important are HSAN I and HSAN III. HSAN I has an autosomal dominant inheritance. It presents in adolescence or adulthood as a distal small-fiber neuropathy. It causes burning feet syndrome in which patients present with: * Burning sensation of feet, especially at night * Sensory loss * Foot ulcers. Option B: Dejerine Roussy syndrome, also known as thalamic pain syndrome usually occurs after a stroke. The patient experiences burning pain over affected areas of the body. Option C: HSAN III or Riley Day syndrome presents in childhood. It presents with labile BP, decreased tearing, hyperhidrosis, reduced sensitivity to pain, and areflexia. Option D: Charcot Marie Tooth disease is the most common type of hereditary neuropathy. It is a hereditary motor and sensory neuropathy (HMSN) which presents with motor weakness and skeletal deformities.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "76_Peripheral Neuropathy",
+    "deck_id": 1755954606193,
+    "correctAnswer": "A. HSAN I"
+  },
+  {
+    "id": 1412,
+    "text": "Q10. Which of the following is the most common type of neuropathy seen in diabetes?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cryptogenic sensory polyneuropathy",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Mononeuropathies",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Autonomic neuropathy",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Distal Symmetric Sensory and Sensorimotor Polyneuropathy",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Distal symmetric sensory and sensorimotor polyneuropathy (DSPN) is the most common form of diabetic neuropathy and is seen in approximately one-third of patients with DM. Other neuropathies seen in diabetes mellitus are: * The most common mononeuropathies are median neuropathy at the wrist and ulnar neuropathy at the elbow * Diabetic autonomic neuropathy is typically seen in combination with DSPN * Cranial neuropathy (third nerve palsy is the most common) and diabetic neuropathic cachexia The Michigan diabetic neuropathy score is a screening tool used to assess diabetic neuropathy.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "76_Peripheral Neuropathy",
+    "deck_id": 1755954606193,
+    "correctAnswer": "D. Distal Symmetric Sensory and Sensorimotor Polyneuropathy"
+  },
+  {
+    "id": 1413,
+    "text": "Q11. Which of the following can be prescribed as a first-line drug for a patient with painful diabetic neuropathy?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Carbamazepine",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Tramadol",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Duloxetine",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Venlafaxine 1134",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">1139 Duloxetine is a selective serotonin-norepinephrine reuptake inhibitor (SSNRI) and is one of the first-line drugs used in the treatment of painful diabetic neuropathy. Treatment of painful sensory neuropathies: ¢ First-line: * Lidoderm 5% patch * Tricyclic antidepressants (e. g. , amitriptyline, nortriptyline) * Gabapentin, Pregabalin * Duloxetine * Second-line: * Carbamazepine * Phenytoin * Venlafaxine * Tramadol * Third-line: * Mexiletine Optimal glucose control is considered the cornerstone for the treatment of diabetes and its complications. Intensive glucose control has been shown to prevent the development of peripheral neuropathy.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "76_Peripheral Neuropathy",
+    "deck_id": 1755954606193,
+    "correctAnswer": "C. Duloxetine"
+  },
+  {
+    "id": 1414,
+    "text": "Q12. Sensorimotor neuropathy may be caused by all of the following except:",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amiodarone",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Lead poisoning",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Arsenic poisoning",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Isoniazid",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Lead poisoning does not cause sensorimotor neuropathy. It causes symptoms and signs of primarily motor neuropathy. The most common presentation of lead poisoning is encephalopathy. The sensation is generally preserved but the autonomic nervous system can be affected in lead poisoning.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "76_Peripheral Neuropathy",
+    "deck_id": 1755954606193,
+    "correctAnswer": "B. Lead poisoning"
+  },
+  {
+    "id": 1415,
+    "text": "Q13. Which of the following vitamins will you prescribe for a patient on antitubercular therapy?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Bo",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "B1",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Bi2",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "B6",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Isoniazid (INH), which is a first-line anti-tuberculosis drug, inhibits pyridoxal phosphokinase, resulting in pyridoxine deficiency and neuropathy. Prophylactic administration of vitamin B6 (pyridoxine) 10 mg/day can prevent neuropathy from developing. 10 mg daily suffices for prophylaxis but patients with evidence of vitamin B6 deficiency may require up to 50 mg daily. Current WHO guidelines recommend routine substitution of pyridoxine to patients who are at risk of peripheral neuropathy, e. g. , malnutrition, chronic alcohol dependence, diabetics, HIV. However, pyridoxine excess (acute intoxication or long-term use of large doses) is also found to cause peripheral neuropathy. 1140</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "76_Peripheral Neuropathy",
+    "deck_id": 1755954606193,
+    "correctAnswer": "D. B6"
+  },
+  {
+    "id": 1416,
+    "text": "Q14. During a regular health checkup, you notice the following nail finding in a 64-year-old man. He lives near a smelting industry on the banks of a river. Which of the following conditions can be seen in this patient?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Pure motor neuropathy 1135",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Pure sensory neuropathy",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Predominant sensory neuropathy",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Sensorimotor neuropathy",
+        "correct": true
+      }
+    ],
+    "imageData": {
+      "data": "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",
+      "mime": "image/webp"
+    },
+    "explanationHTML": "<div class=\"explanation\">The image shows Mee’s lines, transverse white striae of the fingernails. This along with history is suggestive of chronic arsenic poisoning probably due to a contaminated water source. Arsenic poisoning causes toxic sensorimotor polyneuropathy. The neuropathy manifests 5-10 days after ingestion of arsenic and progresses for several weeks, mimicking Guillain—Barre's Syndrome.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "76_Peripheral Neuropathy",
+    "deck_id": 1755954606193,
+    "correctAnswer": "D. Sensorimotor neuropathy"
+  },
+  {
+    "id": 1417,
+    "text": "Q15. Identify the diagnosis. fe 4 5 ¢",
+    "options": [
+      {
+        "label": "A",
+        "text": "Facial nerve palsy ee ee ee ee ee ee ee ee 1136",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Plexiform neurofibromatosis",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Masticator space abscess",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Fibrous dysplasia a",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given image showing thickening of tissues in the temporal and orbital regions with coarse overlying skin suggests a diagnosis of plexiform neurofibroma. Plexiform neurofibroma represents an uncommon variant (30%) of neurofibromatosis 1 (NF1). Plexiform neurofibromas are usually evident at birth and result from a diffuse thickening of nerve trunks and surrounding tissues that are usually located in the orbital or temporal region of the face. The skin overlying it may be coarse and associated with hyperpigmentation. Plexiform neurofibromas may produce an overgrowth of an extremity and a deformity of the corresponding bone. NF1 is clinically diagnosed when any 2 of the following 7 features are present: * Six or more café-au-lait macules &amp;gt; 5mm in prepubertal and &amp;gt; 15mm in postpubertal ¢ Axillary or inguinal freckling * Two or more iris lisch nodules * Two or more neurofibromas or one plexiform neurofibroma * A distinctive osseous lesion such as sphenoid dysplasia or cortical thinning of long bones with or without pseudoarthrosis. * Optic gliomas ¢ A first-degree relative with NF-1 1141</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "76_Peripheral Neuropathy",
+    "deck_id": 1755954606193,
+    "correctAnswer": "B. Plexiform neurofibromatosis"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>

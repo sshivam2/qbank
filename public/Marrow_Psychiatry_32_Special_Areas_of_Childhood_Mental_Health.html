@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>32_Special Areas of Childhood Mental Health - Marrow Psychiatry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">32_Special Areas of Childhood Mental Health</h1>
+                <p class="text-gray-600 mt-2">Marrow • Psychiatry • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/9</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 9</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 409,
+    "text": "Q1. 4-year-old orphan child does not seem to seek comfort during times of distress. Even when comforted, the child doesn&apos;t seem to be interested in it. This behaviour has been present for more than a year noticed by caregivers when he was shifted between multiple foster homes. What is the most probable diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Disinhibited social engagement disorder",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Autism spectrum disorder",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Reactive attachment disorder",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Intellectual disability",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario suggests reactive attachment disorder. Reactive attachment disorder is characterized by the following: ¢ A pattern of inhibited, emotionally withdrawn behavior toward adult caregivers manifested as: * The child rarely or minimally seeks comfort when distressed. * The child rarely or minimally responds to comfort when distressed. + A persistent social and emotional disturbance involving any two of the following: * Minimal social and emotional responsiveness to others. * Limited positive affect. ¢ Episodes of unexplained irritability, sadness, or fearfulness are evident even during nonthreatening interactions with adult caregivers. * The child has experienced a pattern of extremes of insufficient care (evident by early separation, frequent change in caregivers, institutionalization or neglect) * The disturbance is evident before 5 years of age and the developmental age of the child is at least 9 months. Option A - Disinhibited social engagement disorder is a condition where the child approaches and interacts with unfamiliar adults in either overly familiar behavior, has diminished checking back with caregiver after venturing away (even in unfamiliar settings), with the willingness to go off with an unfamiliar adult. Option B - Autism spectrum disorder is characterized by deficits in social communication and interaction across multiple contexts as manifested by deficits in socio-emotional reciprocity, difficulty in developing, maintaining and understanding relationships, and deficits in non verbal communicative behaviors. Option D - Children with intellectual disabilities have deficits in adaptive functioning which, without support, limit functioning in activities of daily life (communication, social participation, independent living) across multiple environments. They are also characterized by having deficits in intellectual functions (reasoning, problem solving, planning, abstract thinking, judgment etc. )</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "32_Special Areas of Childhood Mental Health",
+    "deck_id": 1755954606218,
+    "correctAnswer": "C. Reactive attachment disorder"
+  },
+  {
+    "id": 410,
+    "text": "Q2. Which of the following is false about pica?",
+    "options": [
+      {
+        "label": "A",
+        "text": "2 years is the minimum age for diagnosis",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "More common among children with autism",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Associated with lead intoxication",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "It is not seen in adults",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Pica is defined as the persistent eating of nonnutritive substances. It can emerge in children, adolescents, or adults (usually pregnant women). A minimum of 2 years of age is suggested by DSM-5 for the diagnosis of pica. Pica is more common among children and adolescents with autism spectrum disorder and intellectual disability. The clinical implications can be benign or life-threatening, depending on the objects ingested. Among the most serious complications are: * Lead poisoning - usually after ingestion of lead-based paint 346 * Intestinal parasites - after ingestion of soil or feces * Anemia and zinc deficiency - after ingestion of clay ¢ Intestinal obstruction - from the ingestion of hairballs, stones, or gravel. No definitive treatment exists for pica. Most treatment is aimed at education and behavior modification. Medical complications that develop secondarily to the pica must be treated.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "32_Special Areas of Childhood Mental Health",
+    "deck_id": 1755954606218,
+    "correctAnswer": "D. It is not seen in adults"
+  },
+  {
+    "id": 411,
+    "text": "Q3. 7-year-old girl actively approaches and interacts with unfamiliar adults despite multiple attempts of telling her otherwise. Both her parents are working professionals and are scared that this behaviour could lead to her falling prey to abduction. What is this pattern of behaviour in the child known as?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Reactive attachment disorder",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Attention deficit hyperactivity disorder",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Social anxiety disorder",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Disinhibited social engagement disorder",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario suggests a diagnosis of disinhibited social engagement disorder. Disinhibited social engagement disorder is characterized by the following: ¢ A pattern of behavior in which a child actively approaches and interacts with unfamiliar adults. * The behaviors are not limited to impulsivity (as in attention-deficit/hyperactivity disorder) but include socially disinhibited behavior. * The child has experienced a pattern of extremes of insufficient care (pathogenic care).</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "32_Special Areas of Childhood Mental Health",
+    "deck_id": 1755954606218,
+    "correctAnswer": "D. Disinhibited social engagement disorder"
+  },
+  {
+    "id": 412,
+    "text": "Q4. 343 What is the most prevalent form of child maltreatment?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Child physical abuse",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Child sexual abuse",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Child neglect",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Child psychological abuse",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Child neglect is the most prevalent form of child maltreatment. It is the failure to provide adequate care and protection for children. Children can be harmed by malicious or ignorant withholding of physical, emotional, and educational necessities.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "32_Special Areas of Childhood Mental Health",
+    "deck_id": 1755954606218,
+    "correctAnswer": "C. Child neglect"
+  },
+  {
+    "id": 413,
+    "text": "Q5. Which of the following is not a phase of child sexual abuse?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Engagement",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Sexual interaction",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Bargaining",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Secrecy",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Bargaining is not a phase of child sexual abuse. It is one of the stages of grief. Sexual abuse of a child that occurs over a period of time evolves through the following five phases: * EngagementThe perpetrator induces the child into a special relationship. * Sexual interactionThe sexual behaviors progress from less to more intrusive forms of abuse. * SecrecyThe perpetrator threatens the victim not to tell. * DisclosureThe abuse is discovered accidentally (when another person walks into the room and sees it) or through the child's reporting it to a responsible adult or via medical attention. * SuppressionThe child often retracts the statements of the disclosure because of family pressure or because of the child's own mental processes.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "32_Special Areas of Childhood Mental Health",
+    "deck_id": 1755954606218,
+    "correctAnswer": "C. Bargaining"
+  },
+  {
+    "id": 414,
+    "text": "Q6. 6-year-old child was brought with complaints of bedwetting at night. There is no history of bedwetting during the afternoon nap. His urine examination was normal. Specific gravity was 1. 020. What would be your advice?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Consult a child psychologist",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "USG abdomen",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Give desmopressin 0.2 mg orally",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "CT-KUB and pelvis",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">347 According to the given history, the child has nocturnal enuresis, and hence consulting a child psychologist is the most appropriate option. Nocturnal enuresis refers to the occurrence of involuntary voiding at night after 5 years of age. If there are no daytime symptoms and physical and urine examinations are normal, then further evaluation for urinary tract pathology is not warranted. USG is done in an older child (usually &amp;gt; 7 years) with enuresis or in those who do not respond to therapy. Active treatment should be avoided in children younger than 6 years of age. Treatment includes the following: * Psychological therapy includes motivational therapy (star charts), conditioning therapies like auditory or vibratory alarms (most effective). ¢ Pharmacological therapy (imipramine and desmopressin) is intended to treat the symptoms of enuresis and thus is regarded as second-line and is not curative.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "32_Special Areas of Childhood Mental Health",
+    "deck_id": 1755954606218,
+    "correctAnswer": "A. Consult a child psychologist"
+  },
+  {
+    "id": 415,
+    "text": "Q7. As a first-year psychiatry resident, you see a case of a child with a history of repeated passage of faeces at inappropriate places. To make a diagnosis of encopresis, what should be the minimum age of this child?",
+    "options": [
+      {
+        "label": "A",
+        "text": "3 years",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "4 years",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "5 years",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "6 years 344",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The diagnosis of encopresis is not made until the child crosses 4 years of age. It is an elimination disorder. Elimination disorders described in DSM-5 and ICD-11: ¢ Encopresisrepeated passage of faeces at inappropriate places. * Enuresisrepeated urination into bed or clothes. It is diagnosed after the age of 5 years.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "32_Special Areas of Childhood Mental Health",
+    "deck_id": 1755954606218,
+    "correctAnswer": "B. 4 years"
+  },
+  {
+    "id": 416,
+    "text": "Q8. 7-year-old child presented with complaints of bed-wetting almost twice a week for the past 1 year. A detailed investigation was done to rule out the organic cause. What should be the treatment plan for this child?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Pharmacotherapy with imipramine",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Psychodynamic psychotherapy",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Bladder training, with reward for delaying micturition during daytime",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Bell and pad based classical conditioning",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The clinical features are suggestive of nocturnal enuresis. Bell and pad based classical conditioning is the most effective treatment. Nocturnal enuresis refers to the occurrence of involuntary urination at night after 5 years of age. It may be a normal phenomenon in children up to 5 years of age. Treatment for nocturnal enuresis may include: Behavioural therapy: * Classic conditioning with the bell (or buzzer) and pad (alarm) apparatus is the most effective treatment for enuresis. * Dryness is achieved in 50% of the cases. * Bladder training with encouragement or reward for delaying micturition for increasing times during waking hours is useful but considered inferior to bell and pad. Pharmacotherapy: * Medications should be considered if behavioural therapy has failed, and if enuresis is causing impairment in social, family, and school function. 348 * Desmopressin (an antidiuretic) and Reboxetine (norepinephrine reuptake inhibitor) are commonly used drugs. Reboxetine is considered as a safer alternative to imipramine. Psychotherapy: * It is indicated in cases with chronic enuresis, to deal with any coexisting psychiatric problems and emotional and family difficulties.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "32_Special Areas of Childhood Mental Health",
+    "deck_id": 1755954606218,
+    "correctAnswer": "D. Bell and pad based classical conditioning"
+  },
+  {
+    "id": 417,
+    "text": "Q9. 10-year-old child is suffering from selective mutism. He is most probably suffering from?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Childhood depression ee ee ee Detailed Explanations 345",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Childhood psychosis",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Childhood anxiety disorder",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Hyperkinetic disorder ee ee ee ee ee ee ee es",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The child is most likely suffering from a childhood anxiety disorder. Selective mutism refers to the lack of speaking (being mute) in one or more specific social situations, commonly in school, but speaking well in other situations, commonly at home. The child may be either completely silent at school or maybe just whispering. Rarely, a child may be silent at home but communicating normally at school. The disorder may develop in children between 4 to 8 years of age and is associated with a social anxiety disorder. They may have symptoms of separation anxiety disorder, school refusal, and delayed language acquisition. The first-line treatment includes cognitive behavioural therapy. Option A and B: selective mutism is not commonly associated with childhood depression or psychosis Option D: Hyperkinetic disorder is associated with overfamiliarity. 349</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "32_Special Areas of Childhood Mental Health",
+    "deck_id": 1755954606218,
+    "correctAnswer": "C. Childhood anxiety disorder"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>

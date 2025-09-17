@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>20_Factitious Disorders, Malingering and Criminality - Marrow Psychiatry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">20_Factitious Disorders, Malingering and Criminality</h1>
+                <p class="text-gray-600 mt-2">Marrow • Psychiatry • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/7</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 7</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 290,
+    "text": "Q1. 30-year-old lady presents to the OPD with headache, backache, and abdominal pain for 1 month. On examination, there are multiple scars on the abdomen. The patient is keen on knowing the diagnosis and insists on getting some more tests and procedures. The history she gave was quite long and confusing, consisting of visits to multiple doctors and numerous procedures. What is the most likely diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Hypochondriasis",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Malingering",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Factitious disorder",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Delusional disorder",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario is suggestive of factitious disorder, also known as Munchausen syndrome. * The patient is referred to as a professional patient wherein the person always fakes the disease/symptoms, and keep going from doctor to doctor and hospital to hospital in order to seek medical attention. * Such patients will have extensive medical history or evidence of multiple surgeries and have a characteristic gridiron abdomen i. e. , multiple scars on the abdomen. * They distort their history and findings and make it hard to come to a diagnosis when there isn’t any existing pathology. ¢ The Symptoms do not respond to usual treatment or medications and there will be emergence of new, unusual symptoms when other symptoms resolve. * They will give history of multiple allergies. * Such patients will only have few visitors while in the hospital. * They will be reluctant to give access to collateral sources of information ( for example, contact details of family) * They will have unusual progression of symptoms or unusual response to treatment. 244 Delusional disorders - It is when a person exhibits nonbizarre delusions (about situations that can occur in real life, such as being followed or infected) for least 1 month, that cannot be attributed to other psychiatric disorders.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Factitious Disorders, Malingering and Criminality",
+    "deck_id": 1755954606439,
+    "correctAnswer": "C. Factitious disorder"
+  },
+  {
+    "id": 291,
+    "text": "Q2. Which of the following is associated with pseudologia fantastica?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Multiple personality disorder",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Malingering",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Munchausen syndrome",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Delusional disorder",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Patients with Munchausen syndrome (factitious disorder) demonstrate pseudologia fantastica, a specific syndrome of autobiographical lying with four features: The stories are not entirely improbable and are built upon a basis of truth. * The stories are enduring. * They are not told purely for personal gain and have a self-aggrandizing quality. * They are not delusions, in that the patient can admit to falsehoods when confronted with conflicting facts. In pseudologia fantastica, limited factual material is mixed with extensive and colourful fantasies. The listener's interest pleases the patient and, thus, reinforces the symptom.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Factitious Disorders, Malingering and Criminality",
+    "deck_id": 1755954606439,
+    "correctAnswer": "C. Munchausen syndrome"
+  },
+  {
+    "id": 292,
+    "text": "Q3. Which of the following is not a differential diagnosis for a patient suspected to have factitious disorder?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Schizotypal personality disorder",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Borderline personality disorder",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Antisocial personality disorder",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Histrionic personality disorder",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Persons with factitious disorder usually do not have the eccentricities of dress, thought, or communication that characterizes schizotypal personality disorder patients. Personality disorders simulating factitious disorder: « Antisocial personality disorder: * Similarities - pathological lying, lack of close relationships with others, hostile and manipulative manner, and associated substance abuse and criminal history. * Differences - antisocial persons, however, do not usually volunteer for invasive procedures or resort to repeated or long-term hospitalization. Histrionic personality disorder: * Similarities - attention-seeking and an occasional flair for the dramatic * Differences - but not all factitious disorder patients have a dramatic flair; many are withdrawn and bland. * Borderline personality disorder: * Similarities - chaotic lifestyle, history of disturbed interpersonal relationships, identity crisis, substance abuse, self-damaging acts, and manipulative tactics. * Differences - factitious disorder patients are keen on hospital admission because of such activities. 245</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Factitious Disorders, Malingering and Criminality",
+    "deck_id": 1755954606439,
+    "correctAnswer": "A. Schizotypal personality disorder"
+  },
+  {
+    "id": 293,
+    "text": "Q4. 242",
+    "options": [
+      {
+        "label": "A",
+        "text": "2-year-old boy was admitted for evaluation of fever. However, there were inconsistencies in the mother&apos;s reporting of medical information. Further exploration revealed that she had taken her child to multiple hospitals giving varying histories of lupus, asthma, etc that prompted excessive testing. Which of the following best describes this condition? Factitious disorder",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Somatic symptom disorder",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Hypochondriasis",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Factitious disorder by proxy",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">In this scenario, the inaccurate histories given by the mother to prompt excessive testing on the child, point towards a diagnosis of factitious disorder by proxy (DSM-5 diagnosis of \"Factitious Disorder Imposed on Another\"). The most common case of factitious disorder by proxy involves a mother who deceives medical personnel into believing that her child is ill. Here, the affected person intentionally produces physical signs or symptoms in another person who is under his own care. One apparent purpose of the behavior is for the caretaker to indirectly assume the sick role.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Factitious Disorders, Malingering and Criminality",
+    "deck_id": 1755954606439,
+    "correctAnswer": "D. Factitious disorder by proxy"
+  },
+  {
+    "id": 294,
+    "text": "Q5. Peregrination to seek medical care is a feature of which of the following conditions?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Munchausen syndrome",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Alzheimer&apos;s disease",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Malingering",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Dissociative disorder",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Peregrination is the tendency to travel widely. Munchausen syndrome features peregrination or frequent wide-ranging travel to seek medical care.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Factitious Disorders, Malingering and Criminality",
+    "deck_id": 1755954606439,
+    "correctAnswer": "A. Munchausen syndrome"
+  },
+  {
+    "id": 295,
+    "text": "Q6. An 18-year-old boy is brought to you by his concerned grandmother with a history of having experienced several episodes of jerking of the body the day before his final exam. There was no history post-ictal confusion or tongue bite and his investigations were normal. Which of the following conditions should be considered?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Malingering",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Factitious disorder",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Somatisation syndrome",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Hypochondriasis",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">In the given scenario, absence of muscle spasm, tongue thrusting, or post-ictal confusion, and normal investigations just before the final exam (personal gain), points towards malingering. Intentional production of symptoms to achieve some practical gain (e. g. avoidance of work, financial compensation, avoidance of criminal responsibility, or military service) is suggestive of malingering. Factitious disorder (Munchausen syndrome) is the intentional production of physical symptoms to obtain medical attention, not a practical gain.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Factitious Disorders, Malingering and Criminality",
+    "deck_id": 1755954606439,
+    "correctAnswer": "A. Malingering"
+  },
+  {
+    "id": 296,
+    "text": "Q7. prison inmate is escorted to the ER with complaints of sudden unbearable abdominal pain. However, on evaluation, he was found to be malingering. Presence of which of the following would help you differentiate this from factitious disorder?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Goal of financial or personal gain ee ee ee ee ee Detailed Explanations Solution to Question 1: The given clinical scenario is suggestive of factitious disorder, also known as Munchausen syndrome. * The patient is referred to as a professional patient wherein the person always fakes the disease/symptoms, and keep going from doctor to doctor and hospital to hospital in order to seek medical attention. * Such patients will have extensive medical history or evidence of multiple surgeries and have a characteristic gridiron abdomen i.e., multiple scars on the abdomen. * They distort their history and findings and make it hard to come to a diagnosis when there isn’t any existing pathology. ¢ The Symptoms do not respond to usual treatment or medications and there will be emergence of new, unusual symptoms when other symptoms resolve. * They will give history of multiple allergies. * Such patients will only have few visitors while in the hospital. * They will be reluctant to give access to collateral sources of information ( for example, contact details of family) * They will have unusual progression of symptoms or unusual response to treatment. 244",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Goal of getting medical attention 243",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Conscious production of symptoms",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Discrepancy between symptoms and exam findings",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Malingering can have many underlying goals, including financial/personal gain. However, factitious disorder has only one motive - seeking and attaining medical attention. Malingering is suspected when there is: * Medicolegal context of presentation * Discrepancy between the individual's claimed stress or disability and the objective findings * Lack of cooperation during the diagnostic evaluation and in complying with the prescribed treatment regimen * Presence of antisocial personality disorder Malingering can be for the following reasons: « Avoidance of criminal responsibility 246 ¢ Avoidance of military service or of particularly hazardous duties ¢ Financial gain * Avoidance of work, social responsibility, and social consequences. * Facilitation of transfer from prison to hospital ¢ Admission to a hospital (for getting a place to stay) The discrepancy between symptoms and examination findings, and conscious production of symptoms can be present in both disorders. In Malingering, patients can usually stop producing their signs and symptoms when they are no longer considered profitable or when they become risky. 247</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Factitious Disorders, Malingering and Criminality",
+    "deck_id": 1755954606439,
+    "correctAnswer": "A. Goal of financial or personal gain ee ee ee ee ee Detailed Explanations Solution to Question 1: The given clinical scenario is suggestive of factitious disorder, also known as Munchausen syndrome. * The patient is referred to as a professional patient wherein the person always fakes the disease/symptoms, and keep going from doctor to doctor and hospital to hospital in order to seek medical attention. * Such patients will have extensive medical history or evidence of multiple surgeries and have a characteristic gridiron abdomen i.e., multiple scars on the abdomen. * They distort their history and findings and make it hard to come to a diagnosis when there isn’t any existing pathology. ¢ The Symptoms do not respond to usual treatment or medications and there will be emergence of new, unusual symptoms when other symptoms resolve. * They will give history of multiple allergies. * Such patients will only have few visitors while in the hospital. * They will be reluctant to give access to collateral sources of information ( for example, contact details of family) * They will have unusual progression of symptoms or unusual response to treatment. 244"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>

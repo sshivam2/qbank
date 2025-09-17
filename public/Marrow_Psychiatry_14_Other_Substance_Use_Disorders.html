@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>14_Other Substance Use Disorders - Marrow Psychiatry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">14_Other Substance Use Disorders</h1>
+                <p class="text-gray-600 mt-2">Marrow • Psychiatry • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/15</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 15</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 213,
+    "text": "Q1. Which of the following substances do not lead to physical dependence?",
+    "options": [
+      {
+        "label": "A",
+        "text": "LSD",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Amphetamine",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Opioids",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Nicotine",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Neither physical dependence nor withdrawal symptoms occur with LSD, but a user can develop a psychological dependence on the insight-inducing experiences of episodes of hallucinogen use. 187 Physical dependence indicates an altered physiological state due to repeated administration of a drug, the cessation of which results in the appearance of a withdrawal syndrome characteristic of the particular drug. Psychological dependence also referred to as habituation, is characterized by a continuous or intermittent craving (i. e. , intense desire) for the substance to avoid a dysphoric state(state of unease or dissatisfaction with depression, anxiety, or agitation). The physical and psychological dependence potential of MDMA (3,4 methylenedioxy-methamphetamine) is also not well established. It is an illegal, synthetic drug classified as a stimulant with potentially hallucinogenic properties. Agents, known to cause strong physical and psychological dependence: * Opioids * Alcohol * Nicotine * Cannabis * Barbiturates</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "14_Other Substance Use Disorders",
+    "deck_id": 1755954606947,
+    "correctAnswer": "A. LSD"
+  },
+  {
+    "id": 214,
+    "text": "Q2. patient undergoing withdrawal from which of the following drugs is least likely to experience suicidal thoughts?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Barbiturates",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Alcohol",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Opioids",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "LSD",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Withdrawal symptoms do not occur with hallucinogens such as LSD. Withdrawal symptoms appear when the drug abuse leads to physical dependence. Drugs that cause significant withdrawal symptoms: * Alcohol * Opioids * Cocaine * Nicotine * Barbiturates * BZD</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "14_Other Substance Use Disorders",
+    "deck_id": 1755954606947,
+    "correctAnswer": "D. LSD"
+  },
+  {
+    "id": 215,
+    "text": "Q3. 34-year-old man who came to the dermatology clinic for acne complaints was incidentally noted to have multiple scars suspected to be from &apos;skin popping’. He is most likely to be abusing which of the following drugs?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Opioid",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Cannabis",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Mescaline",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "LSD",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Among the given options, opioid abuse is the most likely cause of the skin popping scars in this patient. Skin popping is a method of injecting illicit drugs into the skin. Drugs like heroin, cocaine, barbiturates can be injected intradermally or subcutaneously with the goal of achieving slower absorption, decreased risk of overdose, and easier administration than with intravenous drug use. LSD and mescaline (hallucinogens) and cannabis are not taken through injections, but by oral route or through smoking. 188 The image given below shows circular depressed scars from skin popping.</div><br/><img alt=\"Image\" src=\"data:image/webp;base64,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\" style=\"max-width: 100%; height: auto; margin: 10px auto; display: block; border-radius: 8px;\"/><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "14_Other Substance Use Disorders",
+    "deck_id": 1755954606947,
+    "correctAnswer": "A. Opioid"
+  },
+  {
+    "id": 216,
+    "text": "Q4. college student was brought to the casualty by his friends after he was found unresponsive in his hostel room. On examination, his respiratory rate was 8 breaths per minute, BP:",
+    "options": [
+      {
+        "label": "A",
+        "text": "80/60 183 mmHg, and had pinpoint pupils. What is the most probable cause of these findings? Cocaine intoxication",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Alcohol intoxication",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Heroin withdrawal",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Opioid intoxication",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario is suggestive of opioid intoxication. Opioids include morphine, heroin, codeine, etc. Opioid overdose (intoxication) is classically associated with the triad of coma, respiratory depression, and pinpoint pupils (miosis). Hypotension, bradycardia, and hypothermia are also seen. Opioid withdrawal symptoms (mnemonicO MY WITHDRAWALS): * Mydriasis * Yawning * Weakness * Insomnia, irritability * Tremors, tachycardia ¢ Hyperthermia, hypertension * Diarrhea ¢ Rhinorrhoea * Apnoeic attacks * Weight loss ¢ Anxiety * Lacrimation * Sweating 189</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "14_Other Substance Use Disorders",
+    "deck_id": 1755954606947,
+    "correctAnswer": "D. Opioid intoxication"
+  },
+  {
+    "id": 217,
+    "text": "Q5. middle-aged man was brought to the ED with suspected morphine overdose. He was intubated and mechanical ventilation was started. What is the drug of choice to be administered in this patient?",
+    "options": [
+      {
+        "label": "A",
+        "text": "IV Naloxone",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "IM Methadone",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "IV Clonidine",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Oral Naltrexone",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Intravenous naloxone is the drug of choice in acute morphine overdose. The first step is to ensure an adequate airway. Intubation and mechanical ventilation may be necessary. IV Naloxone is administered at a slow rate. Signs of improvement (increased respiratory rate and pupillary dilation) should occur promptly. If no response to the initial dosage, repeat after a few minutes. Repeated administration may be required to prevent recurrence of opioid toxicity because the duration of action of naloxone is less.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "14_Other Substance Use Disorders",
+    "deck_id": 1755954606947,
+    "correctAnswer": "A. IV Naloxone"
+  },
+  {
+    "id": 218,
+    "text": "Q6. An anxious 45-year-old man comes to the casualty, drenched in sweat. He is constantly wiping secretions from his mouth and nose and also complains of abdominal cramps. On examination, his BP is elevated and mydriasis is seen. On further questioning, he reluctantly reveals a history suggestive of drug abuse. Which of the following is most likely to be the cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Alcohol withdrawal",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Heroin withdrawal",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Cocaine withdrawal",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Cannabis withdrawal",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The clinical scenario describes a patient with the classic symptoms of heroin withdrawal. Heroin withdrawal: * Characteristic symptoms - myalgia, arthralgia, abdominal cramps, nausea, diarrhea, rhinorrhea, lacrimation, and sweating. * Signs on physical examination - restlessness, elevated heart rate and blood pressure, pupillary dilatation (mydriasis), piloerection, and yawning. Treatment for opioid dependence: Detoxification: * Long-acting opioid agonist - a safer substitute like methadone is given in a supervised manner to prevent withdrawal symptoms. * Partial agonist - buprenorphine can also be used. * Clonidine, lofexidine - alpha-2 agonist acts as sympatholytic and reduces the withdrawal symptoms. Maintenance: * Methadone, buprenorphine, LAAM (L-Alpha-Acetyl-Methadol) - opioid agonists which reduce craving. * Naltrexone is an opioid antagonist that blocks opioid effects, particularly euphoria, and discourages persons with opioid dependence from substance-seeking behavior.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "14_Other Substance Use Disorders",
+    "deck_id": 1755954606947,
+    "correctAnswer": "B. Heroin withdrawal"
+  },
+  {
+    "id": 219,
+    "text": "Q7. Which of the following drugs is also known by the street name &apos;crack&apos;?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cannabis",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Heroin",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Cocaine 184",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Gamma Hydroxy Butyrate",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Crack is a freebase form of cocaine and is extremely potent. It is sold in small, ready-to-smoke amounts, commonly called rocks. Crack cocaine is highly addictive, even one or two experiences with the drug can cause an intense craving for more. 190 y-Hydroxybutyrate (GHB) also called liquid ecstasy is a naturally-occurring neurotransmitter. It is a central nervous system (CNS) depressant that acts through the endogenous opioid system.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "14_Other Substance Use Disorders",
+    "deck_id": 1755954606947,
+    "correctAnswer": "C. Cocaine 184"
+  },
+  {
+    "id": 220,
+    "text": "Q8. 21-year-old student, with his mother, presented to the OPD with complaints of reduced concentration, and a lack of motivation related to attending college. Initially, only his attendance, classwork, and performance in exams were affected but lately, his mother adds that he has lost interest in going out to eat or even maintaining personal hygiene. On probing further, he gives a history of substance abuse. Which of the following is most likely?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cannabis",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Cocaine",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "LSD",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Alcohol",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario is suggestive of amotivational syndrome. It has been associated with long-term heavy use of cannabis. It is characterized by a person's unwillingness to persist in a task at school, at work, or in any setting that requires prolonged attention or tenacity. Persons are described as becoming apathetic and anergic, usually gaining weight, and appearing slothful. Products obtained from cannabis are marijuana, bhang, ganja, hashish, and charas. Features associated with cannabis intoxication: * Conjunctival injection (red eye) * Dry mouth * Tachycardia * Increased appetite * Heightened sensitivity to external stimuli * Depersonalization and derealization * Impaired motor skill Hemp insanity refers to cannabis-induced psychotic disorder. Run amok refers to cannabis-induced rampage destroying things and killing people.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "14_Other Substance Use Disorders",
+    "deck_id": 1755954606947,
+    "correctAnswer": "A. Cannabis"
+  },
+  {
+    "id": 221,
+    "text": "Q9. Which drug is commonly associated with flashback phenomenon?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Barbiturates",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Benzodiapenes",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Cannabis",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Cocaine",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Flashback phenomenon is more commonly seen with cannabis. Flashback phenomenon refers to a person experiencing sensations related to substance intoxication after the short-term effects of the substance have disappeared. That is, the person relives the substance (cannabis) use experience without consuming it. It is also seen in lysergic acid diethylamide (LSD) and phencyclidine which are hallucinogens.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "14_Other Substance Use Disorders",
+    "deck_id": 1755954606947,
+    "correctAnswer": "C. Cannabis"
+  },
+  {
+    "id": 222,
+    "text": "Q10. Angel dust is a street name for which drug?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Phencyclidine",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "LSD",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Heroin",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Ketamine",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Angel dust is the street name for phencyclidine. It is an NMDA antagonist. Popular street names of abused drugs: * Phencyclidine(PCP)Angel dust, peace pill 191 * MarijuanaPot, weed * HeroinSmack * CocaineCrack * Methylenedioxymethamphetamine(MDMA)Ecstasy, X * FlunitrazepamRoofie, forget-me pill Speedball is a combination of cocaine and heroin(opioid).</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "14_Other Substance Use Disorders",
+    "deck_id": 1755954606947,
+    "correctAnswer": "A. Phencyclidine"
+  },
+  {
+    "id": 223,
+    "text": "Q11. patient who was initially admitted with a history suggestive of paranoid schizophrenia is now suspected to have drug-induced psychosis. Which of the following drugs is the most 185 likely causative agent?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Clonidine intoxication",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Amphetamine abuse",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "LSD abuse",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Cannabis abuse",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Amphetamine abuse resembles paranoid schizophrenia. Amphetamine is a stimulant that causes stimulant-induced psychotic disorder. It induces ideas of reference, paranoid delusions, and hallucinations. The treatment of choice for the amphetamine-induced psychotic disorder is the short-term use of an antipsychotic medication such as haloperidol. Drug-induced psychosis can also be seen with chronic and heavy exposure to cocaine.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "14_Other Substance Use Disorders",
+    "deck_id": 1755954606947,
+    "correctAnswer": "B. Amphetamine abuse"
+  },
+  {
+    "id": 224,
+    "text": "Q12. man was brought in for questioning after a teenager was found dead at a Goan rave party. He reveals that he runs a nightclub in the city and that he has noticed anonymous people selling certain drugs that can enhance energy, endurance, and sociability in the clubbers who take them. Which of the following drugs is he most likely referring to?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cocaine",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Methamphetamine",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Heroin",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Cannabis",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Methamphetamine is a rave drug among the given options. Few substances are commonly used in all-night dance parties (raves) and in clubs to increase energy, endurance, sociability, and arousal. These substances are not all in the same drug class, and they do not produce the same physical or subjective effects. This includes: * Methamphetamine * MethylenedioxymethamphetamineMDMA * LSD * Gamma hydroxybutyrate (GHB) * Ketamine ¢ Flunitrazepam (Rohypnol) GHB, Ketamine, and Rohypnol have been called date rape drugs because they produce disorienting and sedating effects, and often users cannot recall what occurred under the influence of the drug.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "14_Other Substance Use Disorders",
+    "deck_id": 1755954606947,
+    "correctAnswer": "B. Methamphetamine"
+  },
+  {
+    "id": 225,
+    "text": "Q13. 25-year-old male presented to the clinic with a complaint of the feeling of insects crawling under the skin. Which of the following drug abuse can cause the symptoms of this patient?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cannabis",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Cocaine",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Amphetamine",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Alcohol",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">192 The feeling of insects crawling under the skin, also known as cocaine bugs or formication, is a feature of cocaine abuse. Other features of acute cocaine intoxication are delusions of persecution, paranoia, and suspiciousness. It is essential to differentiate acute cocaine intoxication from acute schizophrenia which it closely resembles.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "14_Other Substance Use Disorders",
+    "deck_id": 1755954606947,
+    "correctAnswer": "B. Cocaine"
+  },
+  {
+    "id": 226,
+    "text": "Q14. Which of the following drugs is used as an anti-smoking agent?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Busulfan",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Acamprosate",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Varenicline",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Gabapentin 186",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Varenicline is an 04f2 nicotinic acetylcholine receptor partial agonist used in the treatment of nicotine addiction. The FDA approved medication to aid in smoking cessation include: * NRT-Nicotine Replacement Therapy * Bupropion * Varenicline Drugs are only adjunctive to behavioral therapy, which is the first line of management. Behavior therapy is the most widely accepted and well-proven psychological therapy for treating Tobacco use disorder. It consists of several techniques: ¢ Skill training and relapse prevention. ¢ Stimulus control. * Mindfulness approaches. Bupropion: * It enhances both noradrenergic and dopaminergic neurotransmission by inhibiting reuptake. * Used for aiding smoking cessation and for the treatment of depression in combination with SSRIs. ¢ Side effects: seizures, sedation Varenicline: * «482 Nicotinic ACh receptor partial agonist. * Used for smoking cessation. * Side effects: sleep disturbance, may depress mood and increase suicidal tendencies. Mirtazapine: ¢ Serotonin receptor antagonist. * Used for the treatment of depression in combination with SSRIs and for insomnia in depressive patients. * Side effect: sedation 193</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "14_Other Substance Use Disorders",
+    "deck_id": 1755954606947,
+    "correctAnswer": "C. Varenicline"
+  },
+  {
+    "id": 227,
+    "text": "Q15. physician prescribed varenicline to a young smoker who wanted to quit smoking. About which of the following adverse effect should he be counselled about?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Decreased seizure threshold ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee Detailed Explanations Solution to Question 1: Neither physical dependence nor withdrawal symptoms occur with LSD, but a user can develop a psychological dependence on the insight-inducing experiences of episodes of hallucinogen use. 187",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Hepatotoxicity",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Skin rash",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Suicidal ideation",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Suicidal ideation is a side effect associated with varenicline. Varenicline is an 04B2 nicotinic acetylcholine receptor partial agonist. The FDA approved medications to aid cessation of smoking tobacco: * NRTNicotine Replacement Therapy * Bupropion * Varenicline Bupropion is associated with decreased seizure threshold and suicidal ideation. 194</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "14_Other Substance Use Disorders",
+    "deck_id": 1755954606947,
+    "correctAnswer": "D. Suicidal ideation"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>

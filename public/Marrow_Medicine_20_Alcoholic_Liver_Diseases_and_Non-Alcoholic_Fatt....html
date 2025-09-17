@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>20_Alcoholic Liver Diseases and Non-Alcoholic Fatt... - Marrow Medicine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">20_Alcoholic Liver Diseases and Non-Alcoholic Fatt...</h1>
+                <p class="text-gray-600 mt-2">Marrow • Medicine • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/13</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 13</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 401,
+    "text": "Q1. Which of the following is the most common cause of cirrhosis in India?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Non alcoholic fatty liver disease",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Alcoholic liver disease",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Hepatitis B infection",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Hepatitis C infection",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Alcoholic liver disease is the most common cause of cirrhosis in India. The most common cause of cirrhosis worldwide is chronic viral hepatitis - Hepatitis C and B. NASH is expected to overtake it in the near future.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Alcoholic Liver Diseases and Non-Alcoholic Fatt...",
+    "deck_id": 1755954606956,
+    "correctAnswer": "B. Alcoholic liver disease"
+  },
+  {
+    "id": 402,
+    "text": "Q2. What is the minimum amount of ethanol a man must have consumed for him to be at increased risk for alcoholic liver disease?",
+    "options": [
+      {
+        "label": "A",
+        "text": "35 g/day",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "20 g /day",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "28¢/day",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "14 g/day",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The minimum amount of ethanol that leads to an increased risk of developing alcoholic liver disease is 28¢/day. In women, the minimum is 14¢/day. The risk factors for alcoholic liver disease are: * Quantity of alcohol consumption - The risk of developing alcoholic liver disease increases when alcohol consumption is &amp;gt; 14 drinks/ week in men and &amp;gt; 7drinks/week in women. A standard drink contains 14g of ethanol which is present in - * 120 mL of wine ¢ 350ml of beer * 45ml of spirits (gin, rum, whiskey, vodka, tequilla) * Gender - Women have increased susceptibility to alcoholic liver disease * Hepatitis C infection - Increases the severity and decreases survival in alcoholic liver disease * Genetics - A variation in patatin-like phospholipase domain-containing protein 3 (PNPLA3) gene confers an increased risk of progressive liver disease</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Alcoholic Liver Diseases and Non-Alcoholic Fatt...",
+    "deck_id": 1755954606956,
+    "correctAnswer": "C. 28¢/day"
+  },
+  {
+    "id": 403,
+    "text": "Q3. 45-year-old chronic alcoholic presents with right upper quadrant abdominal pain and nausea. His ultrasound abdomen revealed grade 2 fatty liver. Which among the following findings is unlikely to be seen in his condition?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AST : ALT &amp;lt; 2",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Prolonged prothrombin time",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Low platelet counts",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Elevated ALP",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario is suggestive of alcoholic liver disease. It is usually characterized by an AST: ALT &amp;gt; 2. This is because there is a deficiency of pyridoxal 5'phosphate that is a cofactor for the enzymatic activity of ALT. Therefore, ALT levels fail to rise and there is a reversal of the AST: ALT ratio. Prothrombin time (PT) is prolonged due to the deficiency of coagulation factors and, usually, does not respond to the administration of parenteral vitamin K. Platelet counts are often reduced early in the disease, which is reflective of portal hypertension with hypersplenism. Elevated ALP levels are seen due to enzymatic induction by alcohol and mild cholestasis.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Alcoholic Liver Diseases and Non-Alcoholic Fatt...",
+    "deck_id": 1755954606956,
+    "correctAnswer": "A. AST : ALT &amp;lt; 2"
+  },
+  {
+    "id": 404,
+    "text": "Q4. Which of the following is unlikely to be seen in patients with Zieve&apos;s syndrome? 263",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cholestatic jaundice",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Hemolytic anaemia",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Transient hyperlipidemia",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Thrombocytosis",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Zieve's syndrome is not associated with thrombocytosis. 267 Zieve's syndrome is a rare syndrome occurring due to severe alcoholic hepatitis characterized by a triad of: * Cholestatic jaundice * Hemolytic anemia * Transient hyperlipidemia It resolves with abstinence from alcohol.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Alcoholic Liver Diseases and Non-Alcoholic Fatt...",
+    "deck_id": 1755954606956,
+    "correctAnswer": "D. Thrombocytosis"
+  },
+  {
+    "id": 405,
+    "text": "Q5. Which of the following is the most specific marker for alcoholism?",
+    "options": [
+      {
+        "label": "A",
+        "text": "ALT",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "GGT",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "ALP",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "LDH",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">GGT (Gamma Glutamy]l Transferase) is the most specific marker of alcoholism among the given options. The markers with &amp;gt; 60% sensitivity and specificity for heavy alcohol use are gamma-glutamyl transferase (&amp;gt; 35 u) and carbohydrate-deficient transferrin (CDT), the combination of the two is likely to be more accurate than one. An isolated elevation in serum GGT or GGT elevation out of proportion to that of other enzymes (such as the ALT and ALP) may be an indicator of alcohol abuse or alcoholic liver disease. ALT (option A) is usually elevated in acute hepatocellular conditions such as hepatitis. Alanine aminotransferase is predominantly found in the liver, hence a more specific marker of liver injury. A ratio of AST/ALT &amp;gt; 2: 1 indicates the possibility of alcoholic liver disease and &amp;gt; 3: 1 ratio is highly indicative of this condition. In alcoholic liver disease, ALT levels are often normal. ALP (option C) is elevated in cholestasis, HMlis also elevated when there is rapid bone growth like in children and adolescents because of bone alkaline phosphatase and in normal pregnancies due to placental alkaline phosphatase. LDH (option D) elevation is nonspecific.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Alcoholic Liver Diseases and Non-Alcoholic Fatt...",
+    "deck_id": 1755954606956,
+    "correctAnswer": "B. GGT"
+  },
+  {
+    "id": 406,
+    "text": "Q6. You are using a CAGE questionnaire to screen a patient for alcohol abuse. Which of these is not the correct expansion of this questionnaire?",
+    "options": [
+      {
+        "label": "A",
+        "text": "C - drink to calm your nerves",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "A - criticism over drinking annoys you",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "G - feel guilty about drinking",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "E - had a drink as eye opener",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">C stands for feeling the need to cut down your drinking in the CAGE questionnaire. The CAGE questionnaire is used for identifying alcohol abuse. It can be expanded as below: * C - Have you ever felt you ought to cut down on your drinking? * A - Have people annoyed you by criticizing your drinking? * G - Have you ever felt guilty or bad about your drinking? * E - Have you ever had a drink first thing in the morning to steady your nerves or get rid of a hangover (eye-opener)? One 'yes' response raises a suspicion of an alcohol use problem and more than one is a strong indication of abuse or dependence. 268</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Alcoholic Liver Diseases and Non-Alcoholic Fatt...",
+    "deck_id": 1755954606956,
+    "correctAnswer": "A. C - drink to calm your nerves"
+  },
+  {
+    "id": 407,
+    "text": "Q7. What parameters are used in calculating discriminant function?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Prothrombin time and bilirubin",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Bilirubin, ascites and hepatic encephalopathy",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Prothrombin time, ascites and hepatic encephalopathy",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Prothrombin, Bilirubin and creatinine",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Discriminant function (DF) is calculated using prothrombin time and bilirubin level. It is also known as the Maddrey score and it assesses the severity and mortality risk in alcoholic hepatitis. DF = 4. 6 X (the prolongation of the prothrombin time above control [seconds]) + serum bilirubin (mg/dL) DF &gt; 32 indicates severe disease and is an indication for starting glucocorticoids.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Alcoholic Liver Diseases and Non-Alcoholic Fatt...",
+    "deck_id": 1755954606956,
+    "correctAnswer": "A. Prothrombin time and bilirubin"
+  },
+  {
+    "id": 408,
+    "text": "Q8. patient with alcoholic hepatitis has just been admitted to your ward. Prior to starting treatment, the senior doctor asks you to calculate his discriminant function. What is the 264 cutoff value for determining severe disease?",
+    "options": [
+      {
+        "label": "A",
+        "text": "26",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "36",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "22",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "32",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Severe alcoholic hepatitis is defined as discriminant function (DF) &gt; 32. Severe alcoholic hepatitis is defined as: * Discriminant Function (DF) = 32 * Model for End-stage Liver Disease (MELD) score &gt; 21 * Presence of hepatic encephalopathy</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Alcoholic Liver Diseases and Non-Alcoholic Fatt...",
+    "deck_id": 1755954606956,
+    "correctAnswer": "D. 32"
+  },
+  {
+    "id": 409,
+    "text": "Q9. Which among the following is true about alcoholic cirrhosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Hepatocyte hyperplasia",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Macronodular cirrhosis",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Mixed micro and macronodular cirrhosis",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Absence of Mallory Denk bodies",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Alcoholic cirrhosis is characterized by mixed micro-and macronodular. If a mixed pattern is not an option, the best choice is micronodular cirrhosis. Cirrhosis is the late stage of alcoholic liver disease. It is characterised by extensive fibrosis. Alcoholic cirrhosis begins as micronodular cirrhosis. With the cessation of alcohol use, larger nodules may form, resulting in a mixed micronodular and macronodular pattern. The various conditions in which cirrhosis is seen are listed below: * Macronodular cirrhosisParenchymal nodules &amp;gt; 3 mm * Micronodular cirrhosisParenchymal nodules &amp;lt; 3 mm Chronic viral hepatitisa1 Anti | AlcoholPrimary biliary cirrho trypsin deficiencyDrugs &amp; tox | sisLarge bile duct obstruction insHereditary hemorrhagic te | HemochromatosisIntestinal langiectasiaCryptogenic cirrh | bypassCystic fibrosisIndian c osisWilsons disease (Micro &amp; | hildhood cirrhosis Macro nodular &gt;&gt; Macronod ular)</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Alcoholic Liver Diseases and Non-Alcoholic Fatt...",
+    "deck_id": 1755954606956,
+    "correctAnswer": "C. Mixed micro and macronodular cirrhosis"
+  },
+  {
+    "id": 410,
+    "text": "Q10. Prednisolone therapy for alcoholic hepatitis can be started in a patient with all of the following except:",
+    "options": [
+      {
+        "label": "A",
+        "text": "Glasgow score =9",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Serum creatinine &gt;1 mg/dL",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Spontaneous hepatic encephalopathy",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "SOFA score &amp;gt;2",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">269 SOFA score &amp;gt; 2 indicates sepsis and glucocorticoids are avoided in septic patients. Glucocorticoids are indicated in severe alcoholic hepatitis which is defined as: * Discriminant Function (DF) = 32 * Model for End-stage Liver Disease (MELD) score &gt; 21 * Glasgow alcoholic hepatitis score &gt; 9 * Presence of hepatic encephalopathy Prednisolone is given at a dose of 32 mg orally daily for 4 weeks and then slowly tapered off. Glucocorticoid therapy is avoided in: * Active GI bleeding requiring blood transfusions * Active infection requiring antibiotic treatment * Preexisting chronic renal disease with a serum creatinine level greater than 2 mg/dL * Pancreatitis * Obvious contraindications to glucocorticoid therapy</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Alcoholic Liver Diseases and Non-Alcoholic Fatt...",
+    "deck_id": 1755954606956,
+    "correctAnswer": "D. SOFA score &amp;gt;2"
+  },
+  {
+    "id": 411,
+    "text": "Q11. 34-year-old man presents with yellowish discoloration of the skin, abdominal pain, and fever. He reports consuming one-quarter of whisky every day for the past 10 years. He is a known case of chronic kidney disease. His lab reports are given below. Which of the following is used in his treatment?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Nutritional support alone",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Prednisolone",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Betamethasone",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Pentoxifylline 265",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario is suggestive of severe alcoholic hepatitis. Since the patient is a known case of chronic kidney disease, pentoxifylline is used in his treatment. Severe alcoholic hepatitis is defined by a discriminant function &gt; 32. In the given scenario, DF = 4. 6 X (the prolongation of the prothrombin time above control [seconds]) + serum bilirubin (mg/dL) = 4. 6 x (16-11) + 11 = 34. Thus, the patient cannot be managed by nutritional support alone. Pentoxifylline is a TNF alpha inhibitor used either by itself or along with glucocorticoids in the treatment of severe alcoholic hepatitis. It is preferred in patients with kidney diseases and conditions where glucocorticoids are contraindicated. Glucocorticoid therapy is avoided in: * Active GI bleeding requiring blood transfusions * Active infection requiring antibiotic treatment * Preexisting chronic renal disease with a serum creatinine level greater than 2 mg/dL * Pancreatitis * Obvious contraindications to glucocorticoid therapy</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Alcoholic Liver Diseases and Non-Alcoholic Fatt...",
+    "deck_id": 1755954606956,
+    "correctAnswer": "D. Pentoxifylline 265"
+  },
+  {
+    "id": 412,
+    "text": "Q12. Which of the following statements is not true about nonalcoholic fatty liver disease?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Results from fat accumulation in more than 5% of hepatocytes",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Strongly associated with obesity and insulin resistance",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Associated with reduced serum ferritin levels",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Diagnosis of NASH requires presence of inflammation",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">270 Nonalcoholic fatty liver disease (NAFLD) is associated with increased levels of serum ferritin. Nonalcoholic fatty liver disease (NAFLD) is defined as hepatic steatosis in the absence of any secondary cause for fat accumulation. Histologically, this requires fat accumulation in more than 5% of hepatocytes and it can be divided into: * Nonalcoholic fatty liver (NAFL)steatosis without inflammation * Nonalcoholic steatohepatitis (NASH) - steatosis with inflammation NAEFLD is strongly associated with obesity and insulin resistance. Its diagnosis requires demonstration of hepatic steatosis and exclusion of significant alcohol consumption and other causes of hepatic fat accumulation.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Alcoholic Liver Diseases and Non-Alcoholic Fatt...",
+    "deck_id": 1755954606956,
+    "correctAnswer": "C. Associated with reduced serum ferritin levels"
+  },
+  {
+    "id": 413,
+    "text": "Q13. non-diabetic patient has been diagnosed with nonalcoholic steatohepatitis (NASH). Which of the following is the first-line therapy for it?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Vitamin A ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee | ee 266",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Vitamin E",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Betaine",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Ursodeoxycholic acid",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The first-line therapy for nondiabetic patients with nonalcoholic steatohepatitis(NASH) is vitamin E. Management of NAFLD includes: * Vitamin E - first-line therapy in non-diabetics * Insulin sensitizersfirst-line therapy in diabetics * Immunizations for Hepatitis A and B * Weight loss ¢ Abstinence from alcohol Note: The FDA in 2024 has approved Resmetirom, a thyroid hormone receptor-beta (THR-beta) agonist for noncirrhotic NASH with moderate to advanced fibrosis. 271</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "20_Alcoholic Liver Diseases and Non-Alcoholic Fatt...",
+    "deck_id": 1755954606956,
+    "correctAnswer": "B. Vitamin E"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>

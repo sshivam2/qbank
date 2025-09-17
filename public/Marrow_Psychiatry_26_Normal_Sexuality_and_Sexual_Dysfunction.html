@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>26_Normal Sexuality and Sexual Dysfunction - Marrow Psychiatry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">26_Normal Sexuality and Sexual Dysfunction</h1>
+                <p class="text-gray-600 mt-2">Marrow • Psychiatry • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/11</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 11</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 358,
+    "text": "Q1. The acts that a person says or does to disclose himself as having the status of boy or man is called .",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sexual identity",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Gender role",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Sexual orientation",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Gender identity",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Acts that a person says or does to disclose himself or herself as having the status of boy or man, girl or woman is called gender role. Gender role is not established at birth. It is built up through experiences, instruction, and inculcation from parents and others. Based on this, a person usually acquires the role considered appropriate for the person's sex.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Normal Sexuality and Sexual Dysfunction",
+    "deck_id": 1755954606300,
+    "correctAnswer": "B. Gender role"
+  },
+  {
+    "id": 359,
+    "text": "Q2. What term is used to describe an individual’s sense of maleness or femaleness?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Gender role",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Sexual identity",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Gender identity",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Sexual orientation",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Gender identity is an individual’s sense of maleness or femaleness. It results from the clues derived from experience with family, peers, and culture e. g. , physique, body shape, different ways of handling male and female infants by parents. It is established by the age of 2 or 3 years. 304</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Normal Sexuality and Sexual Dysfunction",
+    "deck_id": 1755954606300,
+    "correctAnswer": "C. Gender identity"
+  },
+  {
+    "id": 360,
+    "text": "Q3. young woman presents to the psychiatry OPD. She says that she has an intense sexual desire but her husband is unable to fulfill her increasing needs, because of which she seeks extramarital affairs. What is the diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Nymphomania",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Satyriasis",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Voyeurism",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Troilism",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">In the scenario, the female patient has an excessive desire for sexual intercourse i. e. , hypersexuality. This is called nymphomania. It is sometimes classified as a form of sex addiction. Satyriasis is uncontrollable or excessive sexual desire (hypersexuality) in males. In some men, sexual activity is a means to mask their deep feelings of inferiority. Some have unconscious homosexual impulses, which they deny by compulsive sexual contact with women. Many of them are no longer interested in women after sex. It is also known as Don Juanism. Don Juan is a legendary, fictional libertine who devoted his life to seducing women. Voyeurism/Peeping Tom/scopophilia is sexual gratification by secretly watching others getting undressed, taking bath, having sexual intercourse, etc. Troilism is getting sexual gratification by watching his own wife performing sexual intercourse with another man.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Normal Sexuality and Sexual Dysfunction",
+    "deck_id": 1755954606300,
+    "correctAnswer": "A. Nymphomania"
+  },
+  {
+    "id": 361,
+    "text": "Q4. Arrange the following disorders according to the sequence of the normal sexual response cycle? 301 a)3-4-1-2 b)1-4-3-2 c)1-3-4-2 d)3-1-2-4",
+    "options": [
+      {
+        "label": "A",
+        "text": "",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The sequence of the normal sexual response cycle is Desire - Excitement - Orgasm - Resolution. The given sexual disorders correspond to: « A patient with sexual aversion - desire * A patient having post-coital headache - resolution ¢ A patient with erectile dysfunction - excitement * A patient with complaints of premature ejaculation - orgasm Hence, the correct sequence of the given disorders according to the normal sexual response cycle is1-3-4-2. Sexual response is a true psycho-physiological experience. Normally, men and women experience a sequence of physiological responses to sexual stimulation. * Desire phase - consists of sex fantasies and the desire to have sex. * Excitement/Arousal phase - heightened excitement before orgasm (longest phase) * Orgasmic phase - a subjective perception of a peak physical reaction and release occurs, along with a feeling of well-being (shortest phase) * Resolution phase - return to the baseline Following orgasm, men experience a refractory period during which they cannot be restimulated to further arousal. Women do not have a refractory period and can experience multiple, successive orgasms.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Normal Sexuality and Sexual Dysfunction",
+    "deck_id": 1755954606300,
+    "correctAnswer": "A. "
+  },
+  {
+    "id": 362,
+    "text": "Q5. Which of the following is not a feature of a patient with hypoactive sexual desire disorder?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Severe marital problems may be the cause",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Symptoms cause significant distress",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Symptoms last for at least 6 months episodically",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "No history of substance abuse",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">305 For the diagnosis of male hypoactive sexual desire disorder, the reduced desire for sexual activity should not be explained by severe relationship distress, a non-sexual mental disorder, substance, medication, or another medical condition. According to DSM-5 and ICD-11, the diagnostic criteria for male hypoactive sexual desire disorder are: * Persistently or recurrently deficient (or absent) sexual thoughts or desire for sexual activity ¢ The minimum duration of approximately 6 months - episodically or persistently * Cause clinically significant distress in the individual * The sexual dysfunction in the patient is not explained by: « A non-sexual mental disorder * Severe relationship distress * Substance abuse * Medication ¢ Another medical condition.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Normal Sexuality and Sexual Dysfunction",
+    "deck_id": 1755954606300,
+    "correctAnswer": "A. Severe marital problems may be the cause"
+  },
+  {
+    "id": 363,
+    "text": "Q6. 30-year-old woman persuaded her husband to attend couples therapy. She says that her husband cheated on her, to which he replies that his wife is never ready to put an effort into their relationship. The distressed wife then explains that since last year, she has lost interest in sexual intercourse and does not feel aroused anymore. Which of the following drugs would you prescribe her?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sildenafil",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Fluoxetin",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Flibanserin",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Flunitrazepam",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The wife has hypoactive sexual desire disorder. Flibanserin (a partial 5-HT1A-agonist) is the first FDA-approved drug for the treatment of hypoactive sexual desire disorder (HSDD) in pre-menopausal women. The following must be excluded before use: * A co-existing medical or psychiatric condition, ¢ Other problems within the relationship, or * The effects of a medication or other drug substance. Note: In 2019, the US-FDA approved Bremelanotide, a melanocortin receptor agonist approved for hypoactive sexual desire disorder (HSDD) in pre-menopausal women. It is given as a subcutaneous injection.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Normal Sexuality and Sexual Dysfunction",
+    "deck_id": 1755954606300,
+    "correctAnswer": "C. Flibanserin"
+  },
+  {
+    "id": 364,
+    "text": "Q7. 40-year-old man comes to your clinic. He reports that sexual desire is present but he is unable to achieve and maintain an erection. He has avoided physical relations with his wife in order to avoid the embarrassment of not being able to perform. He often falls asleep early to avoid sex. Which of the following is the most common cause this condition in his age group?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Diabetes mellitus",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Hypertension",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Psychogenic",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Atherosclerosis 302",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The patient in this scenario has erectile dysfunction. In young and middle-aged men, the most common cause of erectile dysfunction is usually psychological. The most common causes of erectile dysfunction in: * Young and middle-aged men - psychological * Older men - organic (atherosclerosis) * Overall - organic (atherosclerosis) 306</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Normal Sexuality and Sexual Dysfunction",
+    "deck_id": 1755954606300,
+    "correctAnswer": "C. Psychogenic"
+  },
+  {
+    "id": 365,
+    "text": "Q8. patient is being evaluated for erectile dysfunction. Which of the following will help differentiate a psychological cause from an organic one?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Decreased vibratory perception in the penis",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Absence of erection with any partner",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Presence of nocturnal penile tumescence",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "No good erection during masturbation",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The presence of nocturnal penile tumescence almost rules out organic causes of erectile dysfunction. Organic causes are considered negligible in the following: * Spontaneous erections at times when he does not plan to have intercourse. * Having morning erections or nocturnal penile tumescence (erection during REM sleep). * Only sporadic erectile dysfunction. * Having good erections with masturbation. ¢ Having a good erection with partners other than his usual one. Organic (non-psychogenic) causes of erectile dysfunction: * Vasculogenic - arterial insufficiency, venous leak * Endocrinologic - hypogonadism, hyperprolactinemia ¢ Neurogenic * Iatrogenic</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Normal Sexuality and Sexual Dysfunction",
+    "deck_id": 1755954606300,
+    "correctAnswer": "C. Presence of nocturnal penile tumescence"
+  },
+  {
+    "id": 366,
+    "text": "Q9. Premature ejaculation is a disorder of which phase of the normal sexual cycle?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Desire",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Arousal",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Orgasm",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Pain",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Premature ejaculation is a disorder of the orgasm phase of the normal sexual cycle. Premature ejaculation is when ejaculation occurs before the completion of satisfactory sexual activity. In severe cases, it is characterized by ejaculation either before penile entry into the vagina or soon after penetration. The causes can be biological or psychological, like performance anxiety.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Normal Sexuality and Sexual Dysfunction",
+    "deck_id": 1755954606300,
+    "correctAnswer": "C. Orgasm"
+  },
+  {
+    "id": 367,
+    "text": "Q10. Within how many minutes of vaginal penetration should ejaculation regularly occur to diagnose a patient with premature ejaculation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "1 minute",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "2 minutes",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "3 minutes",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "4 minutes",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Premature (early) ejaculation is diagnosed when the patient regularly ejaculates within 1 minute of vaginal penetration. A common reason for this disorder is performance anxiety leading to sympathetic arousal. Such men persistently or recurrently achieve orgasm and ejaculation before they wish to. Can be classified as: Management: * Pharmacological: SSRIParoxetine and Dapoxetine (cause delayed ejaculation) * Non-pharmacological: using techniques such as Squeeze technique, Start-stop technique and sensate focusing 307 Note: DSM-5 refers only to vaginal penetration in its diagnostic criteria, whereas ICD-11 includes other relevant sexual stimulation also. Mode | 15 sec to 30 se rate Cc Sever | &lt;15 sec e</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Normal Sexuality and Sexual Dysfunction",
+    "deck_id": 1755954606300,
+    "correctAnswer": "A. 1 minute"
+  },
+  {
+    "id": 368,
+    "text": "Q11. Seman&apos;s technique is used for which of the following conditions?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Retrograde ejaculation ee ee ee ee ee ee ee ee ee ee Detailed Explanations Solution to Question 1: Acts that a person says or does to disclose himself or herself as having the status of boy or man, girl or woman is called gender role. Gender role is not established at birth. It is built up through experiences, instruction, and inculcation from parents and others. Based on this, a person usually acquires the role considered appropriate for the person&apos;s sex. Solution to Question 2: Gender identity is an individual’s sense of maleness or femaleness. It results from the clues derived from experience with family, peers, and culture e.g., physique, body shape, different ways of handling male and female infants by parents. It is established by the age of 2 or 3 years. 304",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Erectile dysfunction",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Premature ejaculation 303",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Anorgasmia",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Seman's stop-start technique is used for premature ejaculation, to prolong the time period until ejaculation. Seman's technique (stop-start technique): A man approaches the point close to climax and then stops and relaxes before starting again. This method prolongs the time before ejaculation by relying on behaviour modification. Other treatments for premature ejaculation: * Squeeze technique (by Master and Johnson's)as a man approaches a climax, he squeezes the tip of the penis just below the head of the penis. The pressure is held there until the sensation of impending orgasm diminishes. The process can then be started over again so that over time a man prolongs the time period until he reaches ejaculation. * Sensate focusing - refocussing on the non-coital aspects of sexual activity. * Selective serotonin reuptake inhibitors (SSRIs) - delays ejaculation. e. g. dapoxetine, paroxetine. 308</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Normal Sexuality and Sexual Dysfunction",
+    "deck_id": 1755954606300,
+    "correctAnswer": "C. Premature ejaculation 303"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>

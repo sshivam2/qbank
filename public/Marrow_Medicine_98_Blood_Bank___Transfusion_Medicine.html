@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>98_Blood Bank & Transfusion Medicine - Marrow Medicine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">98_Blood Bank & Transfusion Medicine</h1>
+                <p class="text-gray-600 mt-2">Marrow • Medicine • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/16</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 16</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 1815,
+    "text": "Q1. What is the &apos;A blood antigen’ composed of?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Galactose attached to H substance",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Glucose attached to H substance",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "N-acetyl galactosamine attached to H substance",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "N-acetyl glucosamine attached to H substance",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The blood group ‘antigen A' is composed of N-acetyl galactosamine attached to the H substance. H substance is formed by the addition of fucose to the glycolipid or glycoprotein backbone. It is present in all blood groups, even the O group. A antigen = N-acetyl galactosamine + H substance B antigen = galactose + H substance However, in case of the Bombay phenotype, RBCs lack H antigen. Hence, these individuals have anti-A, anti-B, and anti-H antibodies. The only compatible blood donor is another person with the Bombay blood group.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "98_Blood Bank & Transfusion Medicine",
+    "deck_id": 1755954606377,
+    "correctAnswer": "C. N-acetyl galactosamine attached to H substance"
+  },
+  {
+    "id": 1816,
+    "text": "Q2. Which chromosome contains the genes that determine the A and B blood groups?",
+    "options": [
+      {
+        "label": "A",
+        "text": "9 b)7 c)5 d)1",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The genes that determine the A and B blood groups are located on chromosome 9. The phenotypes are expressed in the Mendelian codominant manner. Rh genes determining Rh blood grouping are present on chromosome 1.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "98_Blood Bank & Transfusion Medicine",
+    "deck_id": 1755954606377,
+    "correctAnswer": "A. 9 b)7 c)5 d)1"
+  },
+  {
+    "id": 1817,
+    "text": "Q3. Individuals with a lack of which of the following blood group antigens have immunity against Plasmodium vivax?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Kell",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Lewis",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Kidd",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Duffy",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Duffy antigens serve as receptors for Plasmodium vivax. Hence, the absence of the Duffy antigen is protective against Plasmodium vivax. Hemoglobinopathies that are protective against Plasmodium falciparum include: ¢ Sickle cell trait * Hemoglobin C * Hemoglobin SC * Hemoglobin E * Hereditary persistence of fetal hemoglobin (Hb F) ¢ Alpha and beta-thalassemia</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "98_Blood Bank & Transfusion Medicine",
+    "deck_id": 1755954606377,
+    "correctAnswer": "D. Duffy"
+  },
+  {
+    "id": 1818,
+    "text": "Q4. Donated blood is screened for all of the following infections except:",
+    "options": [
+      {
+        "label": "A",
+        "text": "Kala azar",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Hepatitis C 1465",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Syphilis",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Malaria",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">1470 Donated blood is not routinely screened for kala-azar. It is screened for the following infections in the blood bank: * Human immunodeficiency virus * Hepatitis B * Hepatitis C * Malaria * Syphilis</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "98_Blood Bank & Transfusion Medicine",
+    "deck_id": 1755954606377,
+    "correctAnswer": "A. Kala azar"
+  },
+  {
+    "id": 1819,
+    "text": "Q5. As the medical officer at a blood bank, you are supervising the separation of blood components of donated blood. The preservative used for the packed red cells is SAG-M. Which of the following criteria must be fulfilled in order to safely transfuse this to patients? a)1 b) 2 Cc) 3 d) 4",
+    "options": [
+      {
+        "label": "A",
+        "text": "",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The shelf life of packed red cells (pRBCs) in the SAG-M solution is 42 days. The optimum temperature for storage of packed RBCs and whole blood collected in preservatives is +2° to +6° C. This temperature maintains the viability of the cells and prevents bacterial contamination. PRBCs +2° to +6 °C CPD-21 daysCPD-A-35 daysS AG M-42 days Fresh frozen plas__| -30 °C or lower 1 year ma</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "98_Blood Bank & Transfusion Medicine",
+    "deck_id": 1755954606377,
+    "correctAnswer": "A. "
+  },
+  {
+    "id": 1820,
+    "text": "Q6. Packed red blood cell transfusion is started for a patient in the ward. It must be completed within:",
+    "options": [
+      {
+        "label": "A",
+        "text": "5 hours",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "2 hours",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "3 hours",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "4 hours",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Transfusion of pRBCs (packed red blood cells) or whole blood should be completed within 4 hours after the commencement. Transfusion of platelets, fresh frozen plasma, and cryoprecipitate should be completed within 30 minutes.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "98_Blood Bank & Transfusion Medicine",
+    "deck_id": 1755954606377,
+    "correctAnswer": "D. 4 hours"
+  },
+  {
+    "id": 1821,
+    "text": "Q7. Cryoprecipitate is useful for the management of patients with all of the following conditions except:",
+    "options": [
+      {
+        "label": "A",
+        "text": "Hemophilia A",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Von Willebrand disease",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Hypofibrinogenemia",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Christmas disease",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Cryoprecipitate does not contain factor IX. Hence, it is not useful for the management of patients with Christmas disease, which occurs due to deficiency of factor IX. Components of cryoprecipitate are: * Factor VIII * Factor XIII * Fibrinogen 1471 * Fibronectin * Von Willebrand factor Therefore it can be used in patients with hemophilia A, factor XIII deficiency, hypofibrinogenemia, and von Willebrand disease.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "98_Blood Bank & Transfusion Medicine",
+    "deck_id": 1755954606377,
+    "correctAnswer": "D. Christmas disease"
+  },
+  {
+    "id": 1822,
+    "text": "Q8. 1466 You are monitoring the falling platelet count of a 31-year-old man with dengue fever. You would recommend prophylactic platelet transfusion when the count drops below what level?",
+    "options": [
+      {
+        "label": "A",
+        "text": "5000 platelets /uL",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "10000 platelets /uL Cc) 15000 platelets /uL",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "50000 platelets /uL",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The threshold for prophylactic platelet transfusion is 10,000/uL in order to prevent spontaneous bleeding. If the patient is planned for any invasive procedures, the target platelet level is 50,000/LL. The shelf life of donor platelets is 5 days. It is stored on a special agitator at 20-24 °C. The half-life of transfused platelets is 3-5 days. One unit of pooled platelets should be transfused within 30 minutes because of the risk of bacterial proliferation.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "98_Blood Bank & Transfusion Medicine",
+    "deck_id": 1755954606377,
+    "correctAnswer": "B. 10000 platelets /uL Cc) 15000 platelets /uL"
+  },
+  {
+    "id": 1823,
+    "text": "Q9. Which of the following blood components does not carry the risk of transmitting cytomegalovirus infection?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Packed red blood cells",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Whole blood",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Fresh frozen plasma",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Random donor platelets",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Fresh frozen plasma (FFP) is an acellular component and generally does not transmit viral infections. Cytomegalovirus (CMV) infects &amp;gt; 50% of the general population and is transmitted by infected passenger WBCs in transfused PRBCs or platelet components. Cellular components that are leukocyte-reduced have a decreased risk of transmitting CMV. Infectious complications of blood transfusion include: * Viral infections: Hepatitis C virus, hepatitis B virus, HIV, cytomegalovirus * Bacterial contamination: sudden and fulminant onset of fever, chills, septic shock, and disseminated intravascular coagulation (DIC) * Platelet concentrates stored at room temperature: gram-positive and coagulase-negative staphylococci * PRBCs: Gram-negative bacteria like Yersinia, Pseudomonas, Serratia, Acinetobacter, and Escherichia species * Parasites: Malaria, Babesiosis, Chaga's disease * Others: Creutzfeldt—Jakob disease (CJD)</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "98_Blood Bank & Transfusion Medicine",
+    "deck_id": 1755954606377,
+    "correctAnswer": "C. Fresh frozen plasma"
+  },
+  {
+    "id": 1824,
+    "text": "Q10. Which of the following reactions occurs most frequently in patients undergoing blood transfusions?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Acute hemolytic transfusion reaction",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Febrile non-hemolytic transfusion reaction",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Transfusion-related acute lung injury",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Anaphylactic reaction",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Febrile non-hemolytic transfusion reaction (FNHTR) is the most frequently occurring transfusion reaction. 1472</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "98_Blood Bank & Transfusion Medicine",
+    "deck_id": 1755954606377,
+    "correctAnswer": "B. Febrile non-hemolytic transfusion reaction"
+  },
+  {
+    "id": 1825,
+    "text": "Q11. Thirty minutes after a blood transfusion is started, a patient develops chills and severe flank pain. Her temperature is 102. 4 F, SpO2 is 96%, and her blood pressure is 90/60 mm Hg. She then begins bleeding around her IV catheter site. What is the most likely diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Anaphylactic reaction",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Acute hemolytic reaction",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Febrile non-hemolytic reaction",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Anamnestic antibody response 1467",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">This clinical scenario is suggestive of acute hemolytic transfusion reaction (AHTR).</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "98_Blood Bank & Transfusion Medicine",
+    "deck_id": 1755954606377,
+    "correctAnswer": "B. Acute hemolytic reaction"
+  },
+  {
+    "id": 1826,
+    "text": "Q12. 40-year-old man is being evaluated in the ward for fatigue and pallor. One week ago, he had undergone a blood transfusion following a road accident. Further evaluation reveals Hb of 8. 1 g/dl and positive direct Coomb&apos;s test and history of previous blood transfusion. What is the likely mechanism of this condition?",
+    "options": [
+      {
+        "label": "A",
+        "text": "ABO incompatibility reaction",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Antibodies against donor leukocytes",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Antibodies against donor IgA",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Anamnestic antibody response",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">This clinical scenario is suggestive of delayed hemolytic transfusion reaction (DHTR). It is due to an anamnestic antibody response. This refers to the rapid production of antibodies in the blood after exposure to an antigen to which the recipient had been previously sensitized.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "98_Blood Bank & Transfusion Medicine",
+    "deck_id": 1755954606377,
+    "correctAnswer": "D. Anamnestic antibody response"
+  },
+  {
+    "id": 1827,
+    "text": "Q13. Which among the following options is the most common cause of death in patients undergoing blood transfusions?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Febrile non-hemolytic transfusion reaction",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Acute hemolytic transfusion reaction",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Delayed hemolytic transfusion reaction",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Transfusion-related acute lung injury",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Transfusion-related acute lung injury (TRALI) is the most common cause of transfusion-related fatalities. TRALI is due to the presence of anti-HLA class II antibodies in the donor plasma. These antibodies bind recipient leukocytes, which aggregate in the pulmonary vasculature and release mediators that increase capillary permeability. Multiparous women are frequently implicated donors. Recipients with a history of liver disease, smoking, alcohol use are at a higher risk. It occurs within 6 hours of transfusion and results in hypoxia and signs of non-cardiogenic pulmonary edema with bilateral interstitial infiltrates on chest X-ray. It is managed with supportive care. Note: According to the latest edition of Harrison's, transfusion associated circulatory overload (TACO) is the leading cause of death followed by TRALI.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "98_Blood Bank & Transfusion Medicine",
+    "deck_id": 1755954606377,
+    "correctAnswer": "D. Transfusion-related acute lung injury"
+  },
+  {
+    "id": 1828,
+    "text": "Q14. Following a normal vaginal delivery, a 30-year-old woman develops severe postpartum hemorrhage. Over the next 24 hours, she undergoes transfusion of 11 units of pRBCs. She is at risk for all of the following complications except:",
+    "options": [
+      {
+        "label": "A",
+        "text": "Metabolic alkalosis",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Hypercalcemia",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Hyperkalemia",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Hypothermia",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Massive transfusion is defined as transfusion of at least 10 units of red cells in 24 hours or 4 units in 1 hour. Hypocalcemia, not hypercalcemia, is a complication of massive blood transfusion. Blood is anticoagulated with sodium citrate and citric acid. It binds to calcium and magnesium, leading to low levels of both. Citrate is also metabolized to bicarbonate, causing metabolic alkalosis.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "98_Blood Bank & Transfusion Medicine",
+    "deck_id": 1755954606377,
+    "correctAnswer": "B. Hypercalcemia"
+  },
+  {
+    "id": 1829,
+    "text": "Q15. patient with thalassemia has a history of multiple blood transfusions, iron overload, and cardiac arrhythmia. She has now come for blood transfusion and during the process, 1468 complains of backache and looks very anxious. What would you do next?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Stop the blood transfusion",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Continue the transfusion but do an ECG",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Stop the transfusion. Wait for patient to become normal and then start it again",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Do clerical check and get ECG",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The patient is being transfused blood and has complaints of backache, this is suggestive of an acute hemolytic transfusion reaction. The first step is to stop transfusion immediately and then collect blood samples for testing. Acute hemolytic transfusion reactions typically occur within the first 24 hours following a blood transfusion, primarily due to ABO incompatibility. 1473 It presents with symptoms such as hypotension, tachypnea, tachycardia, fever (1-2°C increase in temperature), chills, chest and back pain, hemoglobinuria, and hemoglobinemia. In severe cases, disseminated intravascular coagulation (DIC), acute renal failure, shock, and death can occur. Management of immune-mediated acute hemolytic transfusion reactions is to provide supportive care, administer vigorous hydration with isotonic saline and use diuretics to maintain urine output.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "98_Blood Bank & Transfusion Medicine",
+    "deck_id": 1755954606377,
+    "correctAnswer": "A. Stop the blood transfusion"
+  },
+  {
+    "id": 1830,
+    "text": "Q16. patient of hemophilia received multiple blood transfusions. Which of the following metabolic abnormalities can be seen in a patient?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Metabolic alkalosis ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee 1469",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Respiratory alkalosis",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Metabolic acidosis",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Respiratory acidosis ee ee ee ee ee ee ee ee ee ee ee ee ee ee",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Among the given options, the metabolic abnormality seen in a patient who has received multiple blood transfusions is metabolic alkalosis. This is because the excess sodium citrate (anticoagulant) in the transfused blood gets converted to bicarbonate leading to metabolic alkalosis. Each mmol of citrate generates 3 mEq of bicarbonate (a total of 23 mEq of bicarbonate due to each unit of blood). Metabolic acidosis can also be seen in multiple blood transfusions as citrate is acidic, but metabolic alkalosis is more common. 1474</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "98_Blood Bank & Transfusion Medicine",
+    "deck_id": 1755954606377,
+    "correctAnswer": "A. Metabolic alkalosis ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee 1469"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>

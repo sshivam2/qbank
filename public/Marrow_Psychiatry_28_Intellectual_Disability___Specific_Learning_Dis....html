@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>28_Intellectual Disability & Specific Learning Dis... - Marrow Psychiatry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">28_Intellectual Disability & Specific Learning Dis...</h1>
+                <p class="text-gray-600 mt-2">Marrow • Psychiatry • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/9</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 9</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 377,
+    "text": "Q1. What is &apos;mental retardation’ now called according to the American Psychiatric Association in its revision of DSM-5?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Feeble mindedness",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Mental subnormality Cc) Intellectual disability",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Intellectually challenged",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Mental retardation is now known as Intellectual Disability, according to the revised DSM-5, by the American Psychiatrist Association.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "28_Intellectual Disability & Specific Learning Dis...",
+    "deck_id": 1755954606632,
+    "correctAnswer": "A. Feeble mindedness"
+  },
+  {
+    "id": 378,
+    "text": "Q2. psychiatry resident is counseling the parents of a teenager with Fragile X syndrome. On evaluation, the boy has an IQ of 40. Which of the following is true?",
+    "options": [
+      {
+        "label": "A",
+        "text": "He will be classified as having mild intellectual disability",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "His mental age is between 6-8 years",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "He will require continous supervision and care",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "He will be able to study till about 4th grade",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">A person with an IQ of 40 will have a mental age of 6-8 years. Intellectual disability (ID) is said to be present when IQ&amp;lt; 70 and is classified as - ¢ Mild Intellectual disability (50-69) * Are educable * Can study till 6th grade * They are successful and independent * They can do unskilled and semi-skilled work without supervision * Moderate Intellectual disability (35-49) * Trainable * Can study up to 2nd class * Have a mental age of 6-8 years * They can do unskilled and semiskilled work under supervision * Severe Intellectual disability (20-34) * They are dependent * Cannot be educated 318 * Have a mental age of 3-6 years * They can do simple tasks under supervision ¢ Profound Intellectual disability (&amp;lt; 20) * Require continuous supervision and care * Have a mental age of 3 years Previously, IQ range of 70—90 was called \"Borderline intellectual functioning\". But DSM-5 has eliminated this term. Contrary to earlier versions, IQ boundaries are no longer part of the classification of ID in DSM-5. 7. Mental age IQ (intelligence quotient) = ————————— x 100 Chronological age OMARROW</div><br/><img alt=\"Image\" src=\"data:image/webp;base64,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\" style=\"max-width: 100%; height: auto; margin: 10px auto; display: block; border-radius: 8px;\"/><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "28_Intellectual Disability & Specific Learning Dis...",
+    "deck_id": 1755954606632,
+    "correctAnswer": "B. His mental age is between 6-8 years"
+  },
+  {
+    "id": 379,
+    "text": "Q3. According to DSM-5, which of the following is not true about intellectual disability?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Limitation in intellectual functioning",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Limitation in adaptive behaviour",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Has to have onset in the developmental period",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Classification of severity based on IQ scores",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">According to DSM-5, the classification of severity of intellectual disability (ID) is assessed by deficits in adaptive functioning (not IQ scores). The 3 diagnostic criteria of ID include: * Significant deficits in intellectual functioning (reasoning, learning, and problem-solving) * Significant deficits in adaptive behavior (conceptual, social, and practical skills) « Age at onset in the developmental period</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "28_Intellectual Disability & Specific Learning Dis...",
+    "deck_id": 1755954606632,
+    "correctAnswer": "D. Classification of severity based on IQ scores"
+  },
+  {
+    "id": 380,
+    "text": "Q4. child with intellectual disability was found to have the following pedigree chart. Which of the following disorders is this child most likely to be suffering from?",
+    "options": [
+      {
+        "label": "A",
+        "text": "315 TT (e) Carrier female ©MARROW Klinefelter’s syndrome",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Fragile-X syndrome",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Lesch-Nyhan syndrome",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Hurler’s syndrome",
+        "correct": false
+      }
+    ],
+    "imageData": {
+      "data": "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",
+      "mime": "image/webp"
+    },
+    "explanationHTML": "<div class=\"explanation\">The given pedigree describes an X-linked recessive disorder. The genetic disorder associated with intellectual disability that follows the given pattern of inheritance is Lesch-Nyhan syndrome. The disorder results from mutations in the gene coding for the enzyme hypoxanthine-guanine phosphoribosyltransferase (HPRT), leading to deficient enzyme activity. This defect results in 319 increased uric acid production and hyperuricemia. Mode of inheritance of diseases causing intellectual disability: ¢ Autosomal dominant: Apert syndrome, Tuberous sclerosis, Neurofibromatosis « Autosomal recessive: Galactosemia, Phenylketonuria, Homocystinuria, Hurler’s syndrome, Tay-Sachs disease * X-linked recessive: Lesch Nyhan syndrome, Hunter’s syndrome. Note: Fragile X syndrome is an X-linked disease. It has atypical pedigree features of an X-linked recessive pattern. For instance, 30-50% of female carriers are affected by intellectual disability and have other features.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "28_Intellectual Disability & Specific Learning Dis...",
+    "deck_id": 1755954606632,
+    "correctAnswer": "C. Lesch-Nyhan syndrome"
+  },
+  {
+    "id": 381,
+    "text": "Q5. 2-year-old child with a history of developmental delay is referred for assessment of her cognitive skills. Which of the following intelligence tests will you use in this situation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Wechsler Intelligence Test for Children",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Stanford-Binet Intelligence Scale",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Wechsler Preschool and Primary Scale of Intelligence-Revised",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Kaufman Assessment Battery for Children",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The Stanford-Binet Intelligence Scale, Fourth Edition has the advantage that it can be administered to younger children, even starting at age 2 years. The Stanford-Binet Intelligen | From 2 years ce Scale, Fourth Edition The Kaufman Assessment Ba | 2. 5 to 12. 5 years ttery for Children Wechsler Preschool and Prim | 3 to 6 years ary Scale of Intelligence-Revi sed Wechsler Intelligence Test fo | 6 to 16 years r Children Kaufman Adolescent and Ad _ | 11 to 85 years ult Intelligence Test</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "28_Intellectual Disability & Specific Learning Dis...",
+    "deck_id": 1755954606632,
+    "correctAnswer": "B. Stanford-Binet Intelligence Scale"
+  },
+  {
+    "id": 382,
+    "text": "Q6. In a child with intellectual disability, which of the following therapies can be used to teach daily and basic activities?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cognitive behavioural therapy",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Punishment or re-enforcement",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Psychodynamic therapy",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Contingency management 316",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Contingency management is used in children with intellectual disabilities to teach daily and basic activities. Contingency management is based on the notion that if any action is rewarded or appreciated then it is more likely to occur in the future. This kind of intervention which aims at reinforcement is used to modify the behavior of children with intellectual disability. Punishment is not used. Cognitive behavioural therapy includes education, relaxation exercises, coping skills training, stress management, or assertiveness training. It is an evidence-based treatment for psychiatric disorders including: * Depression 320 * Generalized anxiety disorder * Post-traumatic stress disorder * Panic disorder * Eating disorders * Obsessive-compulsive disorder. Psychodynamic therapy primarily relies on developing patient insight. It is based on the idea that childhood experiences, past unresolved conflicts, and previous relationships significantly influence an individual's current situation in life. It is usually used for the treatment of neurotic disorders and personality disorders.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "28_Intellectual Disability & Specific Learning Dis...",
+    "deck_id": 1755954606632,
+    "correctAnswer": "D. Contingency management 316"
+  },
+  {
+    "id": 383,
+    "text": "Q7. An 8-year-old boy is brought to OPD with complaints of difficulty in understanding written language, making frequent spelling mistakes and poor academic performance. Which of the following is the diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "ADHD",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Heller’s syndrome",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Autism",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Learning disability",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical history of difficulty understanding written language, frequent spelling mistakes, and poor academic performance in an 8-year-old child is suggestive of a learning disability. Learning disability is a condition wherein the child presents with difficulty in learning academic skills despite a good education system. According to ICD-11, this can be classified as developmental learning disorders with: ¢ Impairment in reading - Dyslexia is the most common type, characterized by difficulty in the domains of reading fluency, word recognition, poor decoding, and spelling abilities. ¢ Impairment in written expression - Dysgraphia ¢ Impairment in mathematics - Dyscalculia Heller’s syndrome or disintegrative psychosis is typically seen in the age group of 3 to 5 years. This neurodegenerative disease is characterized by a rapid downhill course, leading to deterioration and development of neurological deficits.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "28_Intellectual Disability & Specific Learning Dis...",
+    "deck_id": 1755954606632,
+    "correctAnswer": "D. Learning disability"
+  },
+  {
+    "id": 384,
+    "text": "Q8. Which of the following is not included under specific learning disorder?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Reading disorder",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Expressive speech disorder",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Disorder of written expression",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Mathematics disorder",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Specific learning disorder does not include expressive speech disorder. Expressive speech disorder is classified under communication disorders. DSM-4 previously stated the diagnoses of: * Reading disorder * Mathematics disorder * Disorder of written expression * Learning disorder not otherwise specified According to DSM-5, these have been combined into a single diagnosis called specific learning disorder. According to ICD-11, these are classified under developmental learning disorders. 321</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "28_Intellectual Disability & Specific Learning Dis...",
+    "deck_id": 1755954606632,
+    "correctAnswer": "B. Expressive speech disorder"
+  },
+  {
+    "id": 385,
+    "text": "Q9. child in third grade was brought to the clinic with complaints of poor performance at school. On evaluation, the child was curious and bright and had a large oral vocabulary, but struggled to write even his name without reversing some of the letters. He wrote ‘luc’ for lunch, and &apos;sak&apos; for snack. He also found it extremely difficult to read simple passages and to pronounce multi-syllable words. What is the most likely diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Dysphonia",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Dyscalculia",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Dyslexia",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Dysmetria Answer Key 317",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario is suggestive of dyslexia. It is characterized by a pattern of learning difficulties, including deficits in accuracy or fluency of word recognition, poor decoding, and poor spelling skills. Option A: Dysphonia is difficulty in speaking due to a physical disorder of the mouth, tongue, throat or vocal cords. Option B: Dyscalculia is a pattern of deficits related to learning arithmetic facts, processing numerical information, and performing accurate calculations. Option D: Dysmetria refers to the lack of coordination of movements. 322</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "28_Intellectual Disability & Specific Learning Dis...",
+    "deck_id": 1755954606632,
+    "correctAnswer": "C. Dyslexia"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>

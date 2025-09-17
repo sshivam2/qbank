@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>69_Pulmonary Hypertension - Marrow Medicine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">69_Pulmonary Hypertension</h1>
+                <p class="text-gray-600 mt-2">Marrow • Medicine • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/7</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 7</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 1271,
+    "text": "Q1. patient with a history of frequent exacerbations of COPD is undergoing right heart catheterization for evaluation of pulmonary artery pressure. What is the mean pulmonary arterial pressure above which the diagnosis of pulmonary hypertension can be made?",
+    "options": [
+      {
+        "label": "A",
+        "text": "&amp;gt;20 mmHg",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "&amp;gt;25 mmHg",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "&amp;gt;32 mmHg",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "&amp;gt; 30 mmHg",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Pulmonary hypertension is a pathological hemodynamic condition characterized by a mean pulmonary arterial pressure (mPAP) &amp;gt; 20mmHg assessed by right heart catheterization. Pulmonary hypertension could be a complication of cardiac or pulmonary disease or a primary disorder of small pulmonary arteries. Right heart catheterization is the gold standard investigation in diagnosing pulmonary hypertension. Note: The threshold for diagnosing pulmonary hypertension has been revised from &amp;gt; 25 mmHg to &amp;gt; 20 mmHg to enable earlier detection.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "69_Pulmonary Hypertension",
+    "deck_id": 1755954606410,
+    "correctAnswer": "A. &amp;gt;20 mmHg"
+  },
+  {
+    "id": 1272,
+    "text": "Q2. Which of the following genes is the most commonly implicated in hereditary pulmonary arterial hypertension?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Endothelin",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "PAX - 11",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Bone morphogenetic protein receptor 2",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Homebox gene",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Bone morphogenetic protein receptor 2 (BMPR2) mutation is the most commonly implicated gene in hereditary pulmonary arterial hypertension (PAH). The BMPR2 receptor is involved in the regulation of growth, differentiation, and apoptosis of pulmonary artery endothelial and smooth muscle cells. Due to the mutation, there is enhanced proliferation and reduced apoptosis of vascular endothelial and smooth muscle cells leading to pulmonary hypertension.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "69_Pulmonary Hypertension",
+    "deck_id": 1755954606410,
+    "correctAnswer": "C. Bone morphogenetic protein receptor 2"
+  },
+  {
+    "id": 1273,
+    "text": "Q3. Which among the following is not a feature of pulmonary arterial hypertension?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Mean pulmonary arterial pressure &amp;gt;20 mm Hg",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Pulmonary capillary wedge pressure &lt; 25 mm Hg",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Left atrial pressure &lt; 15 mm Hg",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Pulmonary vascular resistance &gt; 3 Wood units",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">1022 Pulmonary capillary wedge pressure (PCWP) &lt; 15 mm Hg is a feature of pulmonary arterial hypertension (PAH). The table below shows the hemodynamic classification of pulmonary hypertension. PAH belongs to WHO group 1. mPAPMean pulmonary artery pressure PCWP-Pulmonary capillary wedge pressure PVRPulmonary vascular resistance PVR (wood uni | &gt;3 &lt;3 &gt;3 ts)</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "69_Pulmonary Hypertension",
+    "deck_id": 1755954606410,
+    "correctAnswer": "B. Pulmonary capillary wedge pressure &lt; 25 mm Hg"
+  },
+  {
+    "id": 1274,
+    "text": "Q4. In a patient diagnosed with pulmonary hypertension, which of the following is an unlikely finding on a chest X-ray? 1020",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enlarged central pulmonary artery",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Pruning of distal pulmonary vasculature",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Right ventricular enlargement",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Focal area of oligemia",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">A focal area of oligemia or Westermark's sign is seen in pulmonary embolism. The signs seen on chest radiograph in pulmonary hypertension are: ¢ Enlargement of central pulmonary arteries * Rapid tapering of vessels known as vascular pruning * Right ventricular enlargement Fy ; ‘ 4 The ECG shows features of RV strain in patients with PH. The pulmonary function tests show a reduction in DLCO in PAH. 1023</div><br/><img alt=\"Image\" src=\"data:image/webp;base64,UklGRl5JAABXRUJQVlA4IFJJAACQcAKdASogA1kCPm02lkikKSyqIlda8ZANiWduZaGnopfg4xIvEGbKKpdvVb7t4vug93m7OdOVhCUA+Orn9/8v0oMECbbHHaH8n+N/lIzW+x+bv+f/ePa1/x/2D95f6B/5fuC/q1+u/uQ/7Pr6/a31Dfs1+5fuvf679o/dH+wf60/875D/6H/g+tE/dT2DvLk9nj+5f8r0y9Qq92egj1+9xvM32sfPPcT4we1/2JfI9ez87/gfYl/6+eP5H963qF/lH80/3XpvVLepEo39f/4/9z8fHX78HewN+ufHK0B/9B6MH+V/9PSN9V/tH8DH88/wA91kwOsmB1kwOsmB1kwOsmB1kwOsmB1kwOsmB1kwOsmB1kwOsmB1kwOsmB1kwOsmB1kwOsmBmBxFxNF9R4AXCjmkiOMw86A5sQAzAYedAc2IAZgMPOgObEAMwGHnQHNgFAK+4ChaZ7YiyK0Vqh/4jNLVq5MaCWdzJ90yt1AMRG4ClN86+OJAx2/jXOyaWofKO38bFXlLpRIq0+ZIKTkwUcNTw1IGy+ium+uQLQZgxApd1MFTIhUF8v6U3RxM0f2EyLHrYpUlzRoC3v4lIsMluNriUJ+Y1BedV+R0be+M+BYHIF+voGgdDPyg0fhMcpaKUix9nbmwksL1PaOFvnZjYbaJQAy3jYrxgeE9SAIsNH6rVQnFTodieHg3mwtfx/eJqTqzfPtfozRczLW0cYUQBrpdrd4RCQ8RncYbmWdhqZGYR1nk5qTm+IxPh2TezNHn11Lnb7DQX7tjF2Jq+nU51j2CvQ8C6zB6QePoZ9redsO5VPuA0EryinjiCe6Ki1yEntPVns/5iVmpXIL8T0Jn21iaMAjFbsZNAn2MCPVB0BSgqOpngtac48m+9qqrmY4I00BjTXLbCLE285J+NKOl5G/acpNscTI2wkzGkQefCAWRkmyb66rXgcr0rmP5+DCa97tIoJE1Td33msrF4tgWjDP19j4EMC962IRo3JJZadmnozvc/2IVeiJ3DLxQ0tOPgQP4jbgP7V43cdCoc5yfCsLQgx+lpXIth7iiasbfVmSpUEs2o62tbL4lbKul0hojE/XwdEjv3mFYNyMgzYq6xwrmmAFVNryEfLiPgo9lk8Pehx1my44k1vvwjcKNGc/m/iCovkQYXK61Rhz7ZJWTwn8p1AY5NhVvZrtUfd7oUYe73LXevp03EMXm5GgRasJ59BtH938E9dqfQUwUb29QqrW1GxUbaT8v6J0QA2FYX3fQwmHpBuOINGbncSnBI2TRrL0BWq046WLYUiflLgkKU6+2276H7bpgLTRFZN8++qc9ATyg691qiE1qjtgKPVxEkkA8UcXKWj8nalts6QAJEFE96e5qysFvzQQ9Jos35M3gM0PFTPIOeZoUZTW3QPEJlCaTyMF+puBXEmA6LahSzSiCBmn7SIi7Fte/pDt1ri4vwK5PQRuOj0D4qm7NThHmoLp+6gIEJGVTVdqmw0AIcla1h+dm0DXvdB/tM1RtZaVyk3BqhDKlJ4xNCZoIPo6aVNfWxlsitbwI0hOI1IgUzU3ojKqOm6F+vEUGAg/h0X4iA7WRuuRUjPW3mptW8+dGtJWX9RX97DgkK2N0afN4r38vZpVAVCdU63DoVr9XOKruJxq55+ZaXdnB9UEjqqMsywasH168LzzK/9F7d9iZF3F/UH/GvKoqz0kcMgWew48ww78YdXBca+9IlR1Sck5VnCRb2ujtw07H3/mYgi+wj8neI9xIV1OCVIBggFYiyMfSyb7t9p1A+xL8rhwkZhWeVCDYvJDqvVf8S3t65rRJoOONfO7Y8elE/F4/gER+a7feRDvrn0r6zTyBV0jbb1ELe2fmnXOm7fCU6+E08jG/LHbE47wAM6a+iMwigpZ3sDTKb1FEXuuk8w3SreRGrirt9z3QqMJ9RQNrc2IyYvPM6MzVXufWyA3oUbkRE1Ae7F6SvmwC0PW52YHkjYeyP/ahvI2jzbT1Z9NUrCi+BMSbypjmjtLrrcmy9E8CKDUA4KXMiB1WPv6ohlGNBJUk7r+TFy81PLRO8/3fOpfHElPw1ncFsUuj+9BlKHtZTftbD9iS8s2XGbOPfznE1brGHWiP5Lm6NsYGq6jpn5rswDKnKSfBB5BjygEbpKu4dGCrS4YxeuVck3NTh7jg9bTip1jDjwuC7x8yieTk5KRm00fMsskKysRJj4F//ulA3yU8efQRF5R5zhNlSjQjHxDvB/9YsoN3J8kJEruqRW2M50dvZ3pbmNJyVnPHz+v62qKzl2uP0iemg/R4BDEv/r3JoAp9gsY7LgDzFSE4Aj9MRYmKyBmXd9GWSe7jpe79GvhAlFJrb0DABk5pxIKMTZ1ZdGWlHjgQNNIIqqngem60JqEX6PL+PeX7q2HRWMHUW7DnRYB29WRprdaIZOyJlZkOac0f6rq8upBd069/ReE+u21Nz1oJ5tXNFwd+4/EmH672jJ/mVEI+l4O1qRHHiYnp4mRnNzFW+MlABX/P73RKk8TOEh3F+NhGaSaGWX5P8c5JcbiiRpMWw3/fxB56UznV7aSE6ijlOh56biqD1kENr5NohCRJLz0SsOEPYLFcm1JT2T1Hf2Q+mFoQzzZGMiVbOwp2Q9rgmJDH5M9jR/vd04R5Vk5rbEHLBe4m4EmFBmBFEe67y4rXdIYQoA6/9/00ngN0VeK6C8pMHrlp01iWMrhq6hmXk1mWZpv5UONwYjg8LgOURWmRTuJoLoswWWBPp1IOkfkR1u/hvip71p6FjBN9bRXbzaQTRxzZPV67U+VkqoiUzRiiSVW4RTRp6/VGX1vqABptoKYSw+CbJKRX7TjCk4wy2n7ooRp6FcwdISIagxhNN5kK7n7drioxf7r26uDdk7qhqZkZISS9M7hXALQW93tpsjLty+JkHVKb9fmTzXpftFjwdvFbVpHHhTHEyGSricbc/Z+qKvsUI+qVBnN0FrA3pp2M7Bb1s2s4IUtTA+m3T7DdqU/rLWU2C76/MpHRYteg1opKsT/IWF5KbefTgEpW0xQwHJgvw3ZxKkLQmbS0BmMcRo7hBnsKd/xmy9OtYWpKdttX6eY+IHiOISttJUPiUByEmIZbc7Y6wneukdDI7uTBp7Li9wEfGxHOCV6X7jsuxJNH5yqrszOnuGdNTf5sP9dCtHqUSFGLGQmn352nuneQRfz3/4JdsJdmFNUmUhGCtVo+s8eTgXVPsRh1aUZBClXlr4SD6jlwcuGs7wH3LK4mDmWSQUxEQtLR50wObbHwh7I+xwEgZ22nX+TbI99oRgdeGgWTFleNugTyPrMehpMZkReUSHAbRIvtbTQ/VIdufLDw1mwauqb5yMCDuB/lVVv1JpEbZmTF3XBIBhASNuT9gjZtImd7QKKojMBS2wJQ70opT/BVKiUa4iWaRfICOQquANOrDjOtko5Sg6LRx7lRmE6GyBz4xYfU38NfjDJoSdIgW6AIxNtFniK5Dx34XtbJx7+Y95v9G5KTqf4y+sW00yMGMEBV5Cnicx15APKHcb8pnPFIla6x6Q9qerm1XrLNc5jzjDIccKqnp/oOLMGXJf/DLJoifAlb815kcVJfjL86ji46jMBVxz9WeJuLnEhalX7T/UrYb3MGLgZIS3bh0JLx8Xf3KufT9LPQ0MFkfNv2mu7Ael3rU7YSMUSE/9OLHeed2J7zcVWqjFnojbI4YZzC9BUVDPucVncyRB7gsdXTHnSCfxuDbW78PNYihT6BJxwDOmCWoN8bpK29QzfCV311vnE0hbiZsp6EKtu4gr8ABHyPfJmAjbnvnZGh8fxHEIg+IunP+/2WXCy/PCCNTVScH+3sdBzCDIxwAVqk3/XltkunRbw8bkakfAtY7W+lMD80BjcWYOBfnftA+pLIL3XR61RxtETDhRvRK/MxSarjS9lredDNAUzXgj0F945/9sakX+x7B8oyztX8a9H2ABbRAIaynl2cfeCmKKiMw+KXOYo+SLgLmbcMwLdnU+pixX86L93qvNE8fyQEuDyac1CZFMiAZ0X+N1+wze4PXCTBEBHKo1hO1UF2Pvt0z0gs3FWgBsJGOf57ll/w5mnBtcp2C17mf+29P2YVtnO/OvJwvQGHuhms5Vjjd2Y3xhFKqtNdCUh94OUYT5X2TrCmAwN2A9atXPe1m9GhQAunpfpsUywM4JCIGLp3rgpuhnYmqZBeIMXhBHiMi6z4GXiNySHCmXDD6LmaGbI53J2lQaTDZRj+tFWhLoxGjPUBoWrcxg2PkV+1E6k1ydcfj3VlJHIWHrK6qvZv3GbRM1JfoY+uE73yt/cx5aeZoaREL8aAc+yvVauzJ2P0I7FVqB+Izl7vW+qVknyuXc7laQsLgHw5ZSLXroEU6f9H8/uy+VA4DloGIrnKojJwzixN7RD8Kw/prKxkizCSZT8UDk02rR59PnABi2X73UBguZN2gHzLdOhUCzl961gu5+mzvuu4vV/BTzkVAM9miCwlB/4bV0EOIetYksSiH7C5jWgqsoSDGf0Ne7k8Z1NB3qas0QSgClSqLfwjhx8NfBjSgMnJKBZvtUqCremUV+ro1bWX/sBpB282FAldxI4mUyy7FPJ1Tq/W/w++kTGxzo907uaGJVSXgJ8RydWwMWHlTUY2rKJVobectP20xqunU1KGFdD7tE5yBNEt7k+blsdm9X1aFwIHht3EF0ru2HAIh3yZtraO/JK9taHgOEAQemLsM29Gas/QkH+KB+72KLhR4H85PLId0sJ/9MstoHAAAO11RhDUnXYem3ZMXPfkAeYnW7XgZwNc0U+prpcXlbDFzO76UopheBbVACYgtxMuSaUzwcx+hywqkl1khwXpoKUQaQPNCut+8vrtxJaJcNAJ1TtbvddPHmxWNgo7wNz3IK0mZ0PLMGnFskczM/418+9XskCLuuZSjjx9sd5kS6JtZsVqaGmAEu55LJMyfyYOLEneU/fKbTu6MgKCCgZqXHab03PnfTjhggw8EC87H992UGhJ4NtPr4AD1Yk4HayAM121+OVVqoaQC2UZ83hEkpPgU62I3cdir40/jleiI0J9SVkEXDQvd2fAqP70ucEBvVTF55nx18qcc4Af7U8THS6VxKQ7RtP4VK6EbvNR4q02XeyOAv57mK11pJt+rNbfPFN2ffL9PJFSHGn/2FZaL4ZTkhtkYi4r6sDTaGN42RdlXuTR9DzCV7TZ68PTcbperxo9VcOLRKe9LJnvr85SwX+y/u8EVcuPCzr5aYT3POE/IPYbCPXPdGu9MnHe8w3WPavJU4bHEZMU8HXPtHLuqWs0sgn+b+TTghZKr2r9GB8ebyDtIDovHYDJ22K6nrBRtYDzZdGwoKQKgGkl1jqLM/kwc7GN2+13n3744dGx4Yhv0KEY+tfuzPq+hukuT2Y3F6Y/HswvUcv2ZLqTD8k6R+5y38+jt66qOEQSZn5W2jnuN8bj+kpcL8S7JwmREACkYUXVbBnmYSpidZ6U5IZ2qxQ7XP7v6O5gXNWpjYRiyBqy6pOxmTiYxiejvolo0PkVMkrs4+ocIbbf8bacH/cHEiYVXsEzdSRxXeTBCM4324H0sZluxCz8id2H2oxsK+P3XZLMRKCMN0qDBLPGHIlSMMmxxdK0uquc1k2H9g0h+pf0vVoD9pA808mWFn23EcMM1LYibZ62rv033TC4m+rZzfytNRphG3ThSwFISzGeg4hGVuUyjVaAAGdyTFQRZFYAkG9ovU6WL74UPgK8us22S0QtNA7tP5yHj8iaZMiOu2Las8HeVJna5yZNyB6dHzz/v5xWqeQJZ3334x+RYBF40aPAMrsB+Wz2JmM8qMt6X5OjlvWzOwvi/00vWEvRG2lrEqjaaWjnW0iJ7P/9ELe3Sp80OFzJtgvVciVyjqMmL2o++Rs2f9o1/W8qDlka9pgh27BRjCXEi5TWUnxceP9tU607fM9/Wb4+NJZqZdjUaA1ktPER92RJ5kQR+IodHIp639k3d4Z7PObX+Za0MYNY6xp7bb+GJsC9aYDgrA3meqK+2pmRQ5vlVZnLHAg08HapNigYV1xbjg8aOnkzJXtyTVIKZFIiYVZc6DisxNE9qSY29IrLfySjqODM3QYqIuFXKi7ZVIzcYzECmeXef7w4IhgtzekLY31JYMchAwHW4GTbfLlJQqygytn2D+t7F1loH3haysrgTR0zTepc5GOd+vKJCldZpFYraMmeDwQL3rqaF9PJnUaMwRoQwNpd1+rSOqixA0SfCaovJe4DH3Wu4p0aFtKKDaUFigVyMxswr1wkLUhAMj9FvTnmUvkta1rFhoKQtV695Kjal5FWo8J9opowGdIba4XKbQUHiPIXO+6cAAMas5zgijb9eP8jToaKtVUbfrbsMXtWDU6RVjM7LuzR8Ty8mZSmpqj8IVjzARCEIGhsakOpLWzXRkgrBsPQonYTbMXnf5KB0GduL1LwsuIve1lE+l8kRiZCDs6lQtof5UFYNgxtSmttlvP2CJOGLLVZlGeklPM6h342RWABI+J/mDiq+V1N5fH5zKEpR0GIiAGjbxT5JZxB1DR9OpvMVNY7wdmIcPba8DngoptWGVaLgSRQzozRcZskZQsoyAJzlMOliW1omqXJYyuWuWuYp0d+4Qy21YpzVSafN6zTrTE3x1kwOsmB1kwOsmB1kwOsmB1kwOsmB1kwOsKAAP71/AAAAAAAAAAAAAAAAAQLiwa3/zXElfIYpRfT7ijMSfNQqg9ZZ4b+p62tra2trbM0+QPPYod49GJiYvODaocW7pdLgwPPW2Z45bW1uEK+msmDz1tbWxa43p0h1QBk2hKT2GiXEtbMJyIq6ERBL08sv9IT8lAtrV2XMQcLm/p5bcN1qcbnRIvNscTp6ot9YFrxc7/yP99ri/D7z8HCmXTaWjtQHFsmZOcQAgunaMk2hhDaskCv8R1TH2x5p5B/OpmQ0ydQvvIvouyOCIik43y3wyFa8UK4Yr7fYxYn1kfi6R+MsBc6xP/MO0ztpFvtIXg7geT6+1Ocj1Wwqf1q8Weds8jVaKL72CADhnzB2TGTX2tFVgkdr2+Kf8x0f5Ak/pRYGrIW7i9PBcczsbrKt1xlqNx1dFSHTzcdaiehTwot3DhRGQ4rHZ75eEO/HwMKHhp0b0hkRioPWMy4BpevwbmMVMKHnDmevWPxsSRl9ZHXHblnZ5iMltdgIJh95eH886Cpg57+/+ao6VRWVfMvGXKRxOYmUg+RshJoB4WDNegh03VeJ8LQGHRoraDD6liscnhSTSVRdqKclhB/DR50HFJFuHtD24nqUyLErV7PJc95PImIpZfR45/D5i9krruFStuE0xenUnYwBeBPMaXWEuSXkID7Yp28Ryo78amTrdmcmp3zLg3vq2NBtXzxWYcZRTU08EspsLs5aMszUCFX7VBKkyZ58xk9WkETLSWKvb78XgA2ndZE8NhUwpuSvx11LBBjWKt6yaDSAEx2jZzIayjH9RhUThZZ1s805ilwn/9soHdEO3C3gKdqDqXabT6D+kqvp7Co1KvYnTTSCN8NR/gL1XrxSpyrE1oGlOZwonf2jAJ8gkVE05j7N3FcRO2n6gHFesB614kavdlhi8n3dQdD0cE7iGwWhJHLbQPVkcY19eZql2YIWF8JbaqtsdQrxUq2bbJVvDAdK1lkXgk9CTkeiovuYu6v8ZcgFHm/kU2acA633Cr+aWKnttcA3Dn4eSS7OA6rhBQrJC+MOhcGuHdTZbiKyLa/eRMPOwGIHE1NlfwqHwJssvoGWJoMbX44kHuQmkGA96gLV10/jEAQCqyyd7BK5vt1qi27m2b3b4xQk1TKTVO66v5P47vtiK7RjPlEVExjiKsK6J/nylm1xp22QSFbe6td66dtT5S5ca/oadCtv6KMxvGlkQPpYNQcuPu5t4HMmMdN+GKC8RCElgh4HQA8BeHsna6yCu13NKvXtVKxc6ytcB7/o4/aeFavRZfYD2ClDrT1n523xSv0Wn2Gxt0p4LXxSv8lyfJcIkmHHou15OGMeo8NjBDW8SWeuW7Tnh9korEWHUXgEXzFKTItK1PWRwnwcVc7UeFs8hDOJsasYwk5kYhm/3p9SSn7MhhBa1YfN6QSR14zhIt7K6BsWavv8cxyYO4tjBZWL/xH5IAu+zXQYnUyLeooKcTf842487xuSvjtqSTyjuf2Dx5z6zXQH3xDVAxb3fYP/7RS67j0XAD3LV6ps7m4xZtP70Xtr0Yyml5H01HTEreOI7COqBC+57yb+/yWQHWugaDBSJ2+zHjfZQIgwczJ4eRabkhuCFH0mG6AmL8cF93klGcDKDIDoqxEnIh6xfx9HT2KdkY2pbq4q+bP5lLR+BsEc98YnDNj/dOKRf+5iDjCirQUCe9KBvb399Z+EC9BQFekCA5LPnif6yAeRvP0NrLrbd6i8Ht+qxXvBwW5obx4ZywmPmtTY9DovUmVaZ4bk8pmn7w0uNLN1v/4tVXdfjPa4oF/vMCmzMbWlinD+g6qDldsST0tVLx4kUdFE4Gi3UlaEIfSw8Mfy6em35eeb3wnFOL0LGyLupFF/Urqp9QUtpj5EPklcNjyUJHjCKUo/FW2qBT1hniYFZHcPaMokd7YawRGJJBp0pn/m09HLCbfZFvyvp+W1krlkKbaNlHRqnFVfeZ8xdUXfPkDvyy7mzhpyQ7OxEgrTTePDdkXbZXieSP0AlfbAILbmoCoHzEMQkDHt5Ijqz6saS6N5wjAg8BBNg5+L8Y31rHz6DY23uhNjYNZnaWmZBNLgKUBEnd8mOFF9pfDNQD91G8qfn2Fq+pVkMERFCENZu8gsJAmfz2nIL5UNDZ5po6Ovf5f2QIpKdX5sv9sAfv5S/kUQhLChK65Lc8ZL6h6EV8CUL6bqv7qgLhQeqhbYH3eoFdWSWbuMVVrPdkPzKuUfmuD9CrvfBUCpsyv31RQTwXa3kUn9meUj/fw/5FrdeuS0qdxiTf5/ebETfv77gMKFixYJksYxA518e98gkU4IQbSBBs4LDivDAIVsrGZmK1DWm+9YXO2voJXIlYg6KauiwShj2CVRd8GYuFbFj7+o0bEdMsXBhEUmW+RY1T5s2zglncfXAN+T1CRKP0ZsjkYs/N6nn+kVXjzsOWf5eE7jCIAIDTNizSOj/TVmcTCLlwyL0P63cOmu1IV4C+I+vTDdkdWLNKn6jhG79gPgp2Wpj6zdVqFMENIe3bGgZSwirGowjdeQvkTAN3nSHTHiqi53pRhiksKkmuhpDCw+VAWHeB2x62whKxNFULLkCKXiOEP3gpHZHzp72q1XXFAZAyoVO8B2MQnrqfzZwU5oAdt8FD7Pg4n0TmPpPXhz+T7u09qtbyQ73mPNsU7yuhid3ScroIAtDBbL0qGdDYBPy+/yLZb1SkV0rbToa6MQPVgOLNoyiIHWzhO7O9GOI9WoOyRyPvOVcoQrWG5Z1qTIoUYzpELjtf5f1c98crGhOwwKymvrud/ikVJZtg13a9IVGOC8509lyjznlcmAAEah5fmRrmMyNUMmPY3L2Q0xe0mLc/H1Lkx0dc41fkl2JkQitGtFlze2+tzVerIq6GFc5bzvJhkLg69xGHU/E6ggTGtPfoLkkEtZ+5A+UStVpxbbnI/K//CfGryifrs7hfRbmFjIljKoFwB0eYUFwVxKnfKmEAeOJgDJFi2FhgSda0oierYeVhTYa1INaI+S1B2mQsAJTG+V4uvN38QGf8S+6b9jJzCQqndYewod9Wu1LswaLR0ppWxNKfOlb/kRy5wVfZVPm0DqesJod6GiR2tjBnWMHBKLLMcq+h/gJm+dh5zw0C9m5iwTilEgZY1A/iYjulKtafnyaCXp8e0A/Sjk+gYH91YjygvWPs0bWHixRcjgdh+ByHfWcEP5yQ+DYQ7thTKKrBzjR2ASCMSKIZewbssYFQFftDPeqOV63L1dgVCepVDzuM7uRApJQVITbzPhdjwoUxWvn45r0NY5B15ccyYPdbsUzz68O8ExhMWaYPblNKPUAOnMhrgM8GChW3fZlfIFdKpZ/ZOO1SWXHByfIJgLDvfDs1JmREj5rSSYF6UfJMkAwlMae6cNEIhnWHMux3MyDKvaKhiyPwZ0pTcVd4m9WIT4xrv9BSeYrF34GoArHtJemD8P2IU7CS7xsbb5W/cPBokSlj4r2FIAaL/XOkpHDysGMFMsbHgWTWX4AwKCX9jLg18p/zSLZPG0/iILZl1A7RAGU7W/uL57WAgW34vGzngR76YEWvkj/eK9lnVxX/aGJWaxRovIBsZ7QJ5hCb9hZs7nX1s6Q0ifIGWIhxo793e14fEG7fkrb2cC09VlYK8s2KxxwXdfD45iNYBqkSlWjT+bKYes97A7vRoPAonmL0gtX6dtCX942DzpzuSU/MdEJ2d5Wj1F9vWcI0tHovL4ek+mYwtHSxTcO1bSrFeWwbuUWurtd/GezF2JSD2agWvU1G08drtryiKp/QF1uBoBeaYdsIYQzIboalTNP7/zC83mQzGgGBh1gDi/+XmTUW1Xlvod14xUbKZtpQYCpgpy9EIimMJsVhoHxRO90GANF7yWf9y9NzpYAR91c3pPNXH77lqwu5UYsOuE8yFVUs1jqqzz4o+EDyDxgHhRWzAJaoFRwmtSu3/IWxD8UxIatoqDhe7NIuEQWLyMwiXxYeELrr8zVgugTwa1jghQNr+GHoI3pgtnO3ks5zSfXzJZHyTx23fAFvsgNEwlhR4CUzIE7JDi9myQunsRueGjORakkEWPK7owOwEyyfHdnsc6Tz9Jmq2ujHbXonIYNos5vasfqAUFObUFUoEBY+dGhId1UnyF2AVPynjS0DzSJK4DiImkVOvJ6p+6mYaQaW7DKvc59ALJxJnoZUVBZegG4+0XSKH6zn3d30scKKEgOJTesaLgoSKBWHu58AEydBtP0sm9TSK1uJwk67Y0oLYKJXEx0wsBiJg5LBogn8+JsxF8UR6Abh3m+BkM3lgD2Y/eijag/pO72+PawZpE9HGJYnfme/caNS/bi56pVIFbe7GtbHhlX0TSgRO98wRr3BvqwAjV02jJ3ONcD1komMbtIArQzchg2DHAzo7vm5WJ4raMZn5khjIGyNC44ndU64bltW7ZpHi/JOIX3ZfDc9/jBfJ78LAwRjJnA6UDZIf71Q6MW62KVO/W6t9M3w9UaJhUqWk1jQ4Gg5aiIuUajU4VoxFtckU+tTG4AL+bEC744SsITBL2lvLlCVnSna/hj5tWmW8SnqjYD1TNPGijvXRQJMoCxa7YabG5pkHgZ7700KKnVD2/D5mAeixJTBAOGGns/kG+pHcsdV4CG4yA+ilEF5N1YoP1nASUAG8P9Vz/x4JyJchPy8CLxoAoVUzdbWAIadP/Y6astRuO7RFfodikdfCasixw1a3NnKpjYzYhhzJ7l25rzfWXg1CtkTQkqlcQZnKiR/We+qfyObJpnX86ltB1HyMATG0Q4/qhfyY8DbdDFPkpwqi4m+kv+9n39BtS0QlY1hUXSsuuxrVJupGr9PdOnQWlCFx6VL3QdhEwtDeazO5I+zpMlt+fxhyo4eUctQrgqYMFUUpzH2Vkmhtwtziu/wxXmyU1jbzTW1ou6Gve6Mh0VI/ONXpIP+3arMAsXAKnx+dAeZ10v4NKn5euA2O9r0/jIPf4RGce83cpajX+13sUR71vI9vUhhzPEjq2o6LfpDZriq1g2y6Idheakdfk8RRKjJN9ZLEbwOvsoCJGOuX92anq/keevv7BdaoQiolVOKeCPXcK4Lis6AK5eVyoTtI0D9qkEFMo+n49KqkCcffP8VX3O4zafO6i5ccNVx1UyUok1L5Wf50bIk+OqBo1RxCzeFJm5RQjfSKjetF82ZoHUcXbL0rXOO6r6gKM8dhrKRH11KOSBWY3fJX3Hb0Pgrj9bLNH0Ld8cK0dn2NTbgO/9qIJiXEhBVOb4ya3UU7CdPN+QHrfhN2CQPx57RyLN/fLRc2kkRRVrZnrxBTh2U5ReYpq0tYXmWgZegC5/9y9sMinzAs7cXt9Pxk7jIWYkT472Atqw5YL3fXjtg6g58F6KeDyzn0DSzbgFaI/inUBmmvxQ3irJaiVlqWzNWht7p3rC9YUnrBjUGDl+iMVrGSyxEvsus+jVlrwEPZKgVEkP/5ufb/GZ8VlPwV6Du7GJUM60QQHbl/wCtN369sh8L1GQhPafuQ5bH1FeGfz3II1eIdmY0zZxDngXlO1J0Cv+jcUToRFt9x+rS7YWARwePSy0+OZtXCgDdYAQSntAOseIwxhGZH34+lwhTSthDe/WZMZt04lzF8ZV67KeflevNoMwmamWdobgaxQMMs8RLdvfbl1BLhMiCOc/3VIpA/TzIQkHa0cUsLMld+OpTZUkC/OH3sSnnl8N7EwFCUJ8tEuxL/L7l7fIkZCs88AErgS7Tb/Kra7sDZBIxeTsAnc9rVysarW37E3f6I2WlX0a5Xs7tPWnPd3IhNJmqoY9SIEQ8rpTAleyRacLCK3fZnKHxGShqUwzpP3uiXd3l/aGodaH69GyvJH5AD5wxe7WW5AmEcYPFx7hJ6HcjC/MX0JSbuQqmd11/10//aVBH9kdBZCS9h7EHsM2DlcHMeBwpLWqPE9jZnxCEmDeAN3k+CQZ4LyRaN+NkbdNQpBEaS2RXOyh4/GaRdVeW25Lb5vxZEOOCwnco/Ocn4fa2mu/8WCM16kFi9KhsryQnH5mQ9qOoxou3Xuy43/m4lhxAK/TkUuUCas9dOQLzDzlQgmV4OXi/QGBBG3R+829AiCGs87/YN95t6MhP1IzItvcarY6nMkkJwJyrTWWUTUAwCQbRB47HRbmbqjQX+JRm+ClpPfTNz+/mG+AJ5dH9Uf5/rblLIFSeopUSrOhmnO/XM1P0A59FnaURdJPqNzDu4EJm5lWDOj59LDF6HsCydEvaAzOJGNarkxc0yawgMiMNTVh63TvbnegBYUv/jWVHRADpAqmZSU1PMhIW+kNkGMBFqhjNuT99vJnT7Gb6lDTJVQQ2fkfJx01EBimWVKQBcrBMWU1Sr2nNzyq1sM6BL/3NRPTy1u9DHy/XenPuuF3H+gt2yJd2ddJmKifdHR+5AbcZUQZOsZGAhv7uiowIYrzlkht5nHJ4hbnmkTJjSsy1edQLd9wxDWdCCIqmquOVlR0QcSLP0r912Rm17hhuPatKr2iVMOfFD8LpxywVfP5XADABsVKgTonkEaUs4kP+97AmzP7ZgKCzBnQc64Acxh8ZVyAk74my41Ebk4zYtS7jJnwYIYomV7t71DhpWTyTV75xqpvUbiQYl9hK4aY3THiJSZoczkotcCA0s8JrKToHCZTWGmP4ie5GkyGAQ7GsIAE4v3EaUHwzKtngyIncaKJ66xbLtLuVuq9DD0Qz7YDLMTQSQ8fHmIdqMFwsaM+JPQ+7TXgK8BPOneT11eQtmpRhWS8LeD44rrnG1JumpE5SC0ZGC0a5eJOGc0DW79s+FPVSg1jDnmgEQ2EqsF6EHI7/7ZfHXpQzk/usboLqHcTmHjOMzn3461CiwQ6z2vbOtG6W+x2YZ5knPFCA9USp81cfrB/wiiZSCSIuONuBoW3wwkpSsvwqe4CivxTvfpA22hb25KyDlhFCaQkNFA00hoWD7liacxFahu7bRiAVIRrH9Ln8QF33nwWIiXHtUWjLKV5RfpTn8R0bjUxHLT4s990ypjtzPw53DNh1Sn4FKk5m/R/XlHBGoGAZyWAbtSHfj4qSKtx/SKNUcVtO+4Ke5BR+qviSXAC5iInyS+wkkf6dGhtCXF0EsiI7GYhYFxYr1mrRiNPPGi0/ydweOchlI7Ls5K1a86znp/VAtanoIUUMGp1HH32uYspum+u3cic0D7wWbBlos4lIvnEew17zznZQZAhkkOdRSzSkZ6VqnCVLE9akhjKgX62ZQdzVOxg9Mk1AfXfxTko37BoKId6gwkzXHoEKrc7dt8qz/l919gl2D+MM1cRYbfgLMIlll/9v1Wnd4n7vhgPsABbdxL91l7y0+Fu9jFVFu3vOqui3or8ZKuSKySlP8X/TXG9sxT2Say9GHXJEPEnDdR2w6wxz52u8P6qojPPbqWUGFHic/elnqnZlrHvUhc59p6iWKp+btUhvr8kgFvKQy8Tmz/0oUOEnw91FdwLJpEMz8fQCpysdXzmDPU4xuMPJyt9d5PB/z1NS6Js7k3rts0hdRJX3fWrakivPuSAf7HY3o4j8OlQ3wvoadH3guype7mZdgunDlgtkrB+3cgHEaTYxlUssWZO33gS9ClNZqaJS7OXulX9cZSGKuZnl4+p4Be9Ot6f+rLJ4AAmgk+u7geKuBPkSnPieM+A3jXSzluDfdG329CSoApJUhoWLK8BJ0a1Uhleg/IaWHIe/OexMNrLgLwjO/3l9aeufGO1iWsoRh4XguLLMNEETSRDxekSNVl1ZYwNhzxp1uDzvU3b4BfSTwsiZ9lgOcGAoiJx4J0lLqPJDfnaynX+XcGViOknA32CMsHoqVRbFl+OLGwuwWl31N9p4gm2zC9OpP/Y58eCeIKtCi/+yVa3HnkAHJYTWNCPDhTeDB3dv+cWwCZscBAe3PVGLmYIe5peWejvk7yFQfwMbr7zXjkYqALZ/s+FNUPGp816+A/3NEhbrdJwwL94DKYc4oR5BcBJCZP5ImLTLRBudG+EIxwtijXvaF9Lnyl3Abl8/v5aGlt4K87qSWDJYbb+iTXVUMafEZSngbebhYivfPn6Gm8hljhvIjaZod9Ftz86qnETAhxOHyHgIW4TMeINqSC7qcnh0HGsFfxyu9lYxc8+nOiMtOfQ8WK6dmYBP5VK2aEB2RIZLFN6k6j2qVX7dI7AZ7kd5OmLxTBAzYyMGomKTQVqfdR17QhTkabM2iDH22STWu84K8jChFXeqO9pGFpmaFYNyaL9BVAxt9HlF0aV02P89Ma9W8P4gUiKaeP/jedQR/HW9v++dyk+y/A1FPVrFQVpwBiNt//uqfd8jdKuhqXpTNDLd+vdN3V5T171rMJ/V6n4QhkHXWGbKBQneXURm4x9u9aSZZmu4kPBXRxWBhtsYQWItTy/sr6LzdRGsSQkkn42xYOcEYZ6KupcbK8ot3va9Io31UrWxF2VHsktfDehWEX9Euxd53MmklGHxhflipM02RpULMHIiro8+iJNiATBnReSg5GSnhRj2Q88EqkIyOeVdtuhLScamYl0QG7g7UpDtMFHig2ZnvLQ1auW6ocGy3lCT7poNw5GmLNtcQv1D5iV7cVWEqLO6q1mlUKzpCLGAtkPeH+Y4tM2xzJnQW1JurR5rlaoReIOkXxgAxBSfHlDuM0kU4Ydl9ZXFAHkbVWIXRBLiCdvxQnk+RW2A80J38y3oxpQeCbNr8HywFhHfeMvqVMjvUghVmoao5slen6vRaA+P3OA4NFfFMbRdYYsYrRCzGHp+eFGTU1MMKtgP8QDfcTMw0mpEg6xVyL/nbqBvStThkWuGfphx1319BZ+RIL9sBPgXylL/cCGsnq91iUjsVm0iQPJ/WWETmWBtG6WcxDE2RSLxOUtGkuPxsM3fKMmpmIHM5Lcu7kOBUIQBJXEwFXgiIyvMqzu1DYMgvHNZ8fL0mOPU8jVq1bZ999x7jEq/TEUtSHJL/oPt2WshjShdCjFpnYpMQr42ccOjXfKjdr6miXjt1Wn6UuYI5epI1dB4iTrnxYgRhH63jgSiWzLvzx72Ee3rOs6RKaB53sQs32Mgrs+L6OSKR9BwU111yxFL4gpbqL4H+RaiQmVmYoocAcdyKSYC8NPjPFdrrzEYJCMmFnEgIOHIOsBooXzHoPHt6hwFtArk54YW9hGymlr8Bv1uhGvDjsu7XOBeOkg5aHFsqU6gIm6WRaaiyT7ZPBiDQfDtKoVVI0ju94vWBA5z8kZD3vlAJ6RNGd/o6np7YPyFMhCO/BfmHc0jmFlZGuCPTBm8PVvqEoU0RCIs8OTOXVVEi9XGX4SPhRyZ0rKjs9QmABBhogwSEiTy7bPcgP8q/2M0ihEwOIYWN4I7GBOXKS57wW4u2eLMrsR5hfAjo4vCTFSuuPK8iNK8le8uKXiLHQNqZnfEHAN2zuRUH1EjyvzlAnGReq12o9nl5YdZyWaWFYFdmF5A6Mkw+i5oTJPdTjN4X5XRwooWuoD25VfaH/pux/G2Zx+2ix0VS9/ZG0H4eCcUOqnHY720EBHuEY1liYSHhBbLW9MzjJVR/hcXxKzzP5CrwMHyPoax4b/G8TpafCF6fj1UlIEPGMJ0ImwYXPFKeLBvpJ+ckOQQ/ZIHxYPYrU2S5FBLCysmsUYpsmL5CQ9MaUAxpRohknIHhqkytx2YaO7Ug35ZSPVwUjBhOBtJ9MVtfOgWl3TyWlojtlJwKDsABvJiP/l7hxA8zAkm+1DH39EgdVCJu5P4yjsjoUnriZKd2bII3YGP72V2r8+XuKhZj0r7qg4lELhNnDTD9L29+UvnZ+12EK8gJPul6vNdS1ngWHCaW4NLAyPPUxVZZakTqtdOS7mtSjCPpejHHAdX7tDPXMEJOJIzWvnb+GBFDC1m4a/97xJfZ3eLzV0kH0SIgRoX/JZb1ZM42mBwj12gNbwH5dlWEbAblYQSRd9obxIqrusSYY5yOVqkxanBG0wRn3RJfFMTbZfa1v7nrO/56gMB76MplX9COBphojLlDid43hWBCmZxlWcE8hqnujfhycQqlhSJ3lCnlInmFDl6l9NDBNHwOLXgyhW4hBVv0dPlRI0EA06zSp6TPf5B3w0mp5z7tI6JAlrzetASgmSfZZBt0iYox+PHvB5MSEoT7x/WSJCbhvZHblhyiO1ksh+eXaAvr9W7LRM0yQEYPechQy4JG0wB8UoWTjkgALWVvSqy4hC8+njQz69g2/9UL/lYLqdx7OG+T1Y1oZSQVY0tBKSegSQbqTKpyOiQVDfI4MKh+OTETw2/0v52y3hxas9deL9KbdF02TYFxBkfh7MIHr4QfB+bsHrWRTyX19PVuOq8rzCWL74xpQEt0hUXrwqytsX2KPpnH6IVuqwZgit60cOUTBbEBsQOXCC46y4IT/3waL0xHQPJFJaTFbJka7n13qRf2DMES5fY+6mRx911kxdP97sXeQUtMH7QfWMHGFKZSt/AIe2leYb8VKk0wvnC0asLV8DI68Dk7ZdbIYGmMgDuD6xfEcIXRa9cn6o9aIV8sTjs65IWdz1A6xKLYtSTXCaqfuhKhbIDkdX0h+pxSSpDEqWCJnNPmz23VFnrRiV16obDmjsdTplWK1ByPi3NwLEQnvsuz5H0UVipONOe3WiIcqks7U0mu7fsuVV0CnwsqP+Ga17HXV6ja2VdJURHoSj1Kql2OQzy/b19p3C1mNkwCelAWYAj6RN8aFDyYdn1ynrAekUiVzm/kCM8MKLeaVGTGJDZ0KxmfhD4VWAKXxb5JtYSqqhqGhq613OXO+4oeHFoj4XJ4MC2cmz9hvOigrWxnXyakyKVWCoYQrVwrOVlKOkZ1nYXzIqicSq+Q8Mj7W/yxqKYn/PE4SxBiSAeCkyCILPdY4QjXj/dBxqd7pzDGZRxliBOD+6UXPBDvPdxPdQNQ2vNjeXR1E/dNEDMJn/FeQx6lQxvbVO/sYgvNfvBbsNllUMKWKqvlK5JbM1BjVpWec6SNGmWsgOyjr6eUiMwrxVFmIH2PzLTOPmw+8LQLmTyd0ig9hbMA7/Dx7kVo12Yfd2C8+2BGhYwOIhyyCV7Y+MqKoBuoftYPw+QQDnvuBEylUuBUzMa9+hZFZq5nJAZQQ+BmyFG8T5ZGQU5WT7xtbWLKlp6fR7jBYXRnaVjREYkRAMxV3ZdCwUliEANkRWx2AKbW+TVM5k2CAebrca+lR+PF4AF1rkhQQluF664Tqx36qK78LyhxJRlJBtT53JlLypzV2sNLd4NLSR74bBCPxIrCOWyiKSokmr/1YQzR7eMHEX3TFgZhUJDLSnMivBw9gtLopYntSBekpCnAoQAiHInuwEx2smXSsGgmtI2r0vjC3fY7AEneRV99FgszJyG169FtHWGWks3Sw3H3e9A2ssISL36hh9mzdcv1H6xv4l3mmlMeS3Wu3EifepoUNpnHvzZNvUYwRQN055mcJIv5+D546FqCG6tAW539+7LuNhapvq2jBTxmvrXW4z1A+gdanXZrDkm7DgcBTYcgZ2iwqkIIvqGWK7XFy2Tuic4wFj0NxGSmGfIkyQOQQgFCqL5ooMDvv5084giO4aCdHgt6yzEMaN8oBW+RUz7i4qPMqq634GUR8z/Ho091xbA5YGCC931JXfo5hy7J2kQdiVYqq60dQo3Y5rXtyygNqNPqIVRtoP4SEdm0GYh7klrqcyXJ2zo338BDOyxDmQehIXCQM812MehkMTC//RLholzC3PA8rbRnkldl+sqx8dDsMK1lVRZeWte7ceNRYE+drB/B36wOWJFDIkc/EoUqyhKDz4JjW2LSfY9SaHAT3LA/NfzfqYEIl+Qr2t0v9r5/dasZRk9hVWPZNgyd6LDqBM9vCHRhDXbkAKCG1GWQHl2i1JIsh7ZaGAFA7njaSJ5iEAfG2LCuKblvVgr9AeCY/ri45merqvmAMaUrx2f+HRsLHn8kUhC3Z8NIsumJxL9qD9Glh1K4Xa+Jx3/gIIECDlUW7MKUU60KVpwjv1hGE+VpxYFl09xCY4wBb20a2yyuQmDksBYhqLslKMCMXiWS4Uc1tgPyGEEGNtvO921LALhqvCG4Q6g+VZmGX9DKvq9GpjVi6/EPXJFVCmrECpED15Aj8MhUO/D4f2rccDYv8rFmiLE8REUp+zhLhNUya0H66ee9JW7XHIb90R4aT+TuAHtorkdOV7zziq+zw8sUYvJ/siRZ7SOEy/PDyCntBlkaSaJTNiaMger/dcZU2SdZYVtxAnLuIRa2ZfvHzWqymjv8/4HrcgRajNwELX8nyHSKWCm+OvXjqAJeWJWVXGyvAg3X5qN1N2luGM7Ksvsb9d9j6b+cItapuABwqbYHiQNoRSG0XLvhg7h8636zCVNNlcMathuhzXrOgaB4I9zJ6EJzk75WfZm6/0zH9gIKbSC0f/7zluMrltA9Pqc7x9VfnE7Cp5PNK3CkdMzBshBkNiBOgSPEQ9yITl+Kwtr5y3iigAgNAvDUnOXe/VINXRw/JH44tsFSDoLt50JUHtxmnTCaVa0tAx9UNkS7lJxPizJfDyQSv6ALRAiy4m/gNnHPLPlFTMu0jvpgtI458fwXgT1fMTreeH9ye9RqwEoChAARWh5BkLWyLr3T0pLw4P+fMKclEx0ncbEXsjbemrIKnBtofZvCusI20CjfFID+sXhC5glApbd3ElXYd0bIHUbtl58vFOf81KbGApDewiuuTO+awZNd+tatzUAdgGGWhKHb7dgtwk6ALAQQa4HX305UDu+mjDhnSYQCn3BOHHPADwUpB23NOlS7Y2dhdTDXKB+XdnMXt02zVcgOdSG95uQh+cLc/4vExXfxRdc+dRRLKasxPNcdkct/YaW4qcNxhutrz//9lD7yL5iHUtYkdD0nHkVUsaxnF66KWA3DBrw124Q3CNo9yD59Tw4HYX9motu7fvZPnX5MHVfrfX5HkHddQROv3VSw+mTTCTzN8kkwqgK6oyMsL9SPc/ES3ywpr6aGdfT+AI7WxwNtsphM4G9ZMhANGBvuN3uCcNH2hjbb241tfTYZWeuiyKC59H5UJQMc4nE23H2b7iX3i7kefcWhWUsYLRHc6mLIzl4QCZ8GRSRInV8b0at1DnrnZwttEySbQVPmD1yIBWJx/qjKxSakTn3fZI5sSCpVnewS64lQkPFugTniZqi/QPGNccCKmjl7uDzuIb6GgCIDAfJVolKF73ApBXQZHZbgDpQEjZI28CrSGvl8GVALSOStlA3PvcQfkX34Xmg9nhSfr1FDSz3aJPMQUHgTtvJVhlTHiiMVgdYrQiObnyOF6kol0z+Jgw22N5I8+QeXQ7Epol5HxFsvQFKtosgSp9GrrZGReVUbgGKFPHgWyilvOOSbBYp4vgkEztM1CPcWYPMvK6yqKeu8OHfSKfAGiABMoF+Mnek8QyyA1N9OhNOfZNW5dXXEynvfLSxJna5LhjE+2BCnQVHQf/7UVq1K3J9V2jyDjnY6R57WqVOfKK8qglOXRLcwCcw3tOrelm8Z2Xf4szqS2UpszqV+smFQsYIFJE+kXn5pYYtgyOt7BCLw7D5LKw39B1ZVJdfonvasS3dMk6pWxkTTI/ptTl/DN+NK3VWRRwE1+uKPZ+WA13o3oJBlXwjE6VAbIEXbbenR+MRDZOLzg76I2h+bOWxLy2veU1gbnH/NYX1kBEntS3n2fgBtepvUt6RCChh8XjILxgAZsi1uupQXyWqJXm1YUq2hJ7qG3w3Tow14FMX8wiisSDp2o7pPKswJXaCZVBC4vheSI9CKiP4WHC5yNn6ZOkXPmL5LMKdAsPZPj8wrgpFEzdnnKcgKSxpYCXjsen0Szz9g6fuVC/IbYWfqtTsgoL0eXDojVbErBVhg8+PNCW9TjdRdTGcz6ibthjmJ7aLwDvzh+Y663GFAxOMJDvbjJGy8JvOJD4WdB7yo9N69X8BY+vbocmq0/sORkgSpXCfx+ZTd8gmrPowJov66R0Hc01+JLJ8FVHqX3HWj+uviuHFpQpfXCzmV7btMe243Sk+CMZeXqZSc///oAesAd6XbLJe3SxrHyI1i4NCrMDm7maXrmFs4n401gKVSFYK0PPar++3Xc2p/YBiMV+Ua4M6Rq+DCT1AlhCW8k7eBgglA3rCztbC+2VZQQwwFcYdd99KRx+B5cIPvrP9gnHXy2h/yjASvM26J5bbSh15E2johUSE/9/BGR4t6JPThu72RhqlCiJPhSrJXq675AeS2InxI53IMkI25towmVYwgmt1qQzPo6P/R5HANp8nLxJnI4eLfSyRlHSNwdgluhQQYMSLZ2bZvey2KOgyD50Vxi4giEEkqXdA7tH0qn2cGv4+I3RIJ7qKPA2pk5FOLJt4x4CpzD1Xnp2kT86ViMq5j4o1rmRysXlRgQ2CIdJHPnRlck7sM4KyyRuwv4HoNlCC/pw5mdsbos0obpK6wMC/9oz64Ue9YoEJMQmz8mIooTNDF+4og3O/HnGfMZ4K9pC9lFVGDCSerd18Ioj+uVX8931y+zpUNsOHUFhgypahiywXv0pDrp93Zog7X7BEsxGYbUL+8PEir20KRccfu83rhZD2POt9l2MBY9E8T16YxLs0uMTY5G959kuMb90QzwkI1MoOl96YhBnHQk3UDSiUbmsP+bTcmPsChJEq+2XhTWHiiEQctoYQPU6pBlBb9pMwzlBelf1Skpc8cRE0lqofs8Efc43u9AQ+WcLosiHA21tvobiFW4JD4yu9EUxR3Z+KXo0tkvnaTs462XxnT6OhBH9Oot5xtsOARFFVV8zDcwIz+L3HlvS+V3s0dKA/MhbZFhjYxS5p/B/gEJ0O57S29x6FdwPKv9jaCH+L2fMbMfjOA0DTHcOUeGxNLp/v73b56YC1IYGaKlwCE0SgCgwyuVb8+ktHN2u5MGeifFQ8NxQcWPYJ2MAsSGkXQheg5JC9jNazZCQOGsgx5g7yt6Sh0RoC04bnsCtqAPPKauTdWMWJIuQ5/2sQB7s/pvqslTpyldFJnCY8WnyAYeqlQj976UbA7ydj5cWYqV0iiYcnHM+5Pqd4SfOh01lVxHEnE+5PghF8QipTQThdpi4WOqf3g4h66cTcHL5iuImEYhphFf0gcwt4uxX/4PvUSs+P0JRld+rB8nTRiWgVQVATV3MxoMjYkplFHzo2GBmknpCkfjox+S5/eB39FY8NKBR3+P3vFICPKIIEmG9Y3cy1IFtR0S9CFXsztJLc3WBAktWTHPw+w5bdmwgA4QVhiAxkbSX+DHhDaZPSvKJrfvLz/mvHin0R79Hsc3lIhUOdCMAhlrLDY0Ymhl3YxYzyu1R7cAgu+hqiuimTlrHb6akLDwpA/spy+Tkj9SupMB7e2ZZyMWwE41iZhv+RKznPmrW60q/kCqbTe/l1gocPySbwjsOeRn24joKav/o2ytAXfZ3BYb9/wH/EAkPPvmmzxZV2PUTEPUIGxlUtvCLhS537zb5rFQ4+rAGHI0YiC6wCThkw0Kgq7YESHatU03Xi9ACehGtgO0XJkV2Ccv+BOhCajbo6e0aGSzwkE9POHLWeK+v3n1rZ8cVfFSMn6A2sgyY0tF8w4CD3sMsbGlofpDmcskGf9qbWNnkEA0CgL1SG1lpJBAEpE2c2pUYST+FSAXQB9K0RmQ/eXAiU90bHO1X18XAgDAYueisN/0a78Ia7VHT2ETnuRQ9SACkj/YKtAalvpNa1yzYx9u10EDlaZRzLRZkH7z6LgXQJY8/fPtoL2c0SeblxPVBeAQS1kK8kOWYNhOGTxG2s6FTlkqN4VJgLJ3FTcIKzYgPgugAsPMj4+7pM98WOVZjkCQNhD9QFBp4bR0CxcIbe9QtLDQiJJG1mSFnFpKX2+3bYTEQDYaUKr6rHoiVBiaesFCZTkUIcCo3ONQ5yTIgx6tSqs/LMcQ10J0qRqUhksK/0q4dbmtom/OFy8soNUrOtHbVEi24dCFxIAgCGyQt8jav+0CIlbU9du/RzQ+cyeJQtj+DgAj9clPCibxW8VJm9P9CJxm3O+xs4AoBLFVC/92kT9kJgiZOgVxc+zZkFSFq60cFhMSqd6206rqjIE41Cga3vVmnpHUuGw+RMWTl0DLnoKNsLNFIFtICFtyZJSOIB+gYGHDSv5GWiROamterX8RT3R8CryUPjKslM2L7TDX6IYZu8c9CldY3euDgrIPwJ2DE6iO16aWsSJgYvj5FjViqnx9iG4Z1oOvcuj09sntgjpY0E9njmli0UfdJVtE8DhhJJvj0LKsiV5hrOA0YBgIMhRU4QWSiGXWLYP4zkkkP5EjaLbAPJku+X9nh2svz/qF7mBqTswoLV+BUw3Sq87uazrN71Xxl08CWyWfHc3n4ffk9wnYVMk4FWDMiNbMb2by4vqtTqKTMJRIyOJZUs1x8ZMvZD1dfRMAON3Qx7NrXIu1lfVBlS92qiKHuUp/Uj27iDBM3E2zbMMCUdjpwBa7lYJBUMEMYww4lv1DhNgQU92LKbRfnfFtCZOzIKiVRD674txJ46DXZIMlCsfRzZCpwt3BXgLBaiUw62hFip7lgNaj+QDLR/bwMoeG/katFzkh1qkI9cQm7Kz6eHqk5jpJaYE+zxD6eWwdHOc6TUghCELBVZcjMqU++jpYfIfilbMs9vF3z8zeo+Gu+tGhVgz0hu5fFLRIqCCFjTEM25uEkLA7Bx5OJ9TZBYYJUbP18ouLA0aol2rkuV+Y8zWy11WWMQpY/pv6lX75EMlHi4757mATLchQ9pIAQdv/Pz1ClrKSR/dr/2a25Nz5seoHhJNax1KYlfenVOhZBjZjqLNvuzdW7YZV9yX+MAwHQWUCv0ZpOojlDeai3y3SSBGd2O1NrpE3mgCdzq9VWRC2XOfTVXqKIM5CUq80xNjiilLczI/VoZFNmG1zlTV/lmXClgJ4ykK365/UIeJjVFnIUifY+zVWwwU9nZ7kkMvqM/V8DLVFc1+jYwtVMfc9Ohx2pY1j+yW10F1l8KgnLG/gAd0I9e85I4paezdta3PlWohpbYG/p/pjvGIOQbGfO12960im84jlCbGPgZzLlJnlMZj5SuRD3g2TuVSLyIgKaqwupwhF9zfMtex41+Wp5xjhtJh9oZMpWq9BMopJg6E8L8T7F7HL6UbBA/V9uOZ1FUCADrmX0vXBJBY2lLBPPmKXwEqfNsE0uk+DTJ/AvOeCEzShBb8/bFFkpBAvnbdLyDW8PxGuk74qcAOkcXXv6NjBgO42PFwJSagDUnkOpycJp7D+7wA5UJlioC9zRXqljjDjgzAcadTljEojtGG9XTtQ9yl0q0wzNU1YHu0eeezhvlHpDSj+nfLhy15p2/Jw3GG/xA0ab26HYJAU8EYkSC9TfojTatmHhYxk9ybcdkwYRdHNTEbnav1C7i3oCd5kHiVlnRVzkYCOg92MQOSSlxKYYkZblYACkQYj/g5wsACCwfg7w9s9HiKFwDrNGX7GqzV9YzHC1SOA6cDq52G1BjePJqRMD6ePWBDXD4XNfCJE6Hi16cZPYsJUIc928jcROPk/+5t/Bjjk9wghezP2Cx8SR0pMi6joR5DAu2VrL3PFYO4opTXJ4iCYzArX1xAzxyRQMsCISU/1kj1hzqvRLA5xQBiytgj57n9dc4KrbZALfVXwirNQAPD/i/5dCT7IUl2zKIgNgp+apR8/uYtrMlqs3V2agZ6gIl0BDe726/Nrhdbo2CWuAFJ34WMzmDHedBjYedOHeXpCIUj0gdOQhx6crb9ZMJBIerhOM6oSsYXthc8BCYOm5BiNa7NqWqT1TtePZUxG+P00h7MH7goQMr8VNEvW8S+IjybjRLtPAaoFySHAoqnliVombbpuNozBQ28E+p1wqPrUWgwfKuN2Rfmv8UVjpFV54PoMoMtBb887qzpuKTdSA+LBPJ1g3N8CKJElLjWJrIpK33fQ0Irmurl2q6sJSjRZNGaD2vopyzACnBvyBYdGLLFuviAIsc/7qiUn/9Bw1ysd056UIpUOVgbk8YJ0lTd3D67XrSg6gQ0mfwKBDn5PiKBdgf7V9oLZ9V6+N4ngHimkfiQbnz5Yy2wiMussUvkWF9Ox5qrXSVtK89+W3IkmBncPqCy2h0kx2RSYebDJ0MS3YU+jrDpAggRCGhqAskWfvMSAlwACCPQQ4WYDA/PVRZUdchbwDFodPpmQG7NCx0g0Nz1EXvRZ4FIO2A6pyVEs17DJq+ub4y6F/EAkS8SGHIHPzMOeMtTqxxeZxv5MhHK0x+lZ3Ry1+YWzlei73fQ918mNztR9a5ecTFhqV/gavaaJ5BxvjRmbq+4IVFwZXtShs3d0A5UjocawS401S5bh+xWPEYVDdgW3ta+wYx6ycHtlylSX9MlumeeAPtMRgABzRCEBvxiUWkp2AABZx27QECfiAADMCAAAAAAAAAAAA==\" style=\"max-width: 100%; height: auto; margin: 10px auto; display: block; border-radius: 8px;\"/><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "69_Pulmonary Hypertension",
+    "deck_id": 1755954606410,
+    "correctAnswer": "D. Focal area of oligemia"
+  },
+  {
+    "id": 1275,
+    "text": "Q5. Echocardiography was done for a patient who presented with severe exertional dyspnea, chest pain, and occasional fainting spells. It revealed a mitral valve area of 1 sq cm, elevated LA pressure, and significant RV hypertrophy with TR. Which is the next best step in the evaluation of this patient?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cardiac MRI",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "CT pulmonary angiography",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Right heart catheterization",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Ventilation / perfusion scan",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">In the given scenario, a mitral valve area of 1 sq cm suggests severe mitral stenosis. This leads to elevated LA pressure and subsequently pulmonary hypertension. Due to pulmonary hypertension, there is compensatory RV hypertrophy (right ventricular-pulmonary hypertension coupling) and secondary TR. The next step should be to confirm pulmonary hypertension. Right heart catheterization is the gold standard test for diagnosing pulmonary hypertension. Option A: Cardiac MRI is considered the gold standard for assessing RV function. In the case of pulmonary hypertension, it is used for serial follow-ups due to its non-invasive nature. Options B and D: CT angiography and ventilation/perfusion scan are done when pulmonary hypertension is suspected to be due to pulmonary embolism, coagulation disorders, or past history of thrombosis (chronic thromboembolic pulmonary hypertension) which should be followed by right heart catheterization.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "69_Pulmonary Hypertension",
+    "deck_id": 1755954606410,
+    "correctAnswer": "C. Right heart catheterization"
+  },
+  {
+    "id": 1276,
+    "text": "Q6. 32-year-old female patient presents with gradually worsening shortness of breath, fatigue, and exertional chest pain. On auscultation, a loud P2 is heard. Pulmonary function tests reveal an isolated reduction in DLCO. Her family history is positive for similar findings in other members and genetic testing has revealed a mutation in the BMPR2 gene. Based on suspicion, which of the following therapies is this patient most likely to benefit from?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Bronchodilator",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Vasodilator",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Nitric oxide inhibitor",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Immunosuppressants",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario suggests a diagnosis of pulmonary arterial hypertension. Vasodilator therapy would be beneficial in this patient. Endothelin receptor antagonists, PDE-5 inhibitors, and prostacyclins are examples of vasodilators. Option A: Since pulmonary arterial hypertension is a vascular disorder, bronchodilation is not beneficial. Option C: Nitric oxide is a vasodilator and inhibitors of nitric oxide would worsen the disease in pulmonary arterial hypertension. Option D: Immunosuppressants are not useful in pulmonary arterial hypertension.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "69_Pulmonary Hypertension",
+    "deck_id": 1755954606410,
+    "correctAnswer": "B. Vasodilator"
+  },
+  {
+    "id": 1277,
+    "text": "Q7. Which of the following group of drugs can not be used in the management of a patient with pulmonary arterial hypertension?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Phosphodiesterase type-5 inhibitors",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Prostacyclin derivatives",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "ACE inhibitors 1021",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Endothelin receptor antagonists a ee ee ee ee Detailed Explanations Solution to Question 1: Pulmonary hypertension is a pathological hemodynamic condition characterized by a mean pulmonary arterial pressure (mPAP) &amp;gt;20mmHg assessed by right heart catheterization. Pulmonary hypertension could be a complication of cardiac or pulmonary disease or a primary disorder of small pulmonary arteries. Right heart catheterization is the gold standard investigation in diagnosing pulmonary hypertension. Note: The threshold for diagnosing pulmonary hypertension has been revised from &amp;gt;25 mmHg to &amp;gt;20 mmHg to enable earlier detection. Solution to Question 2: Bone morphogenetic protein receptor 2 (BMPR2) mutation is the most commonly implicated gene in hereditary pulmonary arterial hypertension (PAH). The BMPR2 receptor is involved in the regulation of growth, differentiation, and apoptosis of pulmonary artery endothelial and smooth muscle cells. Due to the mutation, there is enhanced proliferation and reduced apoptosis of vascular endothelial and smooth muscle cells leading to pulmonary hypertension. Solution to Question 3: 1022",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">ACE inhibitors are not used in pulmonary arterial hypertension. 1024</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "69_Pulmonary Hypertension",
+    "deck_id": 1755954606410,
+    "correctAnswer": "C. ACE inhibitors 1021"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>88_Macrocytic Anemia - Marrow Medicine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">88_Macrocytic Anemia</h1>
+                <p class="text-gray-600 mt-2">Marrow • Medicine • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/17</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 17</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 1612,
+    "text": "Q1. The peripheral blood smear of a patient is given below. All of the following can cause this except: @ 2. 0 | a®. 9 &gt; . j .",
+    "options": [
+      {
+        "label": "A",
+        "text": "Pp ra , . -. 2:0 , &gt; . @,, @ * Op © ‘ . Vitamin B12 deficiency",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Chronic alcoholism",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Folate deficiency",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Orotic aciduria",
+        "correct": false
+      }
+    ],
+    "imageData": {
+      "data": "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",
+      "mime": "image/webp"
+    },
+    "explanationHTML": "<div class=\"explanation\">The given image shows hypersegmented neutrophils (&amp;gt; 5 nuclear lobes), which are seen in megaloblastic anemia. Chronic alcoholism causes non-megaloblastic macrocytic anemia. Megaloblastic anemia is a form of macrocytic anemia with impaired nucleic acid metabolism and defective erythropoiesis. The causes include vitamin B12 deficiency, folate deficiency, and orotic aciduria. Nuclear maturation lags behind cytoplasmic maturation giving the appearance of hypersegmented neutrophils. Peripheral smear findings include: * Oval macrocytes 1300 « Anisocytosis * Hypersegmented neutrophils Other features of ineffective erythropoiesis seen in megaloblastic anemias include: * Howell-Jolly bodies are nuclear remnants in red cells. They are usually single, round, dark purple-red in color and peripheral in location, as shown below. * Basophilic stippling refers to blue granules of various sizes dispersed throughout the cytoplasm of the red cell. They represent ribosomal precipitates. * Cabot rings are red cell inclusions appearing as fine, purple filamentous loops or figure-of-eight forms, as shown below. They are presumed to be remnants of mitotic spindles.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "88_Macrocytic Anemia",
+    "deck_id": 1755954606226,
+    "correctAnswer": "B. Chronic alcoholism"
+  },
+  {
+    "id": 1613,
+    "text": "Q2. Patients with which of the following conditions are unlikely to develop cobalamin deficiency?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Tropical sprue",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Crohn&apos;s disease",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Diphyllobothrium latum infection",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Ancylostoma duodenale infection",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">1301 Ancylostoma duodenale (hookworm) infection does not affect the absorption of cobalamin or vitamin B12. Small amounts of blood loss during the attachment of hookworms to the intestinal mucosa can cause iron-deficiency anemia. Vitamin B12-intrinsic factor (IF) complex is absorbed in the ileum. Tropical sprue, Diphyllobothrium latum (fish tapeworm) infection and Crohn's disease affect the ileum leading to defective absorption of vitamin B12.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "88_Macrocytic Anemia",
+    "deck_id": 1755954606226,
+    "correctAnswer": "D. Ancylostoma duodenale infection"
+  },
+  {
+    "id": 1614,
+    "text": "Q3. 1295 Which of the following would not be seen in a patient with cyanocobalamin deficiency?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Glossitis",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Conjugated hyperbilirubinemia",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Skin hyperpigmentation",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Mild fever",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Unconjugated hyperbilirubinemia is seen in cyanocobalamin or vitamin B12 deficiency, not conjugated hyperbilirubinemia. Vitamin B12 deficiency causes megaloblastic anemia due to ineffective erythropoiesis. This leads to the formation of nucleated RBCs in the marrow, which undergo early lysis. This leads to increased unconjugated bilirubin in the plasma. The clinical features of cyanocobalamin and folate deficiency include: GlossitisAngular cheilosis Gastrointestinal AnorexiaWeight lossDiarrhea Constipation Skin Hyperpigmentation(reversibl 2) Hematological ThrombocytopeniaLeucopeni alneffective erythropoiesis an d unconjugatedjaundice Cardiovascular Atherosclerosis leading to PV D, CAD (due to elevated hom ocysteine) Neurological (only B12) | Peripheral neuropathySubac ute combined degeneration ( degeneration of the posterior and pyramidal tracts of the s pinal cord) Pregnancy (only folate) | Recurrent fetal lossNeural tu be defects Others Mildfeverin severe casesPsyc hiatric disturbances</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "88_Macrocytic Anemia",
+    "deck_id": 1755954606226,
+    "correctAnswer": "B. Conjugated hyperbilirubinemia"
+  },
+  {
+    "id": 1615,
+    "text": "Q4. 56-year-old male patient is being evaluated for peripheral neuropathy and excessive tiredness. He has uncontrolled diabetes and consumes alcohol nearly every day. Lab investigations reveal the following findings. What is the likely diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Folate deficiency",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Alcohol-induced macrocytosis",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Vitamin B12 deficiency",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Thiamine deficiency",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">This clinical scenario is suggestive of folate deficiency. 1302 It is associated with the following clinical and laboratory findings: * Raised MCV (normal: 80-100 fL) - macrocytosis * Normal MCHC (normal: 33-36 g/dl) * Increased MCH (mean corpuscular hemoglobin) * Elevated RDW (red cell distribution width) * Decreased reticulocyte count - due to destruction of abnormal erythroid precursors * Elevated homocysteine * Normal MMA (methyl! malonic acid) In vitamin B12 deficiency, elevated homocysteine and elevated MMA levels are seen. Peripheral neuropathy is a feature of B12 deficiency, not folate deficiency. In this patient, it may be due to diabetic neuropathy.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "88_Macrocytic Anemia",
+    "deck_id": 1755954606226,
+    "correctAnswer": "A. Folate deficiency"
+  },
+  {
+    "id": 1616,
+    "text": "Q5. Which of the following drugs is not associated with megaloblastic anemia?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Nitrofurantoin",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Phenytoin",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Tetracycline",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Temafloxacin",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Temafloxacin is not associated with megaloblastic anemia. Megaloblastic anemia is associated with the following drugs: ¢ Anticonvulsant drugs - phenytoin, primidone, barbiturates * Sulfasalazine * Nitrofurantoin * Tetracycline * Folate antagonists - trimethoprim, methotrexate, pyrimethamine, pentamidine, cotrimoxazole Temafloxacin is a fluoroquinolone with severe adverse effects like hemolytic anemia and allergic reactions. It was withdrawn from the market and is no longer used.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "88_Macrocytic Anemia",
+    "deck_id": 1755954606226,
+    "correctAnswer": "D. Temafloxacin"
+  },
+  {
+    "id": 1617,
+    "text": "Q6. 45-year-old woman is rushed to the ER following a seizure. She is a known case of epilepsy but is non-compliant with her medications. Her lab values are given below. All of the following drugs can cause this presentation except:",
+    "options": [
+      {
+        "label": "A",
+        "text": "Lamotrigine",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Phenytoin",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Primidone",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Amobarbital 1296",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">This patient likely has folate deficiency secondary to the use of an anti-folate anti-convulsant drug. Lamotrigine has no effect on folate metabolism and does not cause its deficiency. The following anticonvulsants have anti-folate properties: * Phenytoin * Barbiturates (amobarbital) * Primidone Folate deficiency causes megaloblastic macrocytic anemia which results in the following findings in RBCs: « Anemia (low Hb = 10¢/d1) 1303 * Macrocytic (high MCV = 110 fl) ¢ Hyperchromic (high MCH = 40 pg)</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "88_Macrocytic Anemia",
+    "deck_id": 1755954606226,
+    "correctAnswer": "A. Lamotrigine"
+  },
+  {
+    "id": 1618,
+    "text": "Q7. dose of oral 58-Co-labeled cobalamin was administered to a 65-year-old woman. The 24-hour urinary excretion of radiolabeled cobalamin was found to be &amp;lt; 10%. The test was repeated after a 5-day course of antibiotics and showed urinary excretion &amp;gt; 10%. What is the likely diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Pernicious anemia",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Lack of pancreatic enzymes",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Bacterial overgrowth",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Malnutrition",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">This clinical scenario refers to Schilling's test done for the determination of the cause of B12 deficiency. Improvement of urinary B12 excretion &amp;gt; 10% after antibiotic administration is suggestive of small intestinal bacterial overgrowth (SIBO).</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "88_Macrocytic Anemia",
+    "deck_id": 1755954606226,
+    "correctAnswer": "C. Bacterial overgrowth"
+  },
+  {
+    "id": 1619,
+    "text": "Q8. child diagnosed with megaloblastic anemia failed to respond to treatment with vitamin C, vitamin B12, and folic acid. He was started on uridine monophosphate which improved his symptoms. What is the likely diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Thiamine deficiency",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Liver disease",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Pernicious anemia",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Orotic aciduria",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Megaloblastic anemia that is responsive to treatment with uridine is suggestive of orotic aciduria. Orotic aciduria is a rare inborn error of metabolism in children. It occurs due to a defect in the pyrimidine synthesis pathway causing a failure of conversion of orotic acid to uridine. It manifests in early childhood with anemia and failure to thrive.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "88_Macrocytic Anemia",
+    "deck_id": 1755954606226,
+    "correctAnswer": "D. Orotic aciduria"
+  },
+  {
+    "id": 1620,
+    "text": "Q9. 28-year-old woman presents with fatigue and a red, painful tongue. On examination, there is reduced vibration sense and proprioception in the feet. She is under treatment for Hashimoto&apos;s thyroiditis. Peripheral smear reveals macrocytes and hypersegmented neutrophils. Which of the following is unlikely to be seen in this patient?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Intrinsic factor blocking antibodies",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Antibodies against gastric parietal cells Cc) Intrinsic factor binding antibodies",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Antibodies against gastrin",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">This clinical scenario in a patient with a history of autoimmune thyroiditis is suspicious for pernicious anemia. It is an autoimmune cause of B12 deficiency. Antibodies against gastrin are not seen in these patients. The following autoantibodies are seen: * Type I or blocking antibodies - prevent the combination of IF and cobalamin * Type II or binding antibodies - prevent attachment of IF to the ileal mucosa * Anti-parietal cell antibodies - target the gastric proton pump located in these cells This leads to the deficiency of the intrinsic factor of Castle (IF) and hydrochloric acid produced by the parietal cells. The resulting atrophic gastritis causes high gastrin and low pepsinogen levels. Lack of IF further causes vitamin B12 deficiency and megaloblastic anemia.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "88_Macrocytic Anemia",
+    "deck_id": 1755954606226,
+    "correctAnswer": "C. Antibodies against gastrin"
+  },
+  {
+    "id": 1621,
+    "text": "Q10. 1297",
+    "options": [
+      {
+        "label": "A",
+        "text": "pathologist receives a gastric biopsy sample of a patient with pernicious anemia. Which of the following findings is he unlikely to find? Intestinal metaplasia",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Mixed inflammatory cell infiltrate",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Hypertrophy of glandular elements",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Increased mucus cells",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Gastric biopsy in pernicious anemia shows loss of glandular elements, not hypertrophy. This is an autoimmune condition that occurs in genetically susceptible individuals. One of the common triggers of the disease process is Helicobacter pylori infection. Gastric biopsy findings in pernicious anemia include the following: * Atrophy of all layers of the body and fundus * Loss of glandular elements * Absence of parietal and chief cells and replacement by mucus cells 1304 ¢ Mixed inflammatory cell infiltrate (excess of CD4 cells against gastric H+/K+-ATPase) * Intestinal metaplasia ¢ Antral mucosa is usually well preserved.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "88_Macrocytic Anemia",
+    "deck_id": 1755954606226,
+    "correctAnswer": "C. Hypertrophy of glandular elements"
+  },
+  {
+    "id": 1622,
+    "text": "Q11. Patients with pernicious anemia are at a higher risk of which of the following?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Diffuse gastric adenocarcinoma",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Gastric carcinoid tumors",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Primary gastric lymphoma",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Gastrointestinal stromal tumor",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Patients with pernicious anemia have an increased risk of intestinal-type of gastric adenocarcinoma and gastric carcinoid tumors. These patients must undergo regular endoscopic screening for these conditions. The presumed mechanism is prolonged achlorhydria due to parietal cell loss. This leads to hypergastrinemia and cellular hyperplasia.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "88_Macrocytic Anemia",
+    "deck_id": 1755954606226,
+    "correctAnswer": "B. Gastric carcinoid tumors"
+  },
+  {
+    "id": 1623,
+    "text": "Q12. Which of the following is the most common cause of folate deficiency?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Malabsorption",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Nutritional Cc) Use of anti-folate drugs",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Deficiency of enzyme DHF reductase",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Reduced nutritional intake is the most common cause of folate deficiency.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "88_Macrocytic Anemia",
+    "deck_id": 1755954606226,
+    "correctAnswer": "B. Nutritional Cc) Use of anti-folate drugs"
+  },
+  {
+    "id": 1624,
+    "text": "Q13. Dietary folates are absorbed from which of the following sites?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Duodenum",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Proximal ileum",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Terminal ileum",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Ascending colon",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Dietary folates are absorbed from the duodenum and jejunum in the form of monoglutamates. Vitamin B12 absorption takes place in the terminal ileum.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "88_Macrocytic Anemia",
+    "deck_id": 1755954606226,
+    "correctAnswer": "A. Duodenum"
+  },
+  {
+    "id": 1625,
+    "text": "Q14. 1298",
+    "options": [
+      {
+        "label": "A",
+        "text": "49-year-old woman is brought with increased forgetfulness and clumsiness for the past 1 month. Since the death of her husband 3 months ago, she has been tired and eating poorly. She began taking over-the-counter iron and folic acid tablets 2 months ago. Examination reveals positive Romberg&apos;s sign with eyes closed and loss of vibration in lower extremities. What is the likely diagnosis? B12 deficiency",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Severe folate deficiency",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Thiamine deficiency",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Pyridoxine deficiency",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">This clinical scenario is suggestive of dorsal column involvement of the spinal cord due to underlying vitamin B12 deficiency. Vitamin B12 deficiency causes subacute combined degeneration of the spinal cord (SACD). It affects the following structures: * Dorsal column - sensory loss, paresthesias, incontinence, sensory ataxia (positive Romberg sign with eyes closed) * Lateral column - spasticity and paraplegias in later stages Folate deficiency is typically not associated with neurological manifestations. In patients with combined deficiency of B12 and folate, B12 deficiency must always be corrected first. This is because the administration of folate supplements may improve hematologic abnormalities but worsens neurological manifestations. Treatment of cobalamin deficiency is as follows: * Replenishment of body stores: Six 1000-ug IM injections of hydroxocobalamin given at 3to 7-day intervals. 1305 * Maintenance therapy: 1000 ug hydroxocobalamin IM once every 3 months Treatment of folate deficiency is as follows: * 5-15 mg oral folic acid daily for a minimum of 4 months. Option C: Thiamine deficiency causes Wernicke's syndrome with ophthalmoplegia, ataxia, and nystagmus. As this is due to cerebellar damage, Romberg's sign would be positive even with eyes open. Option D: Pyridoxine deficiency causes pellagra like syndrome with features of dermatitis, diarrhea, dementia.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "88_Macrocytic Anemia",
+    "deck_id": 1755954606226,
+    "correctAnswer": "A. 49-year-old woman is brought with increased forgetfulness and clumsiness for the past 1 month. Since the death of her husband 3 months ago, she has been tired and eating poorly. She began taking over-the-counter iron and folic acid tablets 2 months ago. Examination reveals positive Romberg&apos;s sign with eyes closed and loss of vibration in lower extremities. What is the likely diagnosis? B12 deficiency"
+  },
+  {
+    "id": 1626,
+    "text": "Q15. 19-year-old girl with a seizure disorder is started on phenytoin therapy. Which of the following must be supplemented in this patient?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Pyridoxine",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Thiamine",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Cobalamin",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Folic acid",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Usage of phenytoin leads to folate deficiency and megaloblastic anemia. Hence, folic acid must be supplemented.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "88_Macrocytic Anemia",
+    "deck_id": 1755954606226,
+    "correctAnswer": "D. Folic acid"
+  },
+  {
+    "id": 1627,
+    "text": "Q16. 23-year-old woman comes to you for pre-conceptional counseling. Her previous pregnancy resulted in fetal death due to a neural tube defect. What dose of folic acid would you recommend?",
+    "options": [
+      {
+        "label": "A",
+        "text": "400 ug pre-conceptionally and in first trimester",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "400 ug pre-conceptionally and throughout pregnancy",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "4-5 mg pre-conceptionally and in first trimester",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "4-5 mg pre-conceptionally and throughout pregnancy",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The recommended prophylactic dose of folic acid in women who have had a previous fetus with a neural tube defect is 4-5 mg daily, pre-conceptionally, and during the first trimester of pregnancy. Following the first trimester, these patients are then switched to 400 ug of folic acid for the remainder of the pregnancy. This high dose of folic acid (4-5 mg) should be initiated at least one to three months before pregnancy and should be continued for 12 weeks after pregnancy. The patient can be prescribed 1 mg tablet of folic acid and advised to take them 45 times a day or they can be recommended 5mg tablets/capsules once daily. Prophylactic folic acid with 400 pg daily, pre-conceptionally, and throughout pregnancy is indicated in all pregnant women to prevent megaloblastic anemia and reduce the incidence of neural tube defects.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "88_Macrocytic Anemia",
+    "deck_id": 1755954606226,
+    "correctAnswer": "C. 4-5 mg pre-conceptionally and in first trimester"
+  },
+  {
+    "id": 1628,
+    "text": "Q17. Which of the following would not be seen in a patient with Imerslund-Grasbeck syndrome?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Congenital cobalamin malabsorption ee ee ee ee ee ee ee ee ee ee ee eC ee ee ee ee ee ee ee Detailed Explanations Solution to Question 1: The given image shows hypersegmented neutrophils (&amp;gt; 5 nuclear lobes), which are seen in megaloblastic anemia. Chronic alcoholism causes non-megaloblastic macrocytic anemia. Megaloblastic anemia is a form of macrocytic anemia with impaired nucleic acid metabolism and defective erythropoiesis. The causes include vitamin B12 deficiency, folate deficiency, and orotic aciduria. Nuclear maturation lags behind cytoplasmic maturation giving the appearance of hypersegmented neutrophils. Peripheral smear findings include: * Oval macrocytes 1300",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "AMN gene mutation 1299",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Autosomal dominant inheritance",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Non-specific proteinuria",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Imerslund-Grasbeck syndrome (IGS) is an autosomal recessive disorder. IGS occurs due to mutations in either the cubulin (CUBN) or amnionless (AMN) genes. They form the cubam receptor responsible for the absorption of the Cbl-IF complex. Hence, this condition leads to congenital cobalamin malabsorption. It is the most common cause of megaloblastic anemia due to B12 deficiency in infancy in Western countries. Affected children present with lethargy, failure to thrive, and neurological symptoms like hypotonia, developmental delay, and movement disorders. Non-specific proteinuria with normal renal function is seen in 90% of patients. 1306 1307</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "88_Macrocytic Anemia",
+    "deck_id": 1755954606226,
+    "correctAnswer": "C. Autosomal dominant inheritance"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>

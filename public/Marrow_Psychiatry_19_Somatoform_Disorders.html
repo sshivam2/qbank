@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>19_Somatoform Disorders - Marrow Psychiatry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">19_Somatoform Disorders</h1>
+                <p class="text-gray-600 mt-2">Marrow • Psychiatry • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/7</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 7</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 283,
+    "text": "Q1. Which of the following is not included in the DSM-5 group somatic symptoms and related disorders?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Functional neurological symptom disorder",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Dissociative disorder",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Factitious disorder",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Illness anxiety disorder",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Dissociative disorder is classified separately under DSM-5. The somatic symptoms and related disorders group in DSM-5 includes: * Somatic symptom disorder (somatoform disorder) * Illness anxiety disorder (hypochondriasis) * Functional neurological symptom disorder (conversion disorder) * Factitious disorder (Munchausen syndrome) * Psychological factors affecting other medical conditions * Other specified somatic symptoms and related disorders * Unspecified somatic symptoms and related disorder 238</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "19_Somatoform Disorders",
+    "deck_id": 1755954606787,
+    "correctAnswer": "B. Dissociative disorder"
+  },
+  {
+    "id": 284,
+    "text": "Q2. An anxious woman presents to your OPD with complaints of abdominal pain and headache. She says she had to take extended leave from work over the past year because of this. She had visited many doctors but to no avail. On evaluation, you find no organic cause, but she is not convinced. What is the most likely diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Conversion disorder",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Somatic symptom disorder",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Munchausen syndrome",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Malingering",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">In the scenario, the presence of one or more somatic symptoms for more than 6 months in the absence of an organic cause is suggestive of somatic symptom disorder. DSM-5 criteria for the diagnosis of somatic symptom disorder: * One or more somatic symptoms that are distressing or result in significant disruption of daily life. * Excessive thoughts, feelings, or behaviors related to the somatic symptoms or associated health concerns as manifested by at least one of the following: * Disproportionate and persistent thoughts about the seriousness of one’s symptoms. * Persistently high level of anxiety about health or symptoms. * Excessive time and energy are devoted to these symptoms or health concerns. * Although a single somatic symptom may not be continuously present, the state of being symptomatic is persistent (typically more than 6 months). Smith's consultation letter provides the primary care physicians with dos and don'ts during an encounters with patients with multiple medically unexplained physical symptoms. It suggests the following: * Regularly scheduled appointments * Performing brief physical examinations focusing on the area of discomfort at each visit * Avoid unnecessary diagnostic procedures, invasive treatments, and hospitalizations « Avoid using statements such as symptoms are all in your head * Encourage patients to talk about stressors Treatment is psychotherapy.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "19_Somatoform Disorders",
+    "deck_id": 1755954606787,
+    "correctAnswer": "B. Somatic symptom disorder"
+  },
+  {
+    "id": 285,
+    "text": "Q3. 25-year-old woman comes to the psychiatric OPD, convinced that she is suffering from a brain tumor. She says she has been experiencing continuous headaches for the past 6 months. Though all investigations are normal, she continues to worry and asks the doctor to do some more tests. What is your diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Somatic symptom disorder",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Depersonalization disorder",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Functional neurological symptom disorder",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Illness anxiety disorder 236",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical history of the patient preoccupied with thoughts of suffering from a disease (brain tumor) based on her interpretation of a benign headache for 6 months is suggestive of illness anxiety disorder i. e. , hypochondriasis. DSM-5 criteria for the diagnosis of illness anxiety disorder: * Preoccupation with having or acquiring a serious illness. * Somatic symptoms are absent or mild in intensity. If another medical condition is present or there is a high risk for developing a medical condition (e. g. , strong family history is present), the preoccupation is clearly excessive or disproportionate. * The individual performs excessive health-related behaviors (e. g. , repeatedly checks his or her body for signs of illness) or exhibits maladaptive avoidance (e. g. , avoids doctor appointments and hospitals). 239 * Preoccupation with illness for at least 6 months, but the specific illness that is feared may change over that period of time. * The illness-related preoccupation is not better explained by another mental disorder. Note: In illness anxiety disorder, the patient is preoccupied with a disease whereas, in somatic symptom disorder, the patient is preoccupied with symptoms.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "19_Somatoform Disorders",
+    "deck_id": 1755954606787,
+    "correctAnswer": "D. Illness anxiety disorder 236"
+  },
+  {
+    "id": 286,
+    "text": "Q4. 30-year-old man is brought to the psychiatric OPD with a wildly ataxic gait and uncontrollable thrashing of his arms. He says these symptoms started after a heated quarrel with his business partner. Your senior diagnoses him to have astasia-abasia. Which of the following is associated with this condition?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Conversion disorder",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Illness anxiety disorder",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Somatic symptom disorder",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Munchausen syndrome",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Astasia-abasia is associated with conversion disorder (functional neurological symptom disorder). It is a wildly ataxic, staggering gait accompanied by gross, irregular, jerky truncal movements and thrashing and waving arm movements. Patients with these symptoms rarely fall and even if they do, they are generally not injured.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "19_Somatoform Disorders",
+    "deck_id": 1755954606787,
+    "correctAnswer": "A. Conversion disorder"
+  },
+  {
+    "id": 287,
+    "text": "Q5. Which of the following is not a feature of conversion disorder?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Autonomic features",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Primary and secondary gain",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Temporality between stressor and symptoms",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "La Belle indifference",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Autonomic symptoms are not seen in conversion disorder (functional neurological symptom disorder). A conversion disorder is an acute and temporary loss or alteration in motor or sensory function triggered by psychosocial stress. Most of the patients have a history of traumatic events in childhood. The symptoms or deficits of conversion disorder are not intentionally produced. There is a time difference seen between the stressors and symptoms. The channeling or conversion of the emotional arousal to physical symptoms is primary gain, while the benefits that come out of having the physical symptoms is the secondary gain. For example, it forcing a spouse to stay in an otherwise failing marriage. La Belle indifference (beautiful indifference) refers to the patient's blissful indifference to what appears to be a significant impairment.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "19_Somatoform Disorders",
+    "deck_id": 1755954606787,
+    "correctAnswer": "A. Autonomic features"
+  },
+  {
+    "id": 288,
+    "text": "Q6. patient was brought to the emergency room with complaints of inability to walk or lift his left leg for the past 2 days. History and physical examination were unremarkable. However, he did not seem concerned about his condition. What is the most likely diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Illness anxiety disorder",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Factitious disorder",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Malingering",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Conversion disorder",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The absence of concern towards one’s problem despite an apparent severe disability is known as La-belle indifference. It is seen in conversion disorder.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "19_Somatoform Disorders",
+    "deck_id": 1755954606787,
+    "correctAnswer": "D. Conversion disorder"
+  },
+  {
+    "id": 289,
+    "text": "Q7. 35-year-old woman with a history of amenorrhea for 5 months presents to your OPD for an antenatal checkup. On examination, her breasts were enlarged and contained milk. Her abdomen was distended, but no fetal heart sounds were appreciated. Her spot UPT was negative and pelvic ultrasound, unremarkable. She tells you that she had a miscarriage five 237 years ago after which she struggled with depression. Under which of the following would you classify this condition?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Factitious disorder",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Malingering",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Other somatic symptom and related disorders",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Dissociation disorder ee ee ee ee ee ee ee re ee ee ee ee ee Detailed Explanations Solution to Question 1: Dissociative disorder is classified separately under DSM-5. The somatic symptoms and related disorders group in DSM-5 includes: * Somatic symptom disorder (somatoform disorder) * Illness anxiety disorder (hypochondriasis) * Functional neurological symptom disorder (conversion disorder) * Factitious disorder (Munchausen syndrome) * Psychological factors affecting other medical conditions * Other specified somatic symptoms and related disorders * Unspecified somatic symptoms and related disorder 238",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The clinical scenario points to a diagnosis of pseudocyesis. Pseudocyesis is a false belief of being pregnant that is associated with objective signs and reported symptoms of pregnancy. It is classified under other specified somatic symptoms and related disorders. 240 Pseudocyesis is the development of the classic symptoms of pregnancy - amenorrhea, nausea, breast enlargement and pigmentation, abdominal distention and even labor pains, in a nonpregnant woman. It demonstrates the ability of the mind (psyche) to dominate the body (soma). Predisposing psychological processes include: * A pathological wish for, and fear of pregnancy « Ambivalence or conflict regarding gender, sexuality, or childbearing * Grief reaction to loss following a miscarriage, tubal ligation or hysterectomy Disorders classified under other specified somatic symptoms and related disorders include: * Brief somatic symptom disorderduration of symptoms is less than 6 months ¢ Brief illness anxiety disorderduration of symptoms is less than 6 months * Illness anxiety disorder without excessive health-related behaviors * Pseudocyesis Option A: Factitious disorder (Munchausen syndrome) is the intentional production of physical symptoms to get medical attention. There is no intention to obtain a practical gain. Option B - Malingering refers to mimicking a physical or clinical finding with an associated motive to gain benefit. 241</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "19_Somatoform Disorders",
+    "deck_id": 1755954606787,
+    "correctAnswer": "C. Other somatic symptom and related disorders"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>

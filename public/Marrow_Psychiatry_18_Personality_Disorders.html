@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18_Personality Disorders - Marrow Psychiatry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">18_Personality Disorders</h1>
+                <p class="text-gray-600 mt-2">Marrow • Psychiatry • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/12</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 12</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 271,
+    "text": "Q1. Which of the following is not a feature of personality disorders?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Onset in early childhood",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "They are not due to organic disease",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "They are ego-syntonic",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "They are fixed and inflexible",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Personality disorders have an onset in adolescence or early adulthood. It continues into late adulthood and matures. Features of personality disorder: * Fixed and inflexible belief * Long-standing * Maladaptive and pervasive * Ego-syntonic (does not cause distress to the individual) * Not caused due to disease or substance abuse</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Personality Disorders",
+    "deck_id": 1755954606847,
+    "correctAnswer": "A. Onset in early childhood"
+  },
+  {
+    "id": 272,
+    "text": "Q2. 25-year-old man is described as emotionally cold and self-absorbed. He likes to stay alone, detached from social relationships, and prefers solitary activities. What type of personality disorder is this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Schizotypal",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Obsessive compulsive",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Avoidant",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Schizoid",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">A young male who is alone by choice and emotionally cold comes under schizoid personality. Schizoid personality is a markedly detached person, stays alone in introspection, and lives in his own fantasy world. This is associated with having a cold attitude.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Personality Disorders",
+    "deck_id": 1755954606847,
+    "correctAnswer": "D. Schizoid"
+  },
+  {
+    "id": 273,
+    "text": "Q3. 25-year-old female presents to the casualty after overdosing on anti-hypertensive medication. On examination, there are multiple cuts on her wrists. On further inquiry, her father says she has marked fluctuations in her mood with a history of unstable relationships and previous suicide attempts. What is the main defense mechanism used by these patients?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Displacement",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Repression",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Splitting",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Reaction formation",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given history of repetitive self-destructive acts, unstable relationships and mood swings point towards a diagnosis of borderline personality disorder. The main defense mechanism such patients use is splitting i. e. , distorting interpersonal relationships by considering each person to be either completely good or bad, with no middle ground. Borderline personality disorder is classified under cluster B. It is characterized by an unstable affect, mood swings, marked impulsivity, unstable relationships, recurrent suicidal behavior, chronic feelings of emptiness or boredom, identity disturbance, and inappropriate anger. If stressed, the patient may become psychotic.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Personality Disorders",
+    "deck_id": 1755954606847,
+    "correctAnswer": "C. Splitting"
+  },
+  {
+    "id": 274,
+    "text": "Q4. 228 Micropsychotic episodes are commonly seen in which of the following patients?",
+    "options": [
+      {
+        "label": "A",
+        "text": "A 28-year-old with traits of suspicion, persistence of grudges, distrust, and hypervigilance",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "A 18-year-old with traits of criminality, impulsivity, hostility, manipulation, and disregard for others",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "A 22-year-old with traits of unstable mood, impulsivity, suicidality, fear of abandonment, and unstable self-image",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "A 20-year-old with labile emotions, dramatic speech, sexually provocative and attention seeking behaviors",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">232 Micropsychotic episodes (short-lived psychotic episodes) are commonly seen in borderline personality disorder. These psychotic symptoms of are almost always circumscribed, fleeting, or doubtful. This disorder is present in people with traits of unstable mood, impulsivity, suicidality, fear of abandonment, and unstable self-image. Option A: It describes a person with paranoid personality disorder Option B: It describes a person with anti-social personality disorder Option D: It describes a person with histrionic personality disorder</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Personality Disorders",
+    "deck_id": 1755954606847,
+    "correctAnswer": "C. A 22-year-old with traits of unstable mood, impulsivity, suicidality, fear of abandonment, and unstable self-image"
+  },
+  {
+    "id": 275,
+    "text": "Q5. patient is to be started on dialectical behaviour therapy. Which of the following personality disorders is this used to manage?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Borderline personality disorder",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Avoidant personality disorder",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Narcissistic personality disorder",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Antisocial personality disorder",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Dialectical behavior therapy (DBT), a form of psychotherapy is used in the management of borderline personality disorder. It is the treatment of choice for borderline personality disorder and is effective, especially for those with parasuicidal behavior, such as frequent cutting. Patients are seen weekly, to improve interpersonal skills and decrease self-destructive behavior using techniques involving advice, metaphor, storytelling, and confrontation. DBT is influenced by the philosophical perspective of dialectics: \"balancing opposites\". It helps the individual to find ways to hold two seemingly opposite perspectives at once, promoting balance and avoiding the all-or-nothing style of thinking. Other modalities of treatment include: * Mentalization-based treatment. * Transference-focused psychotherapy. * Drugs — antipsychotics, antidepressants (SSRI, TCA), and mood-stabilizing drugs.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Personality Disorders",
+    "deck_id": 1755954606847,
+    "correctAnswer": "A. Borderline personality disorder"
+  },
+  {
+    "id": 276,
+    "text": "Q6. 20-year-old man is brought by his mother who says that over the past year her son has started staying in his room all day reading about paranormal phenomena and demons. He has no hallucinations, no friends, and no interest in his college work or interacting with family members. On examination, he talks about how aliens live among us despite having never actually seen them. What is the most likely diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Schizoid personality disorder",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Paranoid personality disorder",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Borderline personality disorder",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Schizotypal personality disorder",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given scenario of the patient's odd and eccentric beliefs and magical thinking is suggestive of Schizotypal personality disorder. Excessive social anxiety, odd speech, inappropriate affect, and lack of close friends are usually also seen. Schizotypal personality disorder commonly progresses to schizophrenia. Some patients, however, maintain a stable schizotypal personality throughout their lives.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Personality Disorders",
+    "deck_id": 1755954606847,
+    "correctAnswer": "D. Schizotypal personality disorder"
+  },
+  {
+    "id": 277,
+    "text": "Q7. company&apos;s CEO has recently been trending on social media. In his interviews, he praises himself for being solely responsible for his success. He even gets angry when the interviewer asks about the employees’ contributions and says that they are lucky to work for him. Which of the following best explains his behavior?",
+    "options": [
+      {
+        "label": "A",
+        "text": "229 Histrionic personality disorder",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Narcissistic personality disorder",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Dependent personality disorder",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Borderline personality disorder",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">This person has a heightened sense of self-importance and grandiosity which is best explained by a narcissistic personality disorder. 233 Patients who have a narcissistic personality disorder consider themselves special and expect special treatment. They handle criticism poorly and may become enraged when someone dares to criticize them or appear completely indifferent to criticism. They are frequently ambitious to achieve fame and fortune. They cannot show empathy, and they feign sympathy only to achieve their selfish ends.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Personality Disorders",
+    "deck_id": 1755954606847,
+    "correctAnswer": "B. Narcissistic personality disorder"
+  },
+  {
+    "id": 278,
+    "text": "Q8. All of the following would be consistent with a diagnosis of antisocial personality disorder except:",
+    "options": [
+      {
+        "label": "A",
+        "text": "Failure to conform to social norms",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Repeated lying Cc) Patient age &amp;lt; 12 years",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Lack of remorse",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The individual should be at least 18 years old for diagnosing this disorder, though behavioral changes may start as early as 15 years old. DSM-5 diagnostic criteria for antisocial personality disorder: * The individual is at least 18 years of age. * There is evidence of conduct disorder with onset before 15 years of age. * Three or more of the following, occurring since age 15 years: * Failure to conform to social norms * Deceitfulness, like repeated lying * Impulsivity or failure to plan ahead ¢ Irritability and aggressiveness * Reckless disregard for the safety of self or others * Consistent irresponsibility * Lack of remorse * The occurrence of antisocial behavior is not exclusively during schizophrenia or bipolar disorder.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Personality Disorders",
+    "deck_id": 1755954606847,
+    "correctAnswer": "A. Failure to conform to social norms"
+  },
+  {
+    "id": 279,
+    "text": "Q9. 25-year-old female patient is lively, dramatic, and enthusiastic. She is flirtatious and is dressed in accordance with the latest fashion. She is visibly upset when the psychiatrist had to leave in between to attend an emergency case. Which among the following is the most probable diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Borderline personality disorder",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Anti-social personality disorder",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Histrionic personality disorder",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Schizoid personality disorder",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical features are suggestive of histrionic personality disorder. It is classified under cluster B. It is characterized by an excitable, overly emotional, dramatic person with exaggerated behavior, who uses physical appearance to draw attention to themselves i. e. , sexually seductive.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Personality Disorders",
+    "deck_id": 1755954606847,
+    "correctAnswer": "C. Histrionic personality disorder"
+  },
+  {
+    "id": 280,
+    "text": "Q10. An 18-year-old student presents to the clinic with symptoms suggestive of anxiety. She wants to make friends in her new class but is afraid to approach people for fear of being rejected or criticized and usually avoids any such interactions. What is the most likely personality disorder?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Dependent personality disorder",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Schizoid personality disorder",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Avoidant personality disorder",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Antisocial personality disorder 230",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given scenario is suggestive of avoidant personality disorder, as the patient has the desire to be in relationships and have social interaction but avoids these interactions due to fear of being rejected. It is characterized by low self-esteem, and reluctance to engage in new activities. The patients are typically timid and avoid social activities and interpersonal interactions due to fear of criticism, 234 disapproval, or rejection. It is colloquially known as having an inferiority complex. It is equally prevalent in men and women. Alfred Adler, the founder of individual psychology, coined the term inferiority complex.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Personality Disorders",
+    "deck_id": 1755954606847,
+    "correctAnswer": "C. Avoidant personality disorder"
+  },
+  {
+    "id": 281,
+    "text": "Q11. 23-year-old man presents to the clinic because he has been feeling depressed after going through a breakup. He seems to be obsessed with his ex-girlfriend and keeps ranting that he cannot live without her. He is planning to ask his mother to stay with him as he feels helpless. Which of the following best describes this condition?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Anankastic personality disorder",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Borderline personality disorder",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Avoidant personality disorder",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Dependent personality disorder",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given history describes a person with a dependent personality disorder. Persons with dependent personality disorder have difficulty in making everyday decisions without an excessive amount of advice and reassurance from others. They have difficulty initiating projects or doing things on their own. They also have difficulty expressing disagreement with others because of fear of loss of support and can go to any extreme to obtain nurturance and support from others. They feel uncomfortable or helpless when alone and urgently seek another relationship as a source of care or support when a close relationship ends. They risk major depressive disorder if they lose the person on whom they depend, but with treatment, the prognosis is favorable.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Personality Disorders",
+    "deck_id": 1755954606847,
+    "correctAnswer": "D. Dependent personality disorder"
+  },
+  {
+    "id": 282,
+    "text": "Q12. You are consulting on a middle-aged man who is overly conscious about perfection in his work. He is very meticulous about following rules and becomes intolerant otherwise. Which of the following best describes this condition?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Obsessive compulsive disorder ee ee rr ee ee ee ee ee ee ee ee 231",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Anxiety disorder",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Anankastic personality disorder",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Avoidant personality disorder",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given scenario describes anankastic personality disorder or obsessive-compulsive personality disorder It is characterized by emotional constriction, orderliness, perseverance, stubbornness, and indecisiveness. The essential feature of the disorder is a pervasive pattern of perfectionism and inflexibility. Anankastic personality disorder is ego-syntonic i. e. , behavior is consistent with one’s own beliefs and attitudes, unlike obsessive-compulsive disorder (OCD) which is ego-dystonic and will cause distress to the patient. 235</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "18_Personality Disorders",
+    "deck_id": 1755954606847,
+    "correctAnswer": "C. Anankastic personality disorder"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>

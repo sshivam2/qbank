@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>26_Peptic Ulcer Disease and Related Disorders - Marrow Medicine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">26_Peptic Ulcer Disease and Related Disorders</h1>
+                <p class="text-gray-600 mt-2">Marrow • Medicine • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/21</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 21</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 512,
+    "text": "Q1. Which of the following is an epithelial mucosal defense mechanism of the gastric mucosa?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Layer of mucous",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Alkaline tide",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Microvascular bed",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Restitution",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Restitution is an epithelial mucosal defense mechanism. It is the process by which healthy surface epithelial cells from the adjoining areas migrate to restore a damaged region of the gastric mucosa. The gastric mucosa has well-established mucosal defense mechanisms against various assaults like HCl, pepsin, alcohol, etc. These include: * Pre-epithelial defense: A layer of mucous over the surface epithelium. This is secreted by the surface epithelium and contains HCO3which maintains neutral pH at the cell surface ¢ Epithelial defense: It is constituted by the surface epithelial cells and their intercellular tight junctions that perform the following functions * Act as a physical barrier * Restitution is the migration of healthy cells to damaged areas * Rapid renewal of surface epithelial layer * Generating factors that prevent cellular damage such as heat shock proteins * Sub-epithelial defense: * Rich microvascular bed of the gastric submucosa that provides HCO3and washes away the toxic metabolites. 356 * Alkaline tideIt is caused by the release of HCO3into the gastric capillaries by the parietal cells. This HCO3helps in the quick neutralization of HCl.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "D. Restitution"
+  },
+  {
+    "id": 513,
+    "text": "Q2. 50-year-old woman complains about a burning pain in her chest. She reports using NSAIDs for her constant knee pain. This drug impairs her gastric mucosal defense mechanism primarily by:",
+    "options": [
+      {
+        "label": "A",
+        "text": "Irritant effect on gastric mucosa",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Stimulating acid production",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Inhibiting prostaglandin synthesis",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Inhibiting nitric oxide synthesis",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The NSAIDs impair the mucosal defense mechanism primarily by inhibiting prostaglandin synthesis. NSAIDs also decrease nitric oxide synthesis and have an irritant effect on the gastric mucosa but inhibition of COX enzymes/ prostaglandin synthesis is the most prominent factor. Almost all the mucosal defense mechanisms are primarily mediated by prostaglandins synthesized by the gastric mucosal cells. Apart from the prostaglandins, the other factors that play a role in mucosal defense include: * Nitric oxide (NO)Causes vasodilation thereby increasing the mucosal blood flow. * Several growth factors like EGF, TGF, FGFPlay a role in epithelial regeneration and restitution.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "C. Inhibiting prostaglandin synthesis"
+  },
+  {
+    "id": 514,
+    "text": "Q3. All of the following are true about the risk factors of NSAIDs associated peptic ulcer disease except:",
+    "options": [
+      {
+        "label": "A",
+        "text": "Smoking increases the risk",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "H pylori infection increases the risk",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Even low dose of a NSAID can cause ulcers",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Concomitant use of glucocorticoids decreases the risk",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Concomitant use of glucocorticoids with NSAIDs increases the risk of peptic ulcer disease. Other risks factors for NSAID-induced PUD include: * H pylori infection * Serious or multisystem disease * Alcohol and smoking * Concomitant use of the following drugs with NSAIDs increases the risk of PUD and its complications: * Glucocorticoids ¢ Anticoagulants * Clopidogrel * Multiple NSAIDs PUD may occur even with low doses of NSAIDs. No dose of NSAIDs is considered completely safe.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "D. Concomitant use of glucocorticoids decreases the risk"
+  },
+  {
+    "id": 515,
+    "text": "Q4. What pattern of gastritis is most common in patients with H. pylori-related duodenal ulcers?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Autoimmune gastritis 350",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Non-atrophic pangastritis",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Granulomatous gastritis",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Antral predominant gastritis",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Antral predominant gastritis is associated with duodenal ulcers. Antral predominant gastritis is associated with increased acid production by the parietal cells. This subjects the duodenum to increased acid exposure, leading to the formation of duodenal ulcers. H. pylori infection may result in the following patterns of gastritis: 357 * Non-atrophic pangastritismostly asymptomatic and sometimes associated with MALToma. * Corpus predominant gastritisaffects the corpus and causes atrophy. This leads to the loss of acid-producing parietal cells that are primarily found in the corpus. Hence, it is associated with decreased acid production. This is also a predisposing factor for the development of gastric cancer. * Antral predominant gastritisspares the parietal cells. Hence, it is associated with increased acid production. Option A: Autoimmune gastritis is caused due to autoantibodies against the parietal cells. It is not associated with H. pylori. Option C: Granulomatous gastritis is characterized by the presence of granulomas It is associated with Crohn's disease and sarcoidosis.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "D. Antral predominant gastritis"
+  },
+  {
+    "id": 516,
+    "text": "Q5. patient presents with frequent epigastric pain with burning sensation for the past 2 years. The pain usually occurs 2-3 hours after a meal and is relieved by taking food. He also says that he sometimes wakes up at night because of severe pain. The most probable cause for his symptoms is:",
+    "options": [
+      {
+        "label": "A",
+        "text": "Gastric ulcer",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Duodenal ulcer",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Esophagitis",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "GERD",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Epigastric pain with a burning sensation that usually occurs 2-3 hours after a meal and is relieved by taking food suggestive of duodenal ulcer. The following patterns of pain are usually seen in peptic ulcer disease: * Duodenal UlcerPain occurs 1. 5 to 3 hours after a meal and is frequently relieved by antacids or food. Pain may awaken the patient from sleep. * Gastric UlcerPain/discomfort may be precipitated by food. Nausea and weight loss are common. ¢ Perforated ulcerThe bed of the ulcer tunnels through the entire thickness of the gastric wall and opens into the peritoneum. This presents with sudden onset severe abdominal pain and leads to peritonitis. Radiography shows gas under the diaphragm. * Penetrating ulcerIt is a type of perforation where the ulcer tunnels into an adjacent organ like the pancreas/liver. In this case, the pain is no longer relieved by food or antacids and might radiate to the back. Many patients with peptic ulcers, especially elderly patients, may not have these symptoms and may directly present with a complication like bleeding or perforation.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "B. Duodenal ulcer"
+  },
+  {
+    "id": 517,
+    "text": "Q6. Which of the following is true about gastric ulcers?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Usually occur in 4th decade",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Rarely malignant",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Low basal acid production",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "High stimulated acid production",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Gastric ulcers are associated with low basal acid production and low stimulated acid production. Gastric acid secretion occurs in two patterns: * Basal acid outputOccurs in a circadian pattern. It is mediated by ACh from the vagus and histamine. ¢ Stimulated acid productionOccurs in response to food. It is mediated by gastrin in addition to other factors. 358 Occurs later in life, with ape | Occurs earlier in life ak incidence in the 6th decad e Basal and stimulated acid pr _| Basal and nocturnal acid pro oduction is low/normal, exce | duction is increased pt in type 3 gastric ulcers Can representmalignancyand | Rarely malignant should be biopsied Most common site: Antrum(di | Most common site: 1st part o stal to acid-secreting mucosa) | f the duodenum ( within 3cm on the lesser curvature s from the pylorus) Painafterfood intake Painbefore food intake, andr eliefontaking food</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "C. Low basal acid production"
+  },
+  {
+    "id": 518,
+    "text": "Q7. H pylori causes gastric mucosal injury due to the presence of:",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cag A",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "VacA",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "LPS",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Hop proteins",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">H. pylori produces vacuolating exotoxin (Vac A) which causes gastric mucosal injury. Vac A inhibits CD4+ T-cells and disrupts the function of B cells, macrophages &amp;amp; mast cells. Cag A positive strains of H pylori cause an increased risk of gastric cancer.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "B. VacA"
+  },
+  {
+    "id": 519,
+    "text": "Q8. 351 You are a first-year resident. You are asked to prescribe an H. pylori eradication regimen to a patient with peptic ulcer disease. Which of the following drugs will you not include in it?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Bismuth subsalicylate",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Erythromycin",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Amoxicillin",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Metronidazole",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Erythromycin is not effective in H pylori eradication. Note: Vonoprazan, a potassium-competitive acid blocker, has been recently approved by the FDA for the treatment of peptic acid-related disorders.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "B. Erythromycin"
+  },
+  {
+    "id": 520,
+    "text": "Q9. In which of the following patients presenting with epigastric pain and discomfort is H. pylori eradication therapy not indicated:",
+    "options": [
+      {
+        "label": "A",
+        "text": "46-year-old man with a family history of gastric cancer in the father",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "40-year-old woman with rheumatoid arthritis on NSAIDs for 5 years Cc) 58-year-old man with 35-pack years history of smoking",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "36-year-old man with GERD on PPI&apos;s for 3 months",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The need for H pylori eradication therapy in patients with GERD on long-term PPIs is not well established and is controversial. H pylori eradication therapy is offered to patients diagnosed with peptic ulcer disease (PUD) as it greatly decreases the recurrence of ulcers. In addition to this, it should also be offered to patients at increased risk of PUD and gastric cancer such as: * Patients with long-term NSAIDs usage. Eg. Rheumatoid arthritis * Patients taking gastric acid inhibitors for &amp;gt; 1 year 359 * Patients with increased exposure to risk factors of gastric cancers. Eg. heavy smokers, exposure to dust, coal * Patients with previous history/family history of gastric neoplasm</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "C. 36-year-old man with GERD on PPI&apos;s for 3 months"
+  },
+  {
+    "id": 521,
+    "text": "Q10. Eradication of H. pylori infection in patients with peptic ulcer disease is determined by?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Serology",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Urea breath test",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Biopsy urease test",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Culture",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Eradication of H. pylori infection can be determined by a urea breath test. A stool antigen test can also be employed.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "B. Urea breath test"
+  },
+  {
+    "id": 522,
+    "text": "Q11. H. pylori increases the risk of:",
+    "options": [
+      {
+        "label": "A",
+        "text": "GERD",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Barrett&apos;s esophagus",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Adenocarcinoma of cardia of stomach",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Gastric MALT lymphoma",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">H. pylori increases the risk of gastric MALT lymphoma. H. pylori is protective against the following: * GERD * Barrett's esophagus « Adenocarcinoma of esophagus « Adenocarcinoma of the cardia of the stomach H. pylori are inversely related to gastroesophageal reflux disease (GERD) and its sequelae, which include Barrett's esophagus and esophageal adenocarcinoma. H. pylori strains positive for Cag A may be particularly protective against the development of esophageal adenocarcinoma. Thus, colonization with H. pylori, particularly Cag A strains, may be protective against the more severe forms of GERD. Eradication of H. pylori is associated with mild worsening of gastroesophageal reflux disease (GERD) in patients with corpus-dominant or pangastritis. It improves symptoms in those with antral-dominant gastritis.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "D. Gastric MALT lymphoma"
+  },
+  {
+    "id": 523,
+    "text": "Q12. 352 The most common complication in patients with peptic ulcer disease is:",
+    "options": [
+      {
+        "label": "A",
+        "text": "Perforation",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "GI bleeding",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Gastric outlet obstruction",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Gastrocolic fistula",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">GI bleeding is the most common complication of peptic ulcer disease. Other complications: * Perforationsecond most common * Gastrocolic fistulas * Gastric outlet obstruction * Rarely malignancy 360</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "B. GI bleeding"
+  },
+  {
+    "id": 524,
+    "text": "Q13. 47-year-old woman presented to the ER with an altered sensorium. Her husband reported that she has had abdominal pain, vomiting, and constipation for the past 4 days. She has been self-medicating for gastritis. Her lab investigations are as shown. Which of the following drugs is she most likely on that could have caused her symptoms?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Aluminium hydroxide",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Magnesium hydroxide",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Calcium carbonate",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Proton pump inhibitors",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical features indicating hypercalcemia and investigations showing renal insufficiency, metabolic alkalosis are suggestive of milk-alkali syndrome. Long-term use of calcium carbonate can lead to this condition. In susceptible individuals, there is a loss of negative feedback, leading to excess calcium absorption when there is excess intake. It results in the following triad of clinical features: ¢ Hypercalcemia * Alkalosisdue to HCO3 reabsorption caused by PTH suppression, natriuresis, and water depletion * Renal failuredue to damage to renal tubules It is reversible once ingestion of antacid is stopped. However, in severe cases, a chronic form called Burnett’s syndrome can develop. It is associated with irreversible renal damage.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "C. Calcium carbonate"
+  },
+  {
+    "id": 525,
+    "text": "Q14. patient is admitted to the ICU after he suffered trauma to his head. This patient is prone to develop what type of gastric ulcers?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Curling ulcers",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Cushing ulcers Cc) Stress ulcers",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Refractory ulcers",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The gastric ulcers associated with head trauma are Cushing ulcers. Head trauma leads to vagal stimulation which in turn leads to increased gastric acid production. Option A: Curling ulcers are seen in severe burns. Option C: Stress ulcers are seen in conditions like shock, sepsis, etc. They are thought to be caused by local ischemia and splanchnic vasoconstriction. Option D: Refractory ulcers are those that do not heal even after adequate medical therapy.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "B. Cushing ulcers Cc) Stress ulcers"
+  },
+  {
+    "id": 526,
+    "text": "Q15. You would diagnose a patient to have a refractory gastric ulcer if the ulcer fails to heal after:",
+    "options": [
+      {
+        "label": "A",
+        "text": "12 weeks",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "8 weeks Cc) 10 weeks",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "14 weeks 353",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">A gastric ulcer is said to be refractory if it fails to heal after 12 weeks. A refractory duodenal ulcer is that which fails to heal after 8 weeks. Management of refractory PUD: * Rule out other diseases or causes * High dose PPI ¢ Surgery</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "A. 12 weeks"
+  },
+  {
+    "id": 527,
+    "text": "Q16. middle-aged woman presents with acidity, abdominal pain, diarrhea, and weight loss for the past few months. Her symptoms are not relieved by taking antacids. An endoscopic evaluation shows ulcers on the second part of the duodenum. Which of the following conditions should be suspected in this patient?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Stress ulcer",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "H. pylori infection",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Malignant duodenal ulcer",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Zollinger Ellison syndrome",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given scenario of symptoms not improving with antacids, associated diarrhea, and the unusual location of ulcers are highly suggestive of Zollinger Ellison syndrome. 361 Zollinger Ellison syndrome (ZES) is a peptic ulcer disease caused by unregulated gastrin release from a neuroendocrine tumor/gastrinoma. About 60% of the tumors are malignant, hence, it is important to identify ZES. The clinical presentation of ZES is very similar to that of peptic ulcer disease. The features which help in suspecting ZES include: * Unusual locationsthe second part of the duodenum and beyond * Refractory to medical therapy * Recurrence after acid-reducing surgery ¢ Presenting with complications like bleeding and perforation * Not associated with H. pylori or NSAID ingestion Patients of ZES often have associated diarrhea and involvement of the esophagus (esophagitis, ulceration, or stricture).</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "D. Zollinger Ellison syndrome"
+  },
+  {
+    "id": 528,
+    "text": "Q17. 35-year-old man presented with recurrent duodenal ulcers with poor response to medical therapy. He had a history of hyperparathyroidism and transsphenoidal prolactinoma resection. Which among the following is the next appropriate step?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Urea breath test",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Secretin test",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Serum gastrin levels",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Endoscopic ultrasound",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario is suggestive of Zollinger Ellison syndrome (ZES). The next appropriate step to evaluate the patients for ZES is by measuring the serum gastrin levels. History of hyperparathyroidism and transsphenoidal prolactinoma resection indicates MEN1 syndrome. ZES is commonly associated with MEN1. The normal gastrin levels are &amp;lt; 150 pg/mL. An increase of &amp;gt; 10 times the normal levels is highly suggestive of ZES. Secretin test is a gastrin provocative test. It is done when the gastrin levels and the acid secretory studies are inconclusive for ZES. It is the most sensitive and specific gastrin provocative test for the diagnosis of gastrinoma. Endoscopic ultrasound is done to localize the tumor. It is done after the diagnosis of ZES has been established.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "C. Serum gastrin levels"
+  },
+  {
+    "id": 529,
+    "text": "Q18. Which of the following investigations employs somatostatin analogues to detect gastrinomas?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CECT",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "PET/CT with Ga-DOTATATE",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "OctreoScan",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Endoscopy",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">OctreoScan detects gastrinomas using their property of uptake of somatostatin analogues. OctreoScan detects endocrine tumors that express receptors for somatostatin in conditions such as Zollinger-Ellison syndrome (ZES) and multiple endocrine neoplasia (MEN) syndromes. Other modalities used for localizing the tumor in ZES include: ¢ Endoscopic ultrasound (EUS) ¢ PET/CT with Ga-DOTATATE is the investigation of choice when available. Note: PET/CT with Ga-DOTATATE is the gold-standard test for localizing tumors in pheochromocytoma. 362</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "C. OctreoScan"
+  },
+  {
+    "id": 530,
+    "text": "Q19. Which of the following viruses cause infectious gastritis in immunocompromised patients?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cytomegalovirus",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Norovirus 354",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Enterovirus",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Coxsackie virus",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Viruses that cause infectious gastritis in immunocompromised individuals include cytomegalovirus and Herpes simplex virus.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "A. Cytomegalovirus"
+  },
+  {
+    "id": 531,
+    "text": "Q20. An anemic patient on evaluation showed macrocytes with hypersegmented neutrophils on peripheral smear. Serology revealed anti-parietal cell antibodies. Which of the following is most likely to be associated with her condition?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Zollinger Ellison syndrome",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "VIPoma",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Type A gastritis",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Type B gastritis",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given peripheral smear findings and serology are suggestive of pernicious anemia. It is usually seen in type A gastritis. Type A autoimmune gastritis is caused by circulating antibodies against the parietal cells. The destruction of parietal cells leads to the deficiency of intrinsic factor that is necessary for the absorption of vitamin B12. The resulting B12 deficiency causes pernicious anemia.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "C. Type A gastritis"
+  },
+  {
+    "id": 532,
+    "text": "Q21. An 84-year-old woman living in an assisted care facility is rushed to the hospital with an upper GI bleed. On arrival, she is febrile and the nurse notes a sudden spurt of blood from her nasogastric tube. The following investigations are done. Which of the following is responsible for this patient&apos;s condition?",
+    "options": [
+      {
+        "label": "A",
+        "text": "H.pylori ee ee ee ee ee ee ee ee ee ee ee ee ee ee ee 355",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "E.coli",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Cytomegalovirus",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Herpes simplex virus",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario along with her endoscopy findings are suggestive of phlegmonous gastritis. It is caused due to E. coli. Phlegmonous gastritis is a potentially life-threatening disorder characterized by marked and diffuse acute inflammatory infiltrates of the entire gastric wall accompanied by necrosis. It usually affects the immunocompromised and elderly individuals. Organisms associated with phlegmonous gastritis are: * E. coli ¢ Streptococci * Staphylococci * Proteus * Haemophilus species Other uncommon forms of gastritis are: * Eosinophilic gastritis: Presents as intestinal obstruction * Russel’s body gastritis: Pseudotumor on endoscopy * Granulomatous gastritis is seen in Crohn’s disease ¢ Lymphocytic gastritis is seen in celiac disease 363</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "26_Peptic Ulcer Disease and Related Disorders",
+    "deck_id": 1755954606851,
+    "correctAnswer": "B. E.coli"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>

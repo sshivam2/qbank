@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>80_Multiple Sclerosis & Other Demyelinating Disorders - Marrow Medicine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">80_Multiple Sclerosis & Other Demyelinating Disorders</h1>
+                <p class="text-gray-600 mt-2">Marrow • Medicine • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/17</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 17</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 1473,
+    "text": "Q1. Which of the following statements is false regarding demyelinating disorders?",
+    "options": [
+      {
+        "label": "A",
+        "text": "They are immune-mediated",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Commonly presents in adulthood",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Multiple sclerosis is the most common type",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "It is caused by biochemical abnormality of myelin",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Demyelinating disorders do not include biochemical abnormalities of myelin. Disorders occuring due to biochemical abnormalities of myelin are called dysmyelinating disorders. Multiple sclerosis is the most common immune-mediated, inflammatory demyelinating disorder. It commonly presents in adulthood.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "80_Multiple Sclerosis & Other Demyelinating Disorders",
+    "deck_id": 1755954606515,
+    "correctAnswer": "D. It is caused by biochemical abnormality of myelin"
+  },
+  {
+    "id": 1474,
+    "text": "Q2. Which of the following statements is true regarding multiple sclerosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "It is an acute inflammatory condition of neurons",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "It is an autoimmune disease affecting the central nervous system",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "It may also involve the peripheral nervous system",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "The condition is always benign and resolves spontaneously",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Multiple sclerosis is an autoimmune disease of the central nervous system. It is characterized by chronic inflammation, demyelination, gliosis (scarring), and neuronal loss. The peripheral nervous system is spared in MS. The course of the disease may be relapsing-remitting or progressive. The clinical course of manifestation can be variable ranging from a benign condition to a rapidly evolving and incapacitating disease. 1188</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "80_Multiple Sclerosis & Other Demyelinating Disorders",
+    "deck_id": 1755954606515,
+    "correctAnswer": "B. It is an autoimmune disease affecting the central nervous system"
+  },
+  {
+    "id": 1475,
+    "text": "Q3. patient with weakness of the limbs and reduced vision, after evaluation, was diagnosed to be a case of multiple sclerosis. Which of the following is not a risk factor for the development of this condition?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cigarette smoking",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Vitamin D deficiency",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Exposure to Human Herpesvirus 4",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "HLA-B27",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">HLA-DRB1 is a risk factor for the development of multiple sclerosis, not HLA-B27. Risk factors supporting the course of development of multiple sclerosis include: * Cigarette smoking * Vitamin D deficiency * Family history, HLA-DRB1 ¢ Exposure to Epstein-Barr virus (Human Herpesvirus 4) after early childhood</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "80_Multiple Sclerosis & Other Demyelinating Disorders",
+    "deck_id": 1755954606515,
+    "correctAnswer": "D. HLA-B27"
+  },
+  {
+    "id": 1476,
+    "text": "Q4. The slowing of conduction in multiple sclerosis is due to which of the following?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Gliosis",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Loss of myelin sheath 1183",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Defect at node of Ranvier",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Leaky Na+ channel",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">In multiple sclerosis, the slowing of conduction is due to the loss of the myelin sheath. Under normal circumstances, nerve conduction in myelinated axons occurs in a saltatory manner i. e from one node of Ranvier to another. But, when demyelination sets in, the nerve impulse are unable to travel as fast due to not being saltatory. This produces either a conduction block or delay. Lesions due to multiple sclerosis begin with perivenular cuffing by inflammatory mononuclear cells. Myelin-specific autoantibodies cause degeneration of myelin sheaths. As lesions evolve, prominent astrocytic proliferation (gliosis) is observed. Demyelination is the hallmark in the pathology of multiple sclerosis. But, it is not solely a disease affecting the myelin sheath. Partial or total axonal destruction (neuronal loss) can also occur.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "80_Multiple Sclerosis & Other Demyelinating Disorders",
+    "deck_id": 1755954606515,
+    "correctAnswer": "B. Loss of myelin sheath 1183"
+  },
+  {
+    "id": 1477,
+    "text": "Q5. Autoantibodies in multiple sclerosis are directed against which of the following?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Myelin basic protein",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Both Myelin basic protein &amp;amp; Myelin oligodendrocyte glycoprotein",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Myelin oligodendrocyte glycoprotein",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "None of the above",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The autoantibodies in multiple sclerosis are directed against both myelin basic protein (MBP) and myelin oligodendrocyte glycoprotein (MOG).</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "80_Multiple Sclerosis & Other Demyelinating Disorders",
+    "deck_id": 1755954606515,
+    "correctAnswer": "B. Both Myelin basic protein &amp;amp; Myelin oligodendrocyte glycoprotein"
+  },
+  {
+    "id": 1478,
+    "text": "Q6. Which of the following processes lead to the formation of shadow plaques in patients with multiple sclerosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Demyelination of axons in the central nervous system",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Demyelination of axons in the peripheral nervous system",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Remyelination of axons in the central nervous system",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Remyelination of axons in the peripheral nervous system",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Remyelination of axons in the central nervous system leads to the formation of shadow plaques. Shadow plaques develop due to the partial remyelination of the naked axons by surviving oligodendrocytes or those that differentiate from precursor cells.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "80_Multiple Sclerosis & Other Demyelinating Disorders",
+    "deck_id": 1755954606515,
+    "correctAnswer": "C. Remyelination of axons in the central nervous system"
+  },
+  {
+    "id": 1479,
+    "text": "Q7. 40-year-old woman with a history of multiple sclerosis comes to the hospital. She describes an electric shock—like sensation radiating down the back into the legs. What is the name of this sign?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Uhthoffs phenomenon",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Lhermitte’s sign",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Stransky&apos;s sign",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Cornell&apos;s sign",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">1189 An electric shock-like sensation radiating down the back into the legs is called Lhermitte's sign. It is associated with multiple sclerosis. It is induced typically by flexion or other movements of the neck. Lhermitte’s sign can also occur simultaneously with other disorders of the cervical spinal cord like cervical spondylosis. Option A: Uhthoff ’s phenomenon refers to the unilateral visual blurring that may occur during a hot shower or with physical exercise. It is an exacerbation of the symptoms of multiple sclerosis due to heat. Option C: Stransky's sign is a clinical sign in which vigorous abduction followed by the sudden release of the little toe causes an extensor plantar reflex. It is seen in pyramidal tract lesions. Option D: Cornell's sign is a clinical sign in which scratching along the inner side of the extensor hallucis longus tendon elicits an extensor plantar reflex. It is seen in pyramidal tract lesions.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "80_Multiple Sclerosis & Other Demyelinating Disorders",
+    "deck_id": 1755954606515,
+    "correctAnswer": "B. Lhermitte’s sign"
+  },
+  {
+    "id": 1480,
+    "text": "Q8. An MRI image of a patient with multiple sclerosis is shown below. What is this sign called? 1184 wr, = . a",
+    "options": [
+      {
+        "label": "A",
+        "text": "se ™ «&lt;i “. =. ot 7 Black hole lesions",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Molar tooth sign",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Tram-track sign",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Dawson&apos;s fingers",
+        "correct": true
+      }
+    ],
+    "imageData": {
+      "data": "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",
+      "mime": "image/webp"
+    },
+    "explanationHTML": "<div class=\"explanation\">The MRI image shows Dawson's fingers. Dawson's fingers are demyelinating plaques through the corpus callosum, arranged at right angles along medullary veins (callososeptal location). They are a characteristic feature of multiple sclerosis and presents as T2 hyperintensities. MRI is the imaging of choice in a patient with multiple sclerosis due to its high sensitivity. Option A: Black hole lesions are multiple sclerosis plaques indicative of the chronic stage when they display T1 hypointense signals. They signify axonal destruction and irreversible damage. Option B: The molar tooth sign refers to the appearance of the midbrain in an axial section in which the elongated superior cerebellar peduncles gives the midbrain the appearance of a molar or wisdom tooth. It is seen in Joubert syndrome. Option C: Tram-track sign in the brain refers to the parallel calcification of the cortex in patients with Sturge-Weber syndrome.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "80_Multiple Sclerosis & Other Demyelinating Disorders",
+    "deck_id": 1755954606515,
+    "correctAnswer": "D. Dawson&apos;s fingers"
+  },
+  {
+    "id": 1481,
+    "text": "Q9. woman presents with recurrent episodes of blurry vision, tingling and numbness in the legs, and falls. She says that during hot weather, she finds it difficult to walk and often falls. Recently she had flu, due to which the symptoms aggravated. MRI brain was done which showed Dawson&apos;s fingers. What is the criteria used for the clinical diagnosis of her condition?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Kurtzke expanded disability status scale",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Revised McDonald criteria",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Functional status score",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Hess and Hunt&apos;s scale",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given scenario and the MRI finding of Dawson's fingers are suggestive of multiple sclerosis. Revised McDonald’s criteria is used in the diagnosis of multiple sclerosis. It takes into consideration the clinical attacks and objective lesions. In addition, it also involves the assessment of the lesions based on MRI and other imaging techniques. The Kurtzke expanded disability status scale (EDSS) and functional status (FS) score are widely used measures of neurologic impairment, which are performed following the confirmed diagnosis of multiple sclerosis.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "80_Multiple Sclerosis & Other Demyelinating Disorders",
+    "deck_id": 1755954606515,
+    "correctAnswer": "B. Revised McDonald criteria"
+  },
+  {
+    "id": 1482,
+    "text": "Q10. In patients with multiple sclerosis, which of the following is used to determine neurological impairment?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Hess and Hunt&apos;s scale",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Revised McDonald criteria",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Kurtzke expanded disability status scale 1185",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Modified Well&apos;s score",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">1190 The Expanded disability status scale (EDSS) gives a measure of neurological impairment in multiple sclerosis. EDSS scores &amp;lt; 3. 5: The patient walks normally, shows no disability EDSS scores &amp;gt; 5. 5: Progressive disease, gait impairment, and occupational disability EDSS scores =10. 0: Death due to multiple sclerosis</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "80_Multiple Sclerosis & Other Demyelinating Disorders",
+    "deck_id": 1755954606515,
+    "correctAnswer": "C. Kurtzke expanded disability status scale 1185"
+  },
+  {
+    "id": 1483,
+    "text": "Q11. 45-year-old woman with multiple sclerosis presents with an exacerbation of her symptoms. Which of the following drugs should be prescribed to her for initial management?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Glatiramer",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Methylprednisolone",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "IFN-B-1a",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Prednisolone",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Glucocorticoids are used in the clinical management of either first attacks or acute exacerbations. Intravenous methylprednisolone administration at a dose of 500-1000 mg/day for 3-5 days, followed by a course of oral prednisolone beginning at a dose of 60-80 mg/day and gradually tapered over 2 weeks is given. These medications reduce the severity and shorten the duration of attacks. Disease-modifying therapies for relapsing forms of multiple sclerosis are: - IFN-B-1a - IFN-B-1b * Glatiramer acetate * Natalizumab * Fingolimod * Dimethyl fumarate * Teriflunomide * Mitoxantrone ¢ Alemtuzumab</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "80_Multiple Sclerosis & Other Demyelinating Disorders",
+    "deck_id": 1755954606515,
+    "correctAnswer": "B. Methylprednisolone"
+  },
+  {
+    "id": 1484,
+    "text": "Q12. Which of the following patients have Marburg’s variant of multiple sclerosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "A patient with chronic form of multiple sclerosis with no remissions",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "A patient with acute form of multiple sclerosis with remissions",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "A patient with acute form of multiple sclerosis with no remissions",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "A patient with chronic form of multiple sclerosis with remissions",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Marburg’s variant is an acute form of multiple sclerosis, typically with no remissions. It is a fulminant demyelinating process that in some cases progresses, leading to death within 1-2 years. Marburg’s variant does not seem to be associated with infection or vaccination. Clinical management by high-dose glucocorticoids, plasma exchange, and cyclophosphamide have been tried, with uncertain benefit.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "80_Multiple Sclerosis & Other Demyelinating Disorders",
+    "deck_id": 1755954606515,
+    "correctAnswer": "C. A patient with acute form of multiple sclerosis with no remissions"
+  },
+  {
+    "id": 1485,
+    "text": "Q13. patient has recurrent optic neuritis of both eyes with extensive transverse myelitis. Visual acuity in the right eye is 6/60 and visual acuity in the left eye 6/18. The patient showed a partial response to steroids. What is the likely diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Acute disseminated encephalomyelitis",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Devic&apos;s disease",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Riddoch syndrome",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Acute fulminant multiple sclerosis",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given scenario is suggestive of neuromyelitis optica, which is also known as Devic's disease. 1191 It is an aggressive inflammatory demyelinating disorder characterized by recurrent attacks of optic neuritis and myelitis. Attacks of Optic neuritis can be bilateral or unilateral and myelitis can be severe and involve three or more contiguous vertebral segments. Core clinical characteristics are: * Optic neuritis * Acute myelitis « Area postrema syndrome: episodes of otherwise unexplained hiccups or nausea or vomiting * Acute brainstem syndrome ¢ Symptomatic narcolepsy or acute diencephalic clinical syndrome with NMOSD*-typical diencephalic MRI lesions * Symptomatic cerebral syndrome with NMOSD*-typical brain lesions Option A: Acute Disseminated Encephalomyelitis (ADEM) is a demyelinating condition most frequently associated with an antecedent infection Option C: Riddoch syndrome is the ability to consciously perceive the stimulus in a blind field. It is seen when there is a lesion in the occipital lobe. Option D: Acute fulminant multiple sclerosis is an acute episode of multiple sclerosis, known as Marburg’s variant *NMOSD stands for neuromyelitis optica spectrum disorder.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "80_Multiple Sclerosis & Other Demyelinating Disorders",
+    "deck_id": 1755954606515,
+    "correctAnswer": "B. Devic&apos;s disease"
+  },
+  {
+    "id": 1486,
+    "text": "Q14. Which of the following drugs will you prescribe for a patient with an acute attack of neuromyelitis optica?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Rituximab 1186",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Mycophenolate mofetil",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Glucocorticoids",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Azathioprine",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Acute attacks of neuromyelitis optica are managed by high-dose glucocorticoids or plasma exchange. Drugs used for prophylaxis against relapses include: * Mycophenolate mofetil ¢ Rituximab * Glucocorticoids + azathioprine</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "80_Multiple Sclerosis & Other Demyelinating Disorders",
+    "deck_id": 1755954606515,
+    "correctAnswer": "C. Glucocorticoids"
+  },
+  {
+    "id": 1487,
+    "text": "Q15. child presents to the casualty with high-grade fever and altered sensorium. He is suspected to have acute disseminated encephalomyelitis. This condition is associated with which of the following?",
+    "options": [
+      {
+        "label": "A",
+        "text": "2 and 4 only",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "1 and 3 only",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "1, 2, 3 and 4 only",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "2, 4 and 5 only",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Acute disseminated encephalomyelitis (ADEM) is associated with measles infection, measles vaccination, rubella infection, and rubella vaccination. ADEM is a demyelinating disease of the central nervous system that typically presents as a monophasic disorder associated with multifocal neurological symptoms and encephalopathy. It may be: * Post-infectious (95%) - associated infections are with varicella, measles, rubella, mumps, influenza, EBV, HHV-6, HIV, other viruses, and Mycoplasma pneumoniae. 1192 * Post-vaccination (5%) - presently it is most often associated with measles (most common), mumps, and rubella vaccination.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "80_Multiple Sclerosis & Other Demyelinating Disorders",
+    "deck_id": 1755954606515,
+    "correctAnswer": "C. 1, 2, 3 and 4 only"
+  },
+  {
+    "id": 1488,
+    "text": "Q16. Which of the following statements is incorrect regarding acute disseminated encephalomyelitis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cerebellar involvement is seen in post-varicella ADEM",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Autoantibodies to myelin basic protein can be found",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Seizures do not occur commonly",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Initial treatment is with high-dose glucocorticoids.",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Seizures are common in ADEM. ADEM results from a cross-reactive immune response to the infectious agent (most commonly measles virus) or vaccine which then triggers an inflammatory demyelinating response. Autoantibodies to MBP and to other myelin antigens have been detected in the CSF of some patients with ADEM. In ADEM due to chickenpox, cerebellar involvement is often conspicuous. Initial treatment is with high-dose glucocorticoids.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "80_Multiple Sclerosis & Other Demyelinating Disorders",
+    "deck_id": 1755954606515,
+    "correctAnswer": "C. Seizures do not occur commonly"
+  },
+  {
+    "id": 1489,
+    "text": "Q17. Tigroid white matter on MR imaging is seen in which of the following conditions?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Pantothenate kinase deficiency",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Pelizaeus-Merzbacher disease",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Neuroferritinopathy",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Aceruloplasminemia Answer Key 1187",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Tigroid white matter on MR imaging is seen in Pelizaeus-Merzbacher disease. It is a rare, X-linked recessive disorder characterized by central nervous system dysmyelination. The proteolipid protein gene (PLP1) is affected, leading to the failure of axon myelination by oligodendrocytes in the central nervous system. Clinical Features: * Nystagmus * Developmental delay * Psychomotor delay * Seizure * Stridor * Feeding difficulties * Ataxia * Hypotonia progressing to spasticity. The degree of dysmyelination is correlated with the severity of the clinical manifestations. Genetic analysis can confirm the diagnosis. MRI shows a lack of myelination and MR spectroscopy reveals aberrant N-acetyl aspartate (NAA) and choline concentrations that reflect axonal and myelination abnormalities. Unlike other demyelinating leukodystrophies such as metachromatic leukodystrophy and adrenoleukodystrophy, where myelin is formed but subsequently destroyed, PMD shows a failure of myelin formation. 1193</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "80_Multiple Sclerosis & Other Demyelinating Disorders",
+    "deck_id": 1755954606515,
+    "correctAnswer": "B. Pelizaeus-Merzbacher disease"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>

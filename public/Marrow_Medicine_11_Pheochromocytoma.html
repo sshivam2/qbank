@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>11_Pheochromocytoma - Marrow Medicine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">11_Pheochromocytoma</h1>
+                <p class="text-gray-600 mt-2">Marrow • Medicine • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/14</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 14</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 231,
+    "text": "Q1. The clinical triad of pheochromocytoma includes all of the following symptoms except:",
+    "options": [
+      {
+        "label": "A",
+        "text": "Headache",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Hypertension",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Profuse sweating",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Palpitation",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The clinical triad of pheochromocytoma includes the following symptoms: * Headache * Profuse sweating * Palpitation (due to tachycardia) Hypertension is the most predominant sign of pheochromocytoma. Though intermittent hypertension is a classical feature, sustained hypertension is also common.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "11_Pheochromocytoma",
+    "deck_id": 1755954606506,
+    "correctAnswer": "B. Hypertension"
+  },
+  {
+    "id": 232,
+    "text": "Q2. Which of the following would you not see in a patient with pheochromocytoma?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Pallor",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Postural hypotension",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "High hematocrit",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Hypocalcemia",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Hypercalcemia is seen in patients with pheochromocytoma, not hypocalcemia. This is due to the production of parathyroid hormone-related peptide (PTHrP) by the tumor.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "11_Pheochromocytoma",
+    "deck_id": 1755954606506,
+    "correctAnswer": "D. Hypocalcemia"
+  },
+  {
+    "id": 233,
+    "text": "Q3. In a patient with pheochromocytoma, which of the following clinical features is least likely to be present?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Weight loss",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Pallor",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Abdominal pain",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Oliguria",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Polyuria, not oliguria is seen in patients with pheochromocytoma. Excess catecholamine levels in this condition can cause polyuria and polydipsia due to hyperglycemia.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "11_Pheochromocytoma",
+    "deck_id": 1755954606506,
+    "correctAnswer": "D. Oliguria"
+  },
+  {
+    "id": 234,
+    "text": "Q4. Which of the following is an associated finding that can be seen in patients with pheochromocytoma?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Erythema multiforme",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Café au lait spots 132",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Vitiligo",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Ash leaf macules",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Café au lait spots are seen in neurofibromatosis 1, which is a pheochromocytoma-associated syndrome. Pheochromocytoma-associated syndromes include the following: * Neurofibromatosis type 1 ¢ Multiple endocrine neoplasia type 2 * Von Hippel—Lindau syndrome * Paraganglioma syndrome</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "11_Pheochromocytoma",
+    "deck_id": 1755954606506,
+    "correctAnswer": "B. Café au lait spots 132"
+  },
+  {
+    "id": 235,
+    "text": "Q5. Which of the following parameters can help you diagnose a patient with a malignant pheochromocytoma?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Capsular invasion",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Number of mitotic spindles",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Lymph node involvement",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Cellular atypia",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Malignant pheochromocytoma refers to tumors that have undergone metastasis to lymph nodes or distant sites. 137 They are histologically and biochemically the same as benign ones. Hence, typical histological criteria like cellular atypia, mitotic spindles, and capsular invasion are insufficient to confirm malignancy in pheochromocytomas.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "11_Pheochromocytoma",
+    "deck_id": 1755954606506,
+    "correctAnswer": "C. Lymph node involvement"
+  },
+  {
+    "id": 236,
+    "text": "Q6. Which of the following catecholamines would be elevated in a patient with extra-adrenal pheochromocytoma?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Norepinephrine",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Epinephrine",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Metanephrines",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Vanillylmandelic acid",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Norepinephrine is exclusively secreted in patients with extra-adrenal pheochromocytoma. The PNMT (phenylethanolamine-N-methy] transferase) enzyme converts norepinephrine to epinephrine. This enzyme is absent in extra-adrenal sites. Hence, extra-adrenal pheochromocytomas secrete only norepinephrine and cannot secrete epinephrine. On the other hand, adrenal pheochromocytomas can secrete norepinephrine, epinephrine, and dopamine in varying amounts depending on the PNMT levels in the tumor. Extra-adrenal pheochromocytomas or catecholamine-secreting paragangliomas are most commonly found in the abdomen. They commonly arise from the organ of Zuckerkand1.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "11_Pheochromocytoma",
+    "deck_id": 1755954606506,
+    "correctAnswer": "A. Norepinephrine"
+  },
+  {
+    "id": 237,
+    "text": "Q7. 31-year-old woman is rushed to the ED with a severe headache and vomiting. Past history includes a total thyroidectomy for thyroid cancer 3 months ago. Her BP is 200/100 mm Hg and pulse is 110/min. On examination, a marfanoid habitus is noted along with the findings shown. Which of the following is likely to be predominantly elevated?",
+    "options": [
+      {
+        "label": "A",
+        "text": "133 &amp;. Norepinephrine",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Epinephrine",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Dopamine",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Vanillylmandelic acid",
+        "correct": false
+      }
+    ],
+    "imageData": {
+      "data": "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",
+      "mime": "image/webp"
+    },
+    "explanationHTML": "<div class=\"explanation\">This clinical scenario with a history of thyroid cancer (likely medullary carcinoma) and the image showing mucosal neuromas points towards MEN2B syndrome. Her current presentation is suggestive of a pheochromocytoma. She is likely to have predominantly elevated levels of epinephrine and its metabolite, metanephrine. This is due to the higher expression of the PNMT enzyme associated with the mutations in MEN2 syndromes (both 2A and 2B). The higher levels of epinephrine result in a more symptomatic presentation. In contrast, low PNMT expression is seen in von-Hippel-Lindau (VHL) syndrome. This leads to a predominant elevation of norepinephrine and normetanephrine levels. It is less symptomatic compared to MEN2 syndrome.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "11_Pheochromocytoma",
+    "deck_id": 1755954606506,
+    "correctAnswer": "B. Epinephrine"
+  },
+  {
+    "id": 238,
+    "text": "Q8. In a suspected case of pheochromocytoma, which of the following would you avoid while making a diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "MRI scan",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "MIBG scan",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Image-guided biopsy",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Genetic testing",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Biopsy and FNAC should be avoided in patients with pheochromocytoma, as it is a highly vascular tumor. CT and MRI have similar sensitivity but T2-weighted MRI with gadolinium contrast is the optimal test for diagnosis. MIBG (metaiodobenzylguanidine) scintigraphy can be used to localize the tumor if both CT and MRI are negative. Genetic testing may be performed as nearly 40% of the tumors are associated with familial syndromes like VHL, neurofibromatosis, and MEN2. Note: In cases of malignant pheochromocytoma, biopsy may be indicated to confirm adrenal gland metastasis in other sites. 138</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "11_Pheochromocytoma",
+    "deck_id": 1755954606506,
+    "correctAnswer": "C. Image-guided biopsy"
+  },
+  {
+    "id": 239,
+    "text": "Q9. middle-aged male patient is being evaluated for recurrent episodes of palpitations, headaches, and profuse sweating. He was found to have elevated blood pressure readings on multiple occasions over the past 2 months. Which of the following tests has the highest sensitivity and specificity for the diagnosis of this condition?",
+    "options": [
+      {
+        "label": "A",
+        "text": "MRI",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "24-hour urinary fractionated metanephrines",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "MIBG scintigraphy 134",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Fractionated plasma metanephrines",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario is suggestive of pheochromocytoma. The measurement of 24-hour urinary fractionated metanephrines has both the highest specificity and sensitivity in the diagnosis of this condition. Imaging modalities like CT and MRI have a sensitivity of around 98-100% and specificity of 70%. False positive | Very rare Can occur due to drugs like 1 s evodopa, TCAs, a-blockers, B-blockers, diuretics Procedure Collection of samples over 24 | Requires only a single blood hours may be cumbersome sample. May be preferred in children. Uses Preferred first-line test as iti | Reserved for patients with a s highly specific high index of suspicion like: F amily historyGenetic syndro mes like MEN2Prior history of pheochromocytoma</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "11_Pheochromocytoma",
+    "deck_id": 1755954606506,
+    "correctAnswer": "B. 24-hour urinary fractionated metanephrines"
+  },
+  {
+    "id": 240,
+    "text": "Q10. Which of the following is the best method for detecting and localization of tumors associated with pheochromocytomas?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Abdominal CT",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Fluorodopa-PET",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "MIBG scintigraphy",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Abdominal MRI",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Among the given options, the fluorodopa-PET scan is the best method for detecting and localization of tumors associated with pheochromocytoma. If biochemical testing for pheochromocytoma is positive, an abdominal MRI must be performed first. If MRI is negative or if multiple tumors are suspected, the tumor can be localized by performing one of the following investigations: * 68 Ga-DOTATATE PET scan - most sensitive, gold standard * Fluorodopa and 18F-fluorodeoxyglucose (FDG) PET scans - 97% sensitive * MIBG scintigraphy - least sensitive (94%)</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "11_Pheochromocytoma",
+    "deck_id": 1755954606506,
+    "correctAnswer": "B. Fluorodopa-PET"
+  },
+  {
+    "id": 241,
+    "text": "Q11. 45-year-old man presented with recurrent episodes of headache, palpitations, and sweating. His blood pressure at presentation was 180/100 mm Hg. Further testing revealed elevated urinary metanephrines. CT abdomen showed a right adrenal mass. What is the drug of choice for the management of this patient?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Labetalol",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Nitroprusside",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Phenoxybenzamine",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Phentolamine",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">This clinical scenario is suggestive of pheochromocytoma. The drug of choice to control blood pressure prior to surgery is oral phenoxybenzamine at 0. 5—4 mg/kg of body weight. It is a non-specific o-blocker and is preferred due to its long action (3-4 days). 139 Other o-blockers like oral prazosin and intravenous phentolamine have a shorter duration of action and can be used to manage paroxysms. IV phentolamine is also used for intra-operative management of BP. a-blockers are usually given for 7 days. Following this, B-blockers are started, usually 2-3 days preoperatively. B-blockers should never be started first because blockade of vasodilatory peripheral B-receptors with unopposed a-receptor stimulation can lead to a further elevation in blood pressure. (Mnemonic: A before B)</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "11_Pheochromocytoma",
+    "deck_id": 1755954606506,
+    "correctAnswer": "C. Phenoxybenzamine"
+  },
+  {
+    "id": 242,
+    "text": "Q12. Which of the following should not be used for the initial management, in a patient with pheochromocytoma?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Prazosin",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Atenolol",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Nitroprusside",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Metyrosine",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Beta-blockers like atenolol should never be used as the initial drug or alone in the management of pheochromocytoma. They must be given only after adequate alpha blockade has been established. Blocking beta-receptors may cause unopposed stimulation of alpha-receptors, precipitating a hypertensive crisis. Option A: Prazosin is an alpha-blocker. Option C: Nitroprusside can be used in case of hypertensive emergencies. Option D: Metyrosine inhibits catecholamine synthesis. It can be used when other agents have been ineffective.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "11_Pheochromocytoma",
+    "deck_id": 1755954606506,
+    "correctAnswer": "B. Atenolol"
+  },
+  {
+    "id": 243,
+    "text": "Q13. Which of the following is not a part of Averbuch’s chemotherapy protocol? 135",
+    "options": [
+      {
+        "label": "A",
+        "text": "Dacarbazine",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Vinblastine",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Cyclophosphamide",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Vincristine",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Vinblastine is not included in Averbuch’s chemotherapy protocol for the treatment of malignant pheochromocytoma.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "11_Pheochromocytoma",
+    "deck_id": 1755954606506,
+    "correctAnswer": "B. Vinblastine"
+  },
+  {
+    "id": 244,
+    "text": "Q14. patient is diagnosed with malignant pheochromocytoma. Which of the following is used to treat this condition?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Strontium ee ee ee ee ee ee ee ee en ee ee ee ee 136",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Cobalt-60",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Phosphorus",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "MIBG a",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">131I-MIBG (metaiodobenzylguanidine) is used for the treatment of malignant pheochromocytoma. Malignant pheochromocytomas occur in 10% of cases and are histologically and biochemically the same as benign ones. The diagnosis of malignant pheochromocytoma is based on documentation of metastatic disease. The treatment of choice is nuclear medicine therapy with any of the following: * 131I-MIBG at 200-mCi doses at monthly intervals (3-6 cycles) * DOTATOC (a somatostatin receptor analog) labeled with radioactive lutetium or yttrium Chemotherapy can also be given according to Averbuch's protocol. Note: 123I-MIBG and Gallium-DOTATATE are used for imaging. 140</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "11_Pheochromocytoma",
+    "deck_id": 1755954606506,
+    "correctAnswer": "D. MIBG a"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>

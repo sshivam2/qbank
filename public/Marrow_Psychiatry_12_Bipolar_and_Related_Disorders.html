@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12_Bipolar and Related Disorders - Marrow Psychiatry</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">12_Bipolar and Related Disorders</h1>
+                <p class="text-gray-600 mt-2">Marrow • Psychiatry • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/14</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 14</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_psychiatry.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 185,
+    "text": "Q1. man brings his wife to the psychiatric OPD, reporting concerns about her recent behaviour. She complains of irritability, distractibility, and reduced need for sleep. Her husband observes that she has an elated mood, talks excessively, and struggles to manage her daily activities. What is the most likely diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Schizophrenia",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Depression",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Hypomania",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Mania",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical history of decreased sleep, elation, talkativeness, irritability, and distractibility present for at least 1 week is characteristic of mania. Diagnostic criteria for mania: A. Distinct period of abnormally and persistently elevated/irritable mood, abnormally and persistently increased activity/energy, lasting at least 1 week or any duration if hospitalization is necessary. B. During the period of mood disturbance and increased energy/activity, three (or more) of the following symptoms and four (or more) if irritable have been present to a significant degree: * Inflated self-esteem or grandiosity * Decreased need for sleep * More talkative than usual * Flight of ideas * Distractibility * Increase in goal-oriented activity or psychomotor agitation * Excessive involvement in activities that have a high potential for painful consequences C. The episode is severe enough to cause marked social or occupational impairment or to necessitate hospitalization. D. The episode is not attributable to the physiological effects of a substance (e. g. , a drug of abuse, a medication, other treatment) or to another medical condition. 165</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "12_Bipolar and Related Disorders",
+    "deck_id": 1755954606618,
+    "correctAnswer": "D. Mania"
+  },
+  {
+    "id": 186,
+    "text": "Q2. 20-year-old male presents to the OPD with decreased sleep, elation and talkativeness for the past 5 days. He also complains of irritability and distractibility. What is the diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Mania",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Anxiety disorder",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Hypomania",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Schizophrenia",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario of symptoms of mania occurring for at least 4 days points towards a diagnosis of hypomania. Diagnostic criteria for hypomania: A. Distinct period of abnormally and persistently elevated/irritable mood, abnormally and persistently increased activity/energy, lasting for at least 4 consecutive days. B. During the period of mood disturbance and increased energy and activity, three (or more) and if irritable, four (or more) of the following symptoms have been present to a significant degree: * Inflated self-esteem or grandiosity * Decreased need for sleep * More talkative than usual * Flight of ideas * Distractibility * Increase in goal-oriented activity or psychomotor agitation * Excessive involvement in activities that have a high potential for painful consequences (for example, foolish business investments). C. The episode is associated with an unequivocal change in functioning that is uncharacteristic of the individual when not symptomatic and is observable by others. D. The episode is not severe enough to cause marked impairment in social or occupational functioning or to necessitate hospitalization. No psychotic episodes. E. The episode is not attributable to the physiological effects of a substance (e. g. , a drug of abuse, a medication, other treatment) or to another medical condition.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "12_Bipolar and Related Disorders",
+    "deck_id": 1755954606618,
+    "correctAnswer": "C. Hypomania"
+  },
+  {
+    "id": 187,
+    "text": "Q3. patient with a previously diagnosed psychiatric disorder presented for a follow-up in the OPD. He had mood swings fluctuating between short periods of mild depression and hypomania over 3 years. What is this disorder known as?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cyclothymia",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Bipolar I",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Bipolar II",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Dysthymia",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Cyclothymia is a chronic disorder characterized by at least 2 years of fluctuating, mild hypomanic &amp;amp; depressive symptoms (that do not meet the full criteria for hypomanic episodes or major depressive episodes). It is a symptomatically milder form of bipolar II disorder. Dysthymia (persistent depressive disorder) is characterized by at least 2 years of depressed mood that does not satisfy the criteria for a major depressive episode and with no episodes of mania or hypomania. In children, a diagnosis of dysthymia is made if depressive symptoms are present for more than 1 year.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "12_Bipolar and Related Disorders",
+    "deck_id": 1755954606618,
+    "correctAnswer": "A. Cyclothymia"
+  },
+  {
+    "id": 188,
+    "text": "Q4. 160 As a first-year psychiatry resident, you see a patient diagnosed with bipolar type II disorder. Which of the following constitutes this disorder?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Repeated episodes of mania",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Mania + hypomania",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Hypomania + major depression",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Mania + major depression",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">166 Episodes of hypomania and major depressive disorder constitute bipolar type II disorder. Types of bipolar disorder: Bipolar I: Episodes of mania with or without episodes of major depressive disorder (at least one-lifetime episode of mania is required for diagnosis) Bipolar II: Episodes of hypomania with episodes of major depressive disorder (negative history of a manic episode is required for diagnosis)</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "12_Bipolar and Related Disorders",
+    "deck_id": 1755954606618,
+    "correctAnswer": "C. Hypomania + major depression"
+  },
+  {
+    "id": 189,
+    "text": "Q5. As an intern posted in psychiatry, you observe a patient with mania. Which of the following is true about neurotransmitters in this disorder?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Decrease in serotonin",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Decrease in norepinephrine",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Increase in neuropeptide Y",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Increase in norepinephrine",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">In mania, there is an increase in norepinephrine and dopamine levels.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "12_Bipolar and Related Disorders",
+    "deck_id": 1755954606618,
+    "correctAnswer": "D. Increase in norepinephrine"
+  },
+  {
+    "id": 190,
+    "text": "Q6. Which of the following statement is not true regarding the epidemiology of bipolar disorders?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The lifetime prevalence of bipolar disorder is around 1%",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "The average age of onset of bipolar I disorder is 30 years",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Prevalence is equal among both the sexes",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Prevalence is higher in higher socio-economic strata",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The average age of onset of bipolar I disorder is 20 years, and in more than half of the cases, the onset is frequently in late adolescence. The lifetime prevalence of bipolar disorder is 1. 2% and prevalence is equal in both genders (unlike depression, which has a higher prevalence among females than males). The prevalence of bipolar disorder is higher in higher socio-economic strata. By contrast, schizophrenia has a higher prevalence in the lower socio-economic strata. Note: The mean age of onset of depression is 40 years.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "12_Bipolar and Related Disorders",
+    "deck_id": 1755954606618,
+    "correctAnswer": "B. The average age of onset of bipolar I disorder is 30 years"
+  },
+  {
+    "id": 191,
+    "text": "Q7. 40-year-old patient comes to the OPD with a history significant for a mood disorder. Her moods can be charted as done in the image given below. What is the diagnosis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "161 12 months : Mania | &#91;\\ &#91;\\ &#91;\\ | mom TL Normal frame of mind SCUBA, verve Severe depresssion \\/ | \\/ \\/ ©MARROW Cyclothymia",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Dysthymia",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Rapid cycling disorder",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Hypomania",
+        "correct": false
+      }
+    ],
+    "imageData": {
+      "data": "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",
+      "mime": "image/webp"
+    },
+    "explanationHTML": "<div class=\"explanation\">The given image showing 3 episodes of mania and 2 episodes of depression within 1 year, points towards a diagnosis of rapid cycling bipolar disorder. It is diagnosed when the patient has a combination of 4 or more alternating episodes of depression and mania/hypomania within one year. There must be less than 2 weeks of normalcy between the episodes or an immediate shift between the symptoms with no intervening normal mood. Risk factors: * Female patients * Hypothyroidism * Alcoholism or substance abuse ¢ Antidepressants (if used without mood stabilizers) * Cyclothymia * Bipolar II disorder 167 Note: If the phases of mania and depression alternate very rapidly in a matter of hours or days then the condition is known as ultra-rapid cycling disorder.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "12_Bipolar and Related Disorders",
+    "deck_id": 1755954606618,
+    "correctAnswer": "C. Rapid cycling disorder"
+  },
+  {
+    "id": 192,
+    "text": "Q8. As a first-year psychiatry resident, you are consulting on a young man with depression. Which of the following would you not expect to see in this patient?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Delusions",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Flight of ideas",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Early morning awakening",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Hallucination",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Flight of ideas is a sign of mania and is not seen in depression. Early morning awakening is also known as terminal insomnia and is seen in depression. Severely depressed patients sometimes present with mood-congruent delusions or hallucinations and are said to have a major depressive episode with psychotic features. Consistent with the mood Not consistent with the mood Occurs in mood disorders wit | Occurs in schizophrenia h psychotic features E. g. ,Delusions of guilt, sinful | E. g. ,Delusion of exaggerated ness,worthlessness, poverty, f | power, knowledge, and worth ailure, persecution, and com in a person with a depressed mand hallucinations to killo | mood neself, in a person with a dep ressed mood.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "12_Bipolar and Related Disorders",
+    "deck_id": 1755954606618,
+    "correctAnswer": "B. Flight of ideas"
+  },
+  {
+    "id": 193,
+    "text": "Q9. Which of the following is not a risk factor for rapid cycling in bipolar disorder?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Female sex",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Hypothyroidism Cc) Use of antidepressants",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "BPAD 1 162",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Bipolar affective disorder II (BPAD II) is a risk factor of rapid cycling (not BPAD I). Risk factors for developing rapid cycling include: * Female patients * Hypothyroidism * Alcoholism or substance abuse ¢ Antidepressants (if used without mood stabilizers) * Cyclothymia * Bipolar II disorder</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "12_Bipolar and Related Disorders",
+    "deck_id": 1755954606618,
+    "correctAnswer": "C. BPAD 1 162"
+  },
+  {
+    "id": 194,
+    "text": "Q10. 21-year-old was brought to your OPD by his worried parents. He frequently states that he is more learned than all his professors and is on the verge of a breakthrough. He barely slept and spent long hours talking to his friends about the importance of his ideas. His parents confirmed that he had some periods of withdrawal and depression during his adolescence. What is the drug of choice for the maintenance therapy of this disorder?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Lithium",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Valproic acid",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Carbamazepine",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Anti-psychotics",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario is suggestive of bipolar disorder. Lithium is the drug of choice for maintenance therapy of bipolar disorder. It is also the most effective long-term treatment choice for bipolar disorder. 168</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "12_Bipolar and Related Disorders",
+    "deck_id": 1755954606618,
+    "correctAnswer": "A. Lithium"
+  },
+  {
+    "id": 195,
+    "text": "Q11. What is the upper limit of serum lithium above which a patient is said to have lithium toxicity?",
+    "options": [
+      {
+        "label": "A",
+        "text": "0.8 mEq/L",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "2.5 mEq/L Cc) 0.5 mEq/L",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "1.5 mEq/L",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Lithium toxicity is considered when the blood concentration reaches 1. 5 mEq/L (or more). Blood concentration of lithium in the treatment of mood disorders: * For treatment: 0. 8 - 1. 2 mEq/L ¢ For prophylaxis: 0. 5 - 0. 8 mEq/L * Toxic levels: &amp;gt; /= 1. 5 mEq/L Manifestations of lithium toxicity: * Acute: Coarse tremors (most common), delirium, dementia, seizures, and increase in deep tendon reflexes * Chronic: Nephrotoxicity (lithium-induced nephrogenic diabetes insipidus), hypothyroidism The most effective means of treating lithium toxicity is dialysis. It is necessary for severe poisoning cases, where: * The patient is exhibiting symptoms of toxicity, or ¢ Lithium concentration is 4 mEq/L or more.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "12_Bipolar and Related Disorders",
+    "deck_id": 1755954606618,
+    "correctAnswer": "C. 1.5 mEq/L"
+  },
+  {
+    "id": 196,
+    "text": "Q12. 35-year-old man with bipolar disorder comes to the clinic for a routine follow-up. His condition was difficult to control and required treatment with multiple medications over the past two years. The patient says his mood has been stable with his current regimen, but for the past three months, he has had tremors primarily affecting his hands. Which of the following drugs is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Carbamazepine",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Gabapentin",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Lamotrigine",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Lithium carbonate",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Lithium carbonate is most likely to cause the tremors described in the given scenario. Tremors are a common adverse effect of lithium carbonate. They are sometimes related to peak serum lithium levels. Dividing the dose of lithium carbonate and decreasing caffeine intake can decrease the severity of the tremors. In case of severe coarse tremors, lithium carbonate toxicity (serum lithium level greater than 2. 5 mEq/L) must be ruled out. Options A and C: Carbamazepine and lamotrigine are off-label agents used for the management of bipolar disorder, however, they do not cause tremors. Option B: Tremors may occur as an adverse effect of gabapentin, but it is not prescribed for the management of bipolar disorder.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "12_Bipolar and Related Disorders",
+    "deck_id": 1755954606618,
+    "correctAnswer": "D. Lithium carbonate"
+  },
+  {
+    "id": 197,
+    "text": "Q13. 163",
+    "options": [
+      {
+        "label": "A",
+        "text": "patient comes to the OPD with a history significant of a mood disorder. His moods can be charted as shown in the image. What will be the best drug for him? 12 months Mania | &#91;\\ &#91;\\ &#91;\\ | an Normal frame of mind mo AU sovowmmm LF AT LY | Severe depresssion \\/ ! \\&#93; \\/ | ©MARROW Lamotrigine",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Sodium valproate",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Carbamazepine",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Lithium",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The patient has rapid-cycling bipolar disorder. Sodium valproate is the drug of choice for this disorder. Diagnosis of rapid-cycling bipolar disorder: * 4 or more mood disturbances in a year 169 Episodes either have a partial or full remission for at least 2 months or switch to the opposite polarity Other options: Option A: Lamotrigine has been found to have limited uses in rapid-cycling bipolar disorder. It can prolong the time between depression and mania. Option C: Carbamazepine takes 2-3 weeks for the onset of action and is used in patients not responding to Lithium in Acute Mania. Option D: Lithium takes 5-7 days to achieve a level of equilibrium, moreover it is effective in Bipolar I disorder and is less efficacious than Divalproex in rapid-cycling bipolar disorder.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "12_Bipolar and Related Disorders",
+    "deck_id": 1755954606618,
+    "correctAnswer": "B. Sodium valproate"
+  },
+  {
+    "id": 198,
+    "text": "Q14. baby born to a woman taking prophylactic medication for manic disorder is cyanotic, lethargic, and hypotonic. Which other finding is the baby most likely to have?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Renal agenesis ee ee 164",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Anencephaly",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Tricuspid valve displacement",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Ventricular septal defect",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical features are seen in Ebstein's anomaly. This is a rare congenital cyanotic heart disease caused by the downward displacement of the tricuspid valve into the right ventricle. It is a teratogenic effect of lithium, a drug used for prophylaxis in manic disorder. Lithium is thus avoided in the first trimester and during lactation. An antipsychotic like olanzapine should be considered instead of prophylactic management. If lithium is to be continued, then: * The dose should be tapered to the lower end of the therapeutic range * It should be given in divided doses * The levels should be checked every two weeks * The woman should be hydrated well throughout labour ¢ Withholding lithium therapy for 24-48 hours before delivery is recommended 170</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "12_Bipolar and Related Disorders",
+    "deck_id": 1755954606618,
+    "correctAnswer": "C. Tricuspid valve displacement"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>

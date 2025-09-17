@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>48_Neoplasms of the Lung - Marrow Medicine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .medical-quiz {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .option-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .option-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .option-card.selected {
+            background: #3b82f6;
+            color: white;
+            border-color: #1d4ed8;
+        }
+        
+        .option-card.correct {
+            background: #10b981;
+            color: white;
+            border-color: #059669;
+        }
+        
+        .option-card.incorrect {
+            background: #ef4444;
+            color: white;
+            border-color: #dc2626;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(to right, #10b981, #059669);
+            transition: width 0.3s;
+        }
+        
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            height: auto;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+
+        .explanation-content {
+            font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #374151;
+            text-align: left;
+        }
+        
+        .explanation-content p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        
+        .explanation-content strong, .explanation-content b {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .explanation-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 1.5rem auto;
+            display: block;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen medical-quiz">
+    <header class="bg-white shadow-xl p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">48_Neoplasms of the Lung</h1>
+                <p class="text-gray-600 mt-2">Marrow • Medicine • Interactive Learning</p>
+            </div>
+            <div class="flex gap-2">
+                <button class="bg-gray-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-gray-600 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    ← Topics
+                </button>
+                <button class="bg-purple-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-purple-600 transition" 
+                        onclick="window.location.href='marrow.html'">
+                    📚 Marrow
+                </button>
+                <button class="bg-blue-500 text-white px-3 py-2 text-sm rounded-lg hover:bg-blue-600 transition" 
+                        onclick="window.location.href='index.html'">
+                    🏠 Home
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Statistics Bar (Hidden in Test Mode) -->
+    <div class="bg-white shadow-lg p-4" id="stats-bar">
+        <div class="container mx-auto flex justify-center gap-8">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600" id="correct-stats">0</div>
+                <div class="text-sm text-gray-600">Correct</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600" id="incorrect-stats">0</div>
+                <div class="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-blue-600" id="accuracy-stats">0%</div>
+                <div class="text-sm text-gray-600">Accuracy</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600" id="progress-stats">0/13</div>
+                <div class="text-sm text-gray-600">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Section -->
+    <section class="container mx-auto p-6" id="quiz-section">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-8">
+                <div class="progress-bar h-4 rounded-full" id="progress-bar"></div>
+            </div>
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-blue-700" id="question-number">Question 1 of 13</h2>
+                <div class="text-sm text-gray-600" id="question-status">Click an option to answer</div>
+            </div>
+
+            <!-- Question Text -->
+            <div class="mb-10">
+                <div class="question-card text-white p-8 rounded-2xl mb-8" id="question-text"></div>
+                
+                <!-- Question Image -->
+                <div class="text-center mb-8" id="question-images"></div>
+                
+                <!-- Options -->
+                <div class="space-y-4" id="options"></div>
+            </div>
+
+            <!-- Answer Feedback Section (Normal Mode Only) -->
+            <div class="hidden mb-8 p-6 rounded-2xl" id="feedback-section">
+                <div class="text-center mb-4">
+                    <div class="text-6xl mb-2" id="feedback-icon"></div>
+                    <div class="text-2xl font-bold mb-2" id="feedback-message">Correct!</div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Your Answer:</strong><br>
+                        <span id="user-answer-display"></span>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border">
+                        <strong>Correct Answer:</strong><br>
+                        <span class="text-green-600" id="correct-answer-display"></span>
+                    </div>
+                </div>
+                
+                <div class="bg-blue-50 p-6 rounded-xl" id="explanation-section">
+                    <strong class="text-lg text-blue-800">Explanation:</strong>
+                    <div id="explanation-content" class="mt-3 explanation-content"></div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="flex justify-between gap-4">
+                <button class="bg-gray-400 text-white px-6 py-3 rounded-xl hover:bg-gray-500 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                
+                <div class="flex gap-4">
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded-xl disabled" id="prev-btn">
+                        Previous
+                    </button>
+                    <button class="bg-blue-500 text-white px-6 py-3 rounded-xl hidden" id="next-btn">
+                        Next
+                    </button>
+                    <button class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hidden" id="finish-btn">
+                        Finish Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Test Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="test-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Test Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="test-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="test-final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="test-final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="test-final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Detailed Review</h3>
+                <div id="test-review-details" class="space-y-4"></div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Normal Mode Final Results -->
+    <section class="container mx-auto p-6 hidden" id="final-results">
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold mb-4 text-blue-700">Quiz Complete! 🎉</h2>
+                <div class="text-6xl mb-4" id="final-grade-icon">🎯</div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-green-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-green-600" id="final-correct">0</div>
+                    <div class="font-semibold text-green-700">Correct Answers</div>
+                </div>
+                <div class="bg-red-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-red-600" id="final-incorrect">0</div>
+                    <div class="font-semibold text-red-700">Incorrect Answers</div>
+                </div>
+                <div class="bg-blue-100 p-6 rounded-2xl text-center">
+                    <div class="text-4xl font-bold text-blue-600" id="final-accuracy">0%</div>
+                    <div class="font-semibold text-blue-700">Final Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-4">
+                <button class="bg-purple-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-purple-700 transition" 
+                        onclick="window.location.href='marrow_medicine.html'">
+                    Back to Topics
+                </button>
+                <button class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition" 
+                        onclick="window.location.reload()">
+                    Retake Quiz
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const questions = [
+  {
+    "id": 879,
+    "text": "Q1. Which of the following is false regarding lung cancer?",
+    "options": [
+      {
+        "label": "A",
+        "text": "It is the most common cancer in Indian men",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Tobacco smoking is the most common cause",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Adenocarcinoma is the most common histologic type",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "It is the most common cause of cancer death",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The most common cancer seen in Indian men is lip and oral cavity cancer, not lung cancer. Most common cancer: ¢ In men globallyLung cancer ¢ In Indian menLip and oral cavity cancer * In women globallyBreast cancer * In Indian womenBreast cancer Tobacco smoking is a primary cause of the development of lung cancer. It increases 10 fold greater risk of developing lung cancer compared to those who have never smoked. It is the most common cause of cancer death.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "48_Neoplasms of the Lung",
+    "deck_id": 1755954606504,
+    "correctAnswer": "A. It is the most common cancer in Indian men"
+  },
+  {
+    "id": 880,
+    "text": "Q2. What is the most common type of lung cancer in light smokers?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Squamous cell carcinoma",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Adenocarcinoma",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Small cell carcinoma",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Large cell carcinoma",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">671 The most common lung cancer in light smokers (&amp;lt; 10 pack-year history) is adenocarcinoma. WHO classification of lung carcinomas: The WHO classification system divides epithelial lung cancers into four major cell types: * Small-cell lung cancer (SCLC) * Non-small-cell lung carcinomas (NSCLCs) « Adenocarcinoma * Squamous cell carcinoma * Large-cell carcinoma Adenocarcinoma is most commonly seen in: * Lifetime non-smokers * Light smokers (&amp;lt; 10 pack-years history) * Women * Younger adults (&amp;lt; 60 years) In smokers, the most common types are small-cell carcinoma and squamous cell carcinomas.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "48_Neoplasms of the Lung",
+    "deck_id": 1755954606504,
+    "correctAnswer": "B. Adenocarcinoma"
+  },
+  {
+    "id": 881,
+    "text": "Q3. 60-year-old man with a 35 pack-year history of smoking presented for a routine check-up. His brother was diagnosed with lung cancer at a similar age. Which of the following would be preferred to screen him for lung cancer?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Chest X-Ray",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Low dose CT",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "High resolution CT",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "CECT",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Low-dose CT/ thin-slice spiral chest CT would be preferred to screen him for lung cancer. He belongs to the high-risk population to develop lung cancer. The high-risk population is individuals whose age is &gt;60 years and who have a smoking history of &gt;10 pack-years. Low dose CT scans are shown to detect more lung nodules and cancers than the standard CXR in selected high-risk populations. Also, up to 85% of cancers thus detected are classified as stage I. Early staged cancers are considered potentially curable with surgical resection. Here, the aim is to reduce medical radiation exposure as much as possible, low dose CT is effective in screening for lung cancer, and is thus preferred.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "48_Neoplasms of the Lung",
+    "deck_id": 1755954606504,
+    "correctAnswer": "B. Low dose CT"
+  },
+  {
+    "id": 882,
+    "text": "Q4. Which of the following is false about hypertrophic osteoarthropathy?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Platelets have a role in the development of HOA",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Primary HOA disappears in adulthood 667",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "HOA is commonly associated with lung malignancies",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Skin changes are more common in secondary HOA",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Skin changes are more common in primary HOA, not secondary HOA. Hypertrophic osteoarthropathy is a condition characterized by the clubbing of the digits. In advanced stages, it is characterized by the periosteal new bone formation and synovial effusion. The exact mechanism of its development is unclear. However, platelets are said to have a role in the development of HOA via platelet-derived growth factor. There are two types of HOA: 672 Inherited autosomal domina | Acquired condition, secondar nt condition y toLung neoplasmsMesothel iomaSuppurative lung infecti onsCongenital heart diseaseT hyroid acropachyInflammato ry bowel disease Skin changeslike thickening, | Skin changes are unusual seborrhea, excessive sweating are commonly seen The symptomsdisappearinad | The symptoms persist till the ulthood underlying cause is treated</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "48_Neoplasms of the Lung",
+    "deck_id": 1755954606504,
+    "correctAnswer": "D. Skin changes are more common in secondary HOA"
+  },
+  {
+    "id": 883,
+    "text": "Q5. middle-aged non-smoker presented with a dry persistent cough and hemoptysis. A CT scan showed a mass in the periphery of his right lung. A biopsy was taken, cells showed an acinar pattern with mucin formation. The cells were positive for thyroid transcription factor 1 and napsin A. What other feature is most likely to be seen in this patient?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Hypertrophic osteoarthropathy",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Lambert-Eaton myasthenic syndrome",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Hypercalcemia",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "SIADH",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario along with the biopsy findings is suggestive of lung adenocarcinoma. It is most commonly associated with hypertrophic osteoarthropathy. Adenocarcinomas are mainly seen in the periphery of the lung. They grow in various patterns like acinar, lepidic, papillary, micropapillary, and solid with mucin formation. Cells are positive for markers like thyroid transcription factor 1 and napsin A. Option C: Hypercalcemia due to ectopic production of PTH-related peptide is seen in squamous cell carcinoma. Options B and D: However, SIADH, Cushing’s syndrome, Lambert-Eaton myasthenic syndrome are associated with small-cell lung carcinoma.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "48_Neoplasms of the Lung",
+    "deck_id": 1755954606504,
+    "correctAnswer": "A. Hypertrophic osteoarthropathy"
+  },
+  {
+    "id": 884,
+    "text": "Q6. female patient comes with complaints of unintentional weight loss and right shoulder pain for the past 6 months. She reports that the pain radiates to her arm and is not relieved by NSAIDs. Chest X-ray is given below. Which nerve roots are likely to be compressed?",
+    "options": [
+      {
+        "label": "A",
+        "text": "f°? C5, C6",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "C8, T1, T2",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "C6. C7",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "C3, C4, C5 668",
+        "correct": false
+      }
+    ],
+    "imageData": {
+      "data": "UklGRoBIAABXRUJQVlA4IHRIAACwAwOdASogA1kCPm0ukkYmJ6inrLlruRANiWlteiiy9LQ5NpbLxnEvB7KkJwypZ/qLloZS7N3g+0AP1b4Ufa/2APCR5m/tH05f+n6MX2F1AP+Lyckb8gH4//4f/96bflP+f//P+z5r/mn73/9/5vtj//N1r/+a532f/1Zkv/j0R/Hv+rkxf/vYC3X//+q3FsM0p0b/69c67+f9IoeonbRYTK8hjVbMby8daWORhLSalWqgIvByCVhbj/0ZdhCUdRtO8YqINl1CNwP19HNSpJJ7fyB+MRm4uG9P3h/xqm9puJ/0ih6idtFhMr9ln5/0ih6idtHn8tdsGtunyc9ADoJ7z1poeRnteS4857Bw1AM902AWDIOG3WcHtelmW+mttfI58WY9alGgLBASvO+DP6lGFvD1kKdS5fjzGVAPaZy6J+f5/0ih6hG3xmacFw8FYugVKmEciqLjBby4jW8nAQOHVb55R0Y+sixuZydOy/cxAtlM/TGGUZJpvfMgTizfG3unj1T2BBiKCxXhVpeq+JJhtfVHHo4pqTTZeQbcl3Q2op3fetxs82ICT1DMel/rIifdtmgEaP2N2QQriq17kH/uAbYvj+1c76nAlDUa2f1fn6vExGVaHYpQiO2iwgnJNp2LCHfUl5NdrByqGpMYyoRt0ROiK4DEj9NYZjChzsHTrW/XWEcw8go7lYsiSl+WA5A1e1jZ3h5VQLE+kZc4zeXat90ocWpNM20noli9iMgVu6Si+ZaTk/W0v7gS2Fxq5gQu8sDl2bLsOeuzldYCFvIsRW62FCz9ESsmOIodr9Ydx+2tZkJn1HvOOcIq/cIJoOpD4J2zxS3m6GI3mDT0nafayTLKiDmh+k+cL4hu4M52N3EaRP4puy+oxv2GcZLrWwzfIRdR+tSHnd67hQHmcFAzuM8cWAIE+rB1oCkGNcccOcKmrwurq+436EoX4dPEeL7sQvYsL3R2AKCVH2iCm7UnESwYDVmGrDkMIi4a8WX1kqFM68V2+twD3foZRtVsHd43oU/1yMUDGDgMdqggpRaKTkvgzKVEA373dBtOEIn8mBodk1ZBORnqz5OqOHsqLJEE5kYQH3hn/zEk4PBh7OXJuTjfi4fi/y/rrnBN9MmhgEVQVeZe7S9+pvLhtc3jIEK4GU4jDr2HieX11/phElC2MtGQR9HSTivrc6SyTRqlltAIp05/bPT9z31pXeY/Nzx2oFsEKB6C7TehiPqsCmDF60ZM3S4MKkPu5q/mc6jO8igeRnJ1/m+R9TH2MV59hgkvNQwhbbsCuNiiKqCyfXM7snaYK2bOBEAlO0FbJqg4BNZqoYq49AYIYpoypvkiiNBtEWf/8qeN9n9oUFUETIZxM0/0Q2+2jDCKHbs0urXVqr3ocL4CDvSipPRw1JiPLBpJxaDnMgfydjcB6UxILND0/1GGFKfZuHP9VYNqD1ZWzg7LdR9MVVE3217m+/aN902GV908Mt8VKLvl9h6AyM/s+UwOSK9sD2x1rQVzyaXgCVCRpQQI5muHWCUsyfBx3I51C7IbXcZjsVNq8hjWHL5AhclUO+E1YmRxLQl+rDh5oUcPmKL6pNl+VM/3pFIFmp29+kLUQEIV0jxtBELUz0vEW/tXnv+7OwhAPZhirifbV+o0D0VkhzzUkraQ9lN+46j+FdjPPijQMROPctns9+/onPq2leR56Px8W9u1bfYAx2MMx8s22jFze09md/z6fbg8mkPgmC6zzK5QGpoQ+YF82SZw1AP7Uk7D0b4fqVc9L3daNd92nJwerAd6hUjMLkCp3+coYzInDNIeGkYnEdvQ5rjcnf2kk0pIW+FTJ/uQCKfJMP+Y8jPKZpsPfJ1v9PswA1ksoMjUYqhn+vOv3LD8lKyns9LoQ1isp69r4oKa9Z51lYHbwkZyqYToFj6XVtUyVxxmjSse/5m/2ISDyZDKopnwVakusGob/4SItpex16v1zQKUL8b5L3sLGqP+6lK4U4j3Hm6t4Jl55HvYchkAfXUSBJ/4uvdg/duMtoQwczvnSkZxLdDtjgWM6DjrmJJs/GNe9HIqZ/CcwlCz6CykhXmT2u2XViYH73zs8gbE0FgM67ZjGOK8r518IAq0Li+jJDiVS/Bt4kUqqcTeq479dq8MviCR1G8hd5ap+Hy2NoyIFPSjNighvHoZ1MVx33aIz3oNPaXTLvriI3+jUV7quYIq/+fty+senQ0NYHJF6DVjOqVs0Aictch1qLokMViCcVmL3d2p6dw1LNFQHGD32bQMt3dCOYHiMp0KsCRRx0+iZWT1xlFVN2yUFE+UqbNVrpTvBwXJPx5gWWo+RLdDdu31p+ws1BeV2/Om20EiwT0uq8iexHN5S4zJYlOMduhYCd4SnlE2ba6gZoybyiaC6PhYVjQJm7hfg3tTaGkJeNdIxxd2Kfh29TblAIe2giW9mQv7hsY4syzuUMBEDkm8Msq5VU0O3hYvQGe9QTBFWrzY4iGaDU7zdEot1B0tbSYLXafsa2GPhAFzT/TXP1jtqvIBl/pzfzrwiTZPX4baWg9y0mFmcl4wj+j/J0v1FS/9Y2oZqqqOBTANY0F0DhybsKx900KWZySdvDTHixPm8ljnZu+1PG9IT+JKwaKySfbG86USQSyPNH4Qec/zkTC9v4yhkfD3LWOrEQFFIG1eS5njLkdwPTiGRnoIdfhYjZWL5qI3vHiyxbkjQe1uno1Ms1lm81iY1gJYuJNfh+u6kkWLNwBRW8OHhMLpxe2DT7oqgXPbkEPtfwcURaloXBE1XGHImkB2CwhlT/jEcSrzSf8V1/wwhQm4ltFMjEH1urBT+ji//ehR7q3BfJ51nxqNi+WMCENyfWOqCGbXmqYTLyb2HfO5CoxhilauobL1E9IGEcSBT7FvLa54AotGFV/6OAGpC1pRdDgrnLQS9pbv4eITm9rMZuXln/PECZ71Lv8416G5ctaW85HlxKr7wnUZKGsCkIZtj6ldPp5uoT3eSn+BAfguM8V3VY0hx31dbw0t2A/wViooICA+rpnE5QoOhi5jU4E1eac0rT/VOdg6fqQZJYV30yatkgXfSaiBVXDHiHY6iaH290mV6iZ6rx/pMrzevhBY05vKNi3RyzvVxeFB0kkFlLNes4ym3wtc7b19+OSlLqNQLLvQgyPYdCh6AmyS3mwA4koRwsPQk+wU1NY3eAZxY7tO02gAWqDvnP0iHzI0C1UtMyg8AjGFiYO/VwsNmGSgcPZtD2y1uEHasnlcpFc6jbSdSLb0icaPxoitXJS4S1eCB6S8ew5+LK0qrF+Uq1BBy1vXCVZ3+DPnMtpnXj80/9HtYhM+CHkWVOwl6BujOTvKbI0DqRIaZNNaxh9PqoidnWBkYRIxNn2qKzo0UvtTOm+IVuBUt2D8sEIjDNMTfuikVxTIB7uelyYgDFuAmmJ71YN/rUZuFh/qVwFDu3mtFtFFS0SJ5MCbGLPEREv/lXmuK8+3lhY1eIwJQJqpdYisAHaWC9YZ+/p/Di0enc2pdQ293yAvEGkwWsH9w/ph/hOTXMK2fUkwkgtNJTjtndfQWKXPLRFJGoaf8bVpzfeal4UCZrZPk7BtLl3wD4sd11E8q8HQmh7Z1PRnruLn0gVMkVvOVj7dLNhImbzYYh839+rDMILtE+SZ+GHyjglEgn5n9F1aa7rPVoH3JklQb4AdkNO7nk5EamyqH0Mslxo56fixCl62oIF/KZzlhWz+KO9WFb7H1xsIuPRbLOn9FQoQ1ytDQXnvxejIt1a7eI8KyxBmr6+AGbCw8L0a04shKit7YD+qzjjpqlRPaG/c/4Nvpg+mN4hhmikwwaRLHcPcvtY4ltuTnjJ94OxvgyfgL6a3gB0QWdoEoJkhR3xR1R0dLr8ON01gHlidT92ip4Cie4BKfgVPAKaLzXmLd5eGtEYtbtRf1g1FedoVMVEpwrPA7bw1utsPLKm0HJ9cN1BMQtGJLu0aDI3w5Y9ccGjio504PdtecXZSosMCAdHLjB/8m6FgB7h2Lm+rkSlkbOcm5Y7id3GZUWdmSkntGqgswRVqt/VhyIGaZ+mbugkPIhG1azaIu4rYY8WAchOqJomfWFr9W1+kWq/CpoBEsS6L53gRPCP/3+Q4zIOz2D2fAuxew5RGzseJ0zw05vTPpTyhMS9PWvVsGfL82QjW4+EwsEXB7LwzHeu4UIA5PlvglSY48IRd8Mcdppdv76yThuio9nxknqOFCQRAb9ug0cxSHqVDcf2sUt4eVchgvKdH+lwmmakRnaEJmFvQBe0bXtXIprU/kA5JApLSwT4N4kQQeyd/eBw5w1FYKzFXLwfw+ZAHwsHc0BWoFNO7iniE/g0BNox10/CpmF7HOyGGWa+wzbjcS75h1omCW4kh5jYQYr4RKtVE3EseExWjOY0z3OYQTlnLhvKmWNMfs+9+fYkZRzW1xDWRDrG+z8XdyAdfZmDDmMHI4gEeRLYnzVJrKiedEBNUf3/6a4TnotfsLIXhQHVnNVFPUoA4lcQWHkcciec9/ggoudTgVjxq7N6JLlQWWfYY1AsEgcmmf8H2Sa+9qS6tiKV7xXa5eyGZRQtXUGzYIkJZeo+KLh4El/iiZxkBX/0htt8ZyHm1V2dqCf1/9qx/pQktoqlXF1ZaJdIMYBo4oBedEOxsex8N3sF7Sf5AnUruvKzCk6TMsDBHFbAFkMxYgwFr6YIYD1sdJXb8aBDASCahuMHsx0jSh1wzw69lXGa7OGPL2rKwOT+uWpQUcixjpNoGKs1eraxCWy+PGCYuYjg9HNsGIvsiWDGbKYDOxfrpGpt6F+EFwIg8QdGbYF9OYM0FdAjURzf/gvbhEth1qTKk0MN/rRUv/ycoKp7OMfeihg1Avij80145TLAn/0eZ8RRKFSCJvcT3DrdmEJFY6iuSqLz8yI02k1wGRUw0NAKAsbeezJxe5Az21g4mPEoX3C85UoSiWoAkgkwXva5JjpJQRMeeiXKlqNOMGqMNADM5K4rrQf+nqJ/Gwz3bZUxFmTDqcGsHn2g/VZQ9C/NXIIfAW74qrBw7g0+9loMlBQM0F6l+E7awraKGFP7TB93LxgJAfUL1E3QSnyamz1HRn7mnChGaZv8wNBPbRF1i1bQJU4f9OwLvfKp1Dbx8Bao1eOaTIKsV5uPbqpBlsXF9ZgRxTFSUeVKNWsex2DR08cyYxd+l4S6lS0/HtEwpjfjvyl+RJBGBj2xmKgdapsUkZLoGpzjeBONu7YFIeIfJAS7BrjQVuj0r+kytA8CfItnGY0vTkXu6+Dko14F4q0fMR+VzMBF3VIpPAl6rOtwZLfpYcmQDdfymuQzZkW7YLeXSYC0psntXo4Xto1Cf5TIZz18OMGWt8JBHmryWekFZZGhqGqqWlFUg7rcFSEqgooZ/ksKrssZShjMjylexoITF+7UgAequEQpdjjNVsXpei6F3l+vhLKlknQXfynZ+3uTVyZCRnXozjwutaT9OAwPeoYKy5upoyyvsLBV/NN78dR3BlJX8hVoMPcOu9Se1XMkBsUlRP8HKz9PQXdHRv7IwUW//dC7FjgTq4qTYTx/IpLwaMEijs/dpFfwqG7rnlvhu3Hod4tLCXRt4zcjB2yy7WBcOe5ohyjrCN0ruB+lgECtSpDXGu6MYimPuwyT6b4g6ze4sMGUVPOe08iZnxt+jXhsFcOcmdcBEZNQtQ9eekTCOPLvn9c/cS5HFCPwiJcC/U94ksvwryPDPOcrTBri5g7L+Mj602hH7Np2k5iYDgqLAC6OLW9ObDMWApfQ9Edb+fEMBt2XBl9BAQdn/Xyw9BPvFd4OC25LVkiMvEcXb1uR8hlZjneUDIaUI/hDaug01QfglOQ2CCfVSonQ3SjmDnSxY9AWGGXJa3q0nnQPoBlg1mw76ggykAHsT/D3aoKe8Wn1fSDLPoN42C04YgDWfXWTbLvvxJbUKN8TECA5uKoUM62TSfCIKq6Iu3Yw5Na1wxPopFNeVIqcpIyb8yfMpzh8w5uRh4hEe1qQjAw+DuFITrygjz115GlEDDkPsP0vrBrKD2IZpc6dsohYdXwau4RvgI1WikPFBHvEP9xLhfLiwdIWijsWQpdnUfnWJMS2ONILTVG5Woxq4cyFlak9LPih3YjrL9+pV7qbRc1VjR75BVxeSA7u1A5wKSGzQR0DarcLcGkE9038cB6ncHiix+WwLPY1U0GsKF6GEnduqmCZJkgzfCetiW6OrmPcSBc0poopPc4xV6hUQ1JQ3zkJDCyw/w4hkhmo7MlWiWMD67beqNM/3H2QBOmf7RIZnnSL4llXzjsxnZCgizkTHevVSgbDksYj87V+hVMlv8rHLDDseREiT7xn5gnJHEEeKB8N3JxCfbos5FCczQ8n0cIdUm4zZ00dhTDhJ9SV4z64m+8HACtjcyMafldAm3fjfDyJEYANL4j7wOxGNai5lalSdo4hRpH9fSixBhBzzSihMpxUrMKZIvnki9t0aI88wo6jrfF7+jnCeNK4AJhU/vkBCNY9ccd5gEY96Zti3Z36MsVcXmbuBbtfixblVBvcBFKJ3aaXI8+vX8lQr5FV390L+iopM9E9DlC8gJpEXmm4cvJNP3z++n08/zZMWZTDKn1rK75J4leR3PcDET1vONt+dBJcCGOLuhqaZc/LIVd/5utO7ns2LVAQa/K/l40dG+JHiynY+/89YOvBhikKCIN4SoRph/DznVFOFwUl+UA3irzFj0Vi5VVXiURP6blS7A+VMD5Hxk2x5cKDHe3DX/wvG02jAHlI7q1aBhwUqodUspqWHYNgb5siN5Z2YMN/3Z2Y9R1fsa/aZQ1HLlLitX5Fzrf9RUHdlexOnO+fuk9FqKpI2YbSVh9rNTAhFoFTMSH8l53BvrxZbR/HKdI6WXw67vhuiG2lrrawS8rONMs0V/BaNgP87ECpTwjdpmdnXY1jz1WjeFdiShUN45eMaL7TPlskriExhH/OISxVgMM7Mz8LVFF+1Kl9iBe8HOsMJfzfmc+WVM3AOtrH1eRn6GATPymV98seUoS7E1xbHVkWgv5OYdIrvUdvqLRE8n4AkBbUuLDJcP8cHIgC1mEHZ2wy2c2Ev5XoiFmffTPI8Fdu3hoq6a/3e50HBROk+fD+9+/TV+b3pJheMp9ql+q8tdSKmYHULiKhcAe/8p7ojR9COpxKrMJDGYaF9AGhMsdmksVkJ0E6C5QWfK9zPN40zhhgxBBm7wqj7TuXbRiNelgsreaZnkeIJIj/tXty4RkBWmETMnLO72jrgiMUR4GkYb7EkFpdWApWcex+kZscYLVZuY/7b8AH1WQbz9H2Bh4NwNefE71auySLLPj6PiP01JwI8DPf4TN5tv3/0LdZenRCkqi/TySJSiYNmV4LPlTalu6pbeLABJ0jXizqw+W6AXqc9dzjAsI2zNFqP6j6hCPzY+0NMNrcwTyKbX70epVOifrTDDJvMqNOVrf410MHf9kuBSIYF2d+AZQq5IRPwGvN86nI12cxdbuhdSQNzg7aBRZsyO9onICARN+7DwEESdnZBRk6PCFWTfaTLHAHhBehqmrSeADC1YE71DPOPFo+GRU2cvGexgK/zEFK5K5F7Hq39yggRAMq3Z/oCjpTgy63WNQanYTAqvqs3erIlaqZb/Fz9qthbE2nnoc/rJUDC7CeMq9Cl99hAfdQMVgPPgH5Ui88tcpgZ9pY0Er/E6ZqA7ZD2jj2tuGcniv2yq59AosyZ0h9nxYkNXXq/Ir0vMbi9Oh1uy0JVVQz8YnjQKxxmHPRgsf+ak8MkLa9tbtxFCpPzoPFTtrj5Dt4IoROEuUe1JN8XimUJ0NwQPjG/6JyYCuRXJchoWQO+9qRccN2kMsVPKZxb/4m2g60kCbJ2/XiPUXLNxVjb9o1eMeDMK8PPzn1AU5NoxVR84C0f02gF7OuurZyaKWM3WvAU+UqRFIJ9fUTMqisJN8BzodhpeJOvN5kFM0GAjaYoRObrHWPuEhGh8sHCYLg7YVDjAWNiJeRYj+M73/wjV33/ZkN8agTF1jobEHJz2Dprvc6BWz8QdW48WjOU8JIXBIAJO4O1NfsBufCuiZAFY5RhjuYNfSQeDMER6jLwE60AYvq+0XeuQaLqEXr/ENhytDHs+m5Uu2itZq55netDGAvwptLVrDZYK41KteaXmnYtGIG+CejMpRgz6ZYU+LRBxkwXgDOB6nJo7SbUUw6m9gaddPs+SlafCvkaaM/+y070yWJaJZ30ibxJemIpE5rpokWfIDOhNt+iYAD+8yNAAAAAQSDyOmvf6bALr1th32uYZqTYt2D8ZRbGv9giosc78+J2KCbP4y8h54ttgudcFSZdRvSbCriu6UX1JkV05EB6bDJI9vVv3EkcJVz32x0Q0klstvW57A/pTZxiFMEpSIw7s0lBJm2r4uPfcn6Wrrq9+KORL7ln2di3sqa4ZtbdrtAAAAAAAnjh2DQf1u7zpvAnl2q5uh7WC0fbCCMVOLk7azTQ/lAthhtqs34FLXi7X8P8o1xHk5SUgBbYILk2J0WiOGAjlAGzAYbtidUWMRI1F5ViHUu+hHrdD91pO+rWMYXZ/6bUHpUIJ3BuLeqV92kRUlCf0vUCAWgmvAAAAHlEDl4kiO4SjGSeN/Zu/0YI7JcdqBrugvKz1WH04Zijr4d5RjBoF/vsRFYn7B/jnEMDlfiI3gjr7HwvgqMwWaiI7qVF6nLexmWRXai/6skigH+tAPp2dZnB8cqL5WW3Ln5keF/4xsKalbPkE+AOnCw4/LuCbyiIgoqUPJ+rINycOvZBV+j0TqyD7qPIK+S2eHLZ7Ua0wLHvBuyJSo0IkFwDgOuiaalAwbB/zAAA2wyw7zcE+6EgKL+9hlbGdMuSp1MgvD8lbb14AE3nCzUy0trxMrDDxqXQc8VU4KLImzJcCLQ/Ga3Nhw+Un30YQvbM6BaEq3vqci8HWOQHAMmdpR1JxOPDst9ZTZhiLP+FI1z4B9qUGQwMMaLfythClyB4luIVy6fPEGx+d2vcz6NLvxMjSOgKSXj21TaXY+NLOrAq30Jy0nQshPWXSaAMiYZqCGDwcY3Yl5+y+DySRygF+Gq8hkYtBnC1Texq9GvN3KPLB0S2d61f35+22ZyFw6LNw6j7yIWywFCJECuSJHkQkAkLfKGO9iKrBgsWiQ1qwpDaDW/nsiCXlywvAGuBpNu3m7fBwEvNWA0Fv1p+9oqvsdCBgc5vZWWeYDQHvapjCVrIK46Hp/i7XOlqsMw5r45LTxXXy9Pv5XlI4pKoY7MTe6wdgbh5zt8ZZnW1SLRJTxTh28l632m/tdOKkbA/JIn3XYeDcARRYf6422+jLW2UdNn6b9nlNikOew1/r1Fud4hMI5i+dxMaCPrGsmp+mXhxGhduAt6H3VtmkmWRJHCGr4xlRs8OTa3C3knChhb5Y9vUO1wuezayjuLUHdJ8WSoH7TKh2p1bZAlXD4j8Gag1cw1FyBj0EXp8a8Uybuq48eFeTcpf8Uh4DfUyEOyEArjs7iMxaRl4azcRMCOEmJ6zFnzjDEC+poHOhDKmqYJn4ssNQrCYDz7xQs10EwFeOoUHuV5QO4ut+lSARY4F8VgUji8OUFjWY2T2Ncj+x6dXZLL5VstamDsMGUG8CtOy334/iTExmuHxXoRM9w2Q4V7Qow3yuJ1Oc0aJf4AtIp9zfHkpDPmwpwohl80/ZDUbdRPDQADlbn1neSLkhFbR6jQ2wYHiCsLJnilFQb2A6APKolY0Pqe86Q1O+cl+subIkXMlZxn+VoexWdPbLJDzpVs2xAem1bQfvEPBIjYyATkk5e9qM/i6MzTYnGdTgAfhU2zhpONSk4kxdaaadj6t8z9gfCe3YDWqVnWAj+dgk6Ann2RkZGETq/ki8S8koZoI7l4RCjTf0C9f/ceX7KA8exVPvtd52iXunoaF2dkzEfuD+AzwJoWf555qWvRKaEMJu8e9m9zuP4G/FfoGvfMGuMLz8xMc6pP9jTYZ1S7BzL1SkAf5O7IN/70eo0AAfLGy6lPUkPqIv+x+bsGt8AqVfX2yEQooIQx7MFUlnP8OxcAINKG/p+Q0RCsBAFr84IpFPZFqvsWdvofyc822BCENU21iPBKemOHXce3WRMBJqmJHJ4Kss93NSyjKNy6K3ZeB9pUdApT1q3s0zlHTxYb52Eo75+28RwQMhP0YJjHFvrGeDLnTzHguQII6r6HluTbrb6KcU1cRsi7JIcb3fZVrjhWumVHaYR5y3Ox2IYQ1qHIoouDYFYuAAt1vxludrI08CHrmAcrqzbi3LDrRJ/0ow2y+2ktm+mF9HemLkFhuM3oRHCd/pv45ppjW/OKZUbIwdjk/sGuPrV92P/rPaOXp2LCfpsHEZYASqWTbEhDImYQXZDL7QpEOYHmqa1v01PIw9lF4KjeKftOH8qvnfBxPXD9ahKKj1OvZ/Xq2Gd8bNe1CSjXVDI5BWiOcyepE5JBCqVkE1YMsS4WiIzsH1kM+LQtTxY9Mgon8SR7KIbN1JKniPbKBb7tVpMA5L7yvZMZ1O3qCGz+haN2/3L88lutwSzLZBZ1hj+/8/JY8egCeENqbk3487oV3CV/HZeKRTKqr5JOcOdjZS/f6arbuPxJcB7U1KEDSNByMFvd1LL4Vncb0/pFiPSIW8jUj2BQI8VI6uiQQTiU3BBPlq5a6M9wlkR4soBNf8uple9BI6dfnTRJufI/MR5/BrnDdDX4mHEPOufTkKJQTuHyfRp8cWX7/kkGbHcAOUdTeKWMY8KD2diAnoa+l/5pOYqMeaCP+fVjAIiNvBJi/i7XGY9/I7949HBgAfGN/rlMyfYF6n4u0p9zwR2ClXJjB/gZjo6JuxpBAEsuwqije/r9f0yT+7qkEXkBANgNcoFZClHBemFvOjHEJn/VoIG17uW0agbsaGg/m9hypbRClzSBDTKNCDXD7B6NZQ0D1n2T7MA5rIH2ClNLNLTJO3t9YXdO+cSjodZzW+dk2TUeHz2y0SOjJnI0YCvCUAm+lfspP2eIjugdcsIci0PtjPLvKjUF0u37GErqe9tY51rWkbbAah5F/Z3+bpN5gb4I3aF850WRU1mJzYaZuw9OwmU2/0LhTTmV0T0QnIwphZpnta88f+1Yn7j79tfW+LaF4oOj/tv1xORVPb/fPR5CSn/e1GWZrlZHLcpcT7N8lZA7PUn4JNOZwVuqLXiAweodD1YmY6Ml388mP51Cj4AGO3UGGr2iCgTeDc5QGq7FeRwj+7+HwwmOnrV4PgwbO1Ex7T3tTWtBI2PFPEzjLFMfpetrGk7vU9NXeDvegzT+zo6e8yeac7nCloFk2jM4JFAbpniWiWiyRAT8UfWmsjI/tp9bcHLarHaQm+ZxaoIqvUZeB38GQjEz3CmYB+Z6+SFdUayF/XD3VxVy1/Xf9iyAXNurJybv4bNEC9DroP7daSggV9QzyKM3MLFWuggBgqrLSuweBvZAHUlJHAqOKW44XQV671lHePZLPhoZD+hAsZdcfBS/0gJ2agibeUEWrKC/U2BzCteElmpWH5SdnkizNknDLQqeKHbUnwOvGZNKzsqDEFSEtgmwRQiFje2g0reflV6fkVbTBY+1o/bKQq7OtAhAxvBRwxjTq/zQuv6Cb2LRfvfmHzi8IQPU4rf4eHHMk6ZuiQ9wf/5nuAdiPfcB+tTIqlHybfB5ZeOh57gf5naN9r3xxRDYLv3qPBnvJAEv0y7SYNkNGnSRsvFC+Pk1jl3rlxR3ND3t6zw10jjBD7igUv5hdf/Z+0gienJM98R/CPYsneoXU+reDyhWzmT8V37FtDHNBfojN82IY8jLOHqk5dyTSZHzy+gldfj1zEtV5mEQw0up8Ha/5kXlYR75lbx4BxYOP24vvbL++Q+LMiY0qmmkNQTGjNyGLEa+oI8zLYoDHrytVruMfQqRDY3o8pP27MX5+aWnvaQcuLcxllgiYqz8dGBQjfZyz6brScmzKClAHF0gdeIywJx4XMs9siXwDxvM0iND4DEq1Zfgw+g1fBIiXT2vFEkNRzJ5t5ytXL/MlDT2d4ldbk5AZTDoV2d6K1Vc3jYZMioXVmciN9uuy78UKjWeoA098+RXssbmjQ8VUO2cyJsw9zjYmZmSiEAfvicSjP7ki23rfLQLzVGj0t2cuIOpRh5zQaetFbSMQPp+ePlhUT6hRu7ThIbHAax472V8omxZQa8wjZwYZcQgKwK3ehZkbiAZogT/s956rVFUf7PwOyLsVppSl5iK/VTlqhfrL1VOGLbIhnwQze21LkfKcMT7ilGcSGhuj+Ykbqr5Nk3YdLsEZomV/YBBEOkrIprH9xFAJq78AxLKvEzyYumsxrxevnaaUSaPYAB3ub3DOkgibhE1B2LGpLGJJMZKzA6foBmgZ3mTp3TwzOKaZWHyXCkCuCZJHjBlc9pEGocz6Hu70E0+3HyqH9XrC6wxujTRvzq9TGQWd48JkRqkkznCrnCsffMz1dHxg4S1uzW4Sd65EL1F30qJ7vaFsnURyayOEDh6o5xVHwXvErQ8lP5GkeLEgeSatzs+grL4crsVmmcusuPRp1eJffinrRxtLg3ohfTd4+fYpT064ePv2eVBA95CN/u3F/ueR8hDCab07ELQaFDf/MPIda+k4y5ARJG7FlHdfzOPpqfjvt/UT363jFd/jKRev7xhOk8VTPLddyPPU0z+0x7E/NGzqJqPPJC3GaB+eu/x8nEQz9F2smc5KMVLh1L7+uHdi7yujvzl7Vl/oJqB6NjcsNtoxBWSb88ol+Jr19L1SOkYB0e82o6lpHRYbn+eIxHGrSBPXhLU2l9d4kEP/6seODd6GbnJqaV/y+wMLW0oMwKeowqrh9bTgHar0ggXjEaeXEPR8Iuws7I3m/86m0MPvX8UYwMpGJ/4MUSgQ504ii1K/AWeJUjuI8frajULvxaaeUXfFRTEb4hdjdNik6RQujPHJobnsMvye24FIk7VChJcSha5G10L5UZ1cFYa/GFl08mj3n20LSl2mhFQXUuWQTtX1nPhj1g+PkBVG56DAFY9s3qM2Sw02q7ygpChN/q5WMlcUBf2MXAUvY0cIBPVXSXSHVwaspjdQo0WHrMtXCKEMly8lq8dVmKO0Z32e6z89mCKaONXy3mWk/pGKNf2K3eNJEU+ZMzwhXfN+vp1YBAomdI8/qQGuiEz/+UFJVmq0NNq6JUJW/J/15usFLC8YNBJFpfw/1oELg/0sJSxEcPWj/52qjD4UBh9dFkov488g2es2nnT8Q95SsEVrP8lE5Mq4gDc9qu5ox1RupGQnmtixHY+OsNYp1xw8EN3iGLsm0iUlOy8bBVOT/iSHV2ybi1YW0at82ohN8Pgc1nnKDL0M7btm8bTD5s9FrTKvAArNSRGq95Z6g0q4ITb4Il2hAtQ5bMO+3fKDQ+hoMOk2ZcYf1FClNLiTQ/sk8BZsmJtIhrYHNAUma0/r7SHer47PkQAo49FbCr6I94YhsABvxPiBsLSWWTMJXwDg1S9nkDVlLAzJkdJVCmAikb+XbDrRk3H0FE/ggWaGN5d+ff7i5iZHCvWVNN8h18vAhX/WVvcJ6i+1e5a1t4HXn3qF6+CH10qTOuIsZB67w+oSvM+hb392BCLDgmpGSYe5Vjb7PnSJn5BgQn9eD0jirdxXsucZ8Z4++FUnmdu+0VNr12cV4wXZtE0wpVP4AWVQZBR2mrylwS7zv/VtqVijdar7iEyTduvUp3XKErXppHw8FMMSgBRNG0wCDaahAequ9nnD5WY6KjmtMIiajdDDoMcj9EQjyn5qixKk0+o/vu+bS3wL2+564+xjUL+LCuqxuJ0RROlF50/hEma9m8myE/2L8F8A0S561X9r+XZWtxCjn7yzyBayCOOE4wyX+go0gDzqJ4tPEvNoADgfthJZWDiQdDdlTt31FxhB/JTUJr1njArTo7T8QynusRkRO8dZ+TdTXMz/O9k1L+/bEUQ6GWuZSsldEM2G72Fo+lJLK0x0hV5GvqCClGjOrJoCzfjv8avFz4myrNkUejJ0aaK0365MK9KKSDPLM6t+C5+f/rfSz90WxyIKDEIdTg2Xi+DyPEDNtY+tSwCadeE6ctt+ak96c3fZCOgUNkkr6slAKW6fWuSrrM+chCoP4v2CKHCNqj6TK94Yp3ZPWL+LadlaZok6dWjfWUf+3ADEgjdM8UCoePxFnqAxQnSIH0O4ftuygRUWDTuP3sCOD18bAaDdwBq3ooP3k+1/koXyQ3H2Jlx4FeJp6/FUym0FbigXCncKPAy+UW30KUIEjiXuk9wu0ZidPbiw0PEUfRqysgoTB7Ux/AaBOIF+t+TCqhj/zvMJpT2cQbk2iN/WPoV8HMj3Z0QFxBnELJ0RJuOXa8kkviIIcFrIl4Rnk9dV9seP2cqg+b5iT1AwyFC4+Eve+4hOkmjSDfxoFqcTDtlohnXnYTkwUM9pVfe336DTzs8iXFJAQa/tbwL6Ou95xTcWMqTw4+mqskESRoW8ltCom4YiJCTi8D18Bmoi9dUtrvokrsYi3+3ytQ0XHKDIldBQADENf2qImBDEaYOoJ2CRXEpoZN/RIlZH4iguE1bTqTHN5Evv9vn392iB9KEiO4aZcIabRrjwxViq1GfTAq1pGzq699UZHAjg+L5bnWBo/Bl8xgZr7mwVqLAJdgiqrxNOs+yGwUHXoZTH4I1q0+hqkvxKnQjCTUyKWy+HEgtuupvPZhQPxRUhbMj9SAUUjeT2c/nV1s6cZ5xcSrF6SGidxWSDdPUBG9eEVD20OzIkX6H5MVGilfX8ASGrN2HFjq3l1nqBE3pV5dK1cSCsb1ZcI/zcu3RT5gTDaVOeWrcGi1nu5fYM+FHuJFy/fGpYn1mJKRJnEmJy1dzWenTF2OBzz00OFtgnXvIP65CCKqwnD1ylRSfmWEk5dpxmXCbsvIM0bIhHg2HESkrRpgddBuG12cFTC1M2A1Zn9NrX3d7YiDW+c0WmEtPWVTUylxFbGXnrMr4Cn+zlsihcQyGkIlEvWYYDqbH7YIn47IA6vD0HQWNdNUCUWqlKMF66GcyvOHMjw6JoVfow+BJiJk7i8jLLMZ21+uu24lapmDDcmFwQ4Z1DsLSpV0g0E8tiAGzuOdW/hXC5V4Z0Tq34DBt7+l/DXLSEfsognCENC2i87DKAclrxe3SJ+l50kPq9IP57Jy+Z3DN6MCx6BmJ8nJLIg9s75eJrfAPGQxap4/euMSQT4HBLfj1VliluNojh21Kgv8EcOZMa/BfOY3dN+vGQbVnXKSEIJACNzMY0HnP+aAaI1636bT+UZtaRy1ZxP7TSXV/7+j2uAF93Bq8Be8JWs2b/0SiNs3XVemtupAICgg43k58j+6K7hGe8yjZD+SHTRci6KBnpgtyOjf+T74UnXShrQEcld5peGlxVH4RMM93kgKx6DI4G1UT/0HH82cfwuiAEMqKPBeyaYKoQgUnb9x7KDSVmQCIllWw4wUGYxbUlKI2xUbjzcoxXPYOSSBhYSpJq9XmU+JZYF1KklUX641I+1DVG8PoxtdHKm9ck4XH/s5XrH6xIJyeP52gXhTOV81vmi0mdc4Sj7OgvRhjgMhYlIi0JjwTaB4EshWaJGnAfqZ/uIxQ7pDi/3Pduod1dioyCVb2ivBGbbBC5+o86IhU3KLjVd16QlBqPvpFbeAMdAQHZa+lLAItyUgwg/bUotnp3YgckhkLEDjAgFGWydWA+YHLoNYWVt9pUJJ4bCKpgkqrs6eMzW1u0yBu9iilpLQl/ibfD8b78hIWXMAfTuOJn3DQDbiR1vHr6bUzhS0PAIyxzrFTZRIdXkInydQ0f10g54S7mIm3fVhESScPpRegZsb9XQV5ru8T/M419In3yuS/avtKnOABIjGTBXvJha/CPxZtZXsOiHnEg9cYwtqJ69x9wzHWzkkn+ZuBZ+eR24JWHc5T3OXoetkK6AjmVMq9lnb4RuzKl+BCESJwD1HdjCL6OaRiJ7Oa/+xjpt/rSwYqARkhCJwDW2Ed4WERMdwfET8wDxA+W5LUFAW/UKDQJclCnHTdNySjfVJ+yCgrPCZ3AsoxUC7QLXLSb5tpom5cH+pyfoev1ZMzFlICXv0vX8o+VBXLku9uXrOspPSFEu7vrl8pjVRwJdH5aUkOxwdX+kL2lUQ6+fC6meqlQtV/3LtAU4401ncMv6bPM9eYKPB8L43cvKIxWpx8a295swW7wlGfMyT/M5wTv2kSdaCcD2750sChzCRbV9yT3wP/3eovfAToPbWYlZf7XM0L+qmbVEDLtlj1Jzof+bO7v/fidFeF3iNgmijwUtAm8+jRBH/xAJPzy8GPprsFwxYqj1m3qw+CnYTPUpKD8ifHNtg1i5fhMwToD2d+b5PRZaxy6TwyMCjVOsQY4H/9SQc2zU1WPq2SmHYt8PomBJOluJUaixBFdsHuzC6Xx8pP45C8VS1smDJgCRwfOEPVkXlWdPJ0ceMY+wwQ4BanjSDAG2SJ7a9vgB7Q6/M9ZgR60u1V8u9sFNlBBwUo4wSBtXKJaicd/vi9938BtFIBYMGuSrmUq4wAuFo9tIGBoOqTFxV2OowpYYHAh+5RI29vWV/9XjEg6jsL+Y/lXbSAYeG0gPySjKEjE+EWRomgYpizvrCvjtFBO8RrqDo1OYbQCLWsVsQrPtbGepJWCF3b2rUHsHQ+ShUvKproDiVRNDVAq89qq3w7czSaIrqk3gtyYISbLKMq4p6Foh7dYYtl6Zh6W83hyNj18Il851MNFgo22t6rYmmLwCsucxPzYgT892nBGzpXhigTwkoqsOMMMTfYba/sPepyAHVc+x1f1ss5inEojW6OiGnpN3PzgHrC4VW5GAYQUjxr8LqqynzMVYLiaJ1Qjq1sI8EqesIDifbkATVK4LmRIkuk7lkHSaIOocFEAJ3U2GoBCUd+YqJVQSR8I7oEd3Pm9z/aFtrXEx6PZhw6upQGidmAD+Fotzq0Zvf57vVWo5BUQFkYYTyGbCMLmOT0zjUXnOFWnk987PycQgenfb31Yq2iHcxt9pgSKFfLg/+4vxbgZPMd50kCg6mJ6LTGx2MLGJfO+9faiO9KXSP21AUYHaY+FW6jk8ZckSxei9EnOXYPNXk/BC/Pdw87MwwYERrN2chAcone1peav/4s8mYfeykiDitkv+tYWTMfV4fXqUl8uA0veHq9ytrR3cf9fQdr+CEbFDWDpM2j/iDHENwCRkWoZJqzlZ48g9hsRJqOhRe8Y1aJeoVHf0C2TiQj7BypH96QhAtJ3ktNc/x/+Dmu9s7f3AdFGnnf9yCY/3F/s3+Uyx7YmIeTGkdbFGGsvMJUHldIOVjaucS0ybms2EfL3Hd8VOj0Arh88SjgkN/SdAQRWLy543ROGf/5NosJE4/UqeBUcQ13nMil2fFel6XScoVdlXbWEIMlxSKr4A0VirCNH3AWhXOxl0u+REo5gWh5IU9gOTGAahrCQIUHFQ5hPMRHlK0DyUNbsiA3JoLreY0SwcwdoUFgEhPQClIAse+yc7id5Zi2QpX9lAXy83Q+R5D8JxSMFsur2//xWj1tBkQot3Dfb2f8Os2CfBNaG0BPeOgb1d5CnT3rjuLzB4jGDTM388GYBMAjnotH+gVI++dv9INKat6JHyN+x6ePTx6HqR8kF1bujOrltJ8LgXp8j5S0p6fx9J78rCRDJ1tDIZw768r8MbWYgYlYprdgPCDMMSdQhtDbZvSb3/c35TRRWSCEzF2wJ9P/mBQd1uU0ZLQyMr2rI5Je2/xYzNiTVdor8AVnYLQ+JQEZ+VVsFN1qlCv4+L4tvktBos96a72QAKO3nRlFSPNOyiDvMb3PgCPNnzkLa9WHu4xeK0xO4DZMyOQgk8gQ1Wso46HdgbHFWz2h9/3fWVqIO4HpG0cm7nTgxx8DkNBC5tfxMSnM/l1ZSTRiGMJrgq5/BgKH1DLv7Fg7v03za5ExCprmhcQf708TXotyynbAatTBNrI3Xr/Ru2D7wnj9MseTgWHaNveUcPU3mBHqC5XLwVLZctX9Cyf8+Y+fTPZxVljhDlD4TsAc4miOMRhudXJiJ8h2QXTGQPDaSR54/DvwYSCys4gLPm7RTeWEwEfqsFicFb1bed86/RG5oUdmp/3t+TnWN4jS34RTnJOzvcfdUvrYQetyMfeq0NSwLLAL9XnCptR3XBeeYDsHfsT1hPpP5DCt0N+eEJu0UUZ6wNgl0g6r9xvP8mDpi/dMxbaTtgQ2HvGT+SDChn9YRdc+rMXcnRzK2379hWV1Ser8kcliMgHx7QmdgujgARE0QUznqAU8RggExdUJ5pfTAS1JbKeiluLdukYTF0B75EyN/MiCIMB23aOJrVJglVGyc1q42PyFg2AnNSp3jMMn0k9015iwflaqXpLtDWbVlOzKJTC7+tyYzcnOmu40cEQM4LzXA/IMcgs+xqKt08fMyxfYD5wS8m5KeJkpDs8fvyOodt2CcWobHVJozeo/eI16Ll/peylqf+NDsuCf3G6V4OiLh5vS3yFZt1+9v6P8CM/B37VIJ1XqL6t6DQr0cq1hGP9rdn9V8n8aV3pLNy7HXTpWtt2N43SBy7iRDRkZelHNlyMv3C4c7zmKoMrntxY80G2c3MweXYA8QmXttVjCJX/nqt+Odk1Kz2adwm48/UFK/6LF+y+Bw3Et5BYs4EPtVYfBzcq1hlPh1FmvgwNogQxOB1mtyX/nOM20WxT1JfgxOB8vFJ5wG9HiWsEgFRPHJdG4ovwADq11TCwo3eNv1WymF3LkysCwcScwrIJk6f2gINTt1yks/v+Rg+D+umrpeMYifmhztEUHQqq7hiPN6M1Z5V1Y4eYxYRaFkNL536fuVG95xhIR3YcsMSVnfoojTO3QwqilTeA0gWwH0oDOUv3IghNggnTfWoYs8UTtNvrl1+7b5bvMj4jn5UGoi0nK1P/fYjuplfne0+BLZDaXR+9xrCMB35W3MJiiTUZWQe1UkJA4c0nQhLTnE9JinMxE5f2IvELVXIowsB/gL/qEwAO6ylv7ZyTlheWQ1gMjStLDKartT22Y3EG9mNE7howgrbNHMIDrj/AgZONkF2/83MM25NpED4sJLQRsveQkN1DXtozTwvpY3zGIv6t4o/GcsIvYt/m9jYvIh2GacbbUEBrOjSkPQo0xTF4BLU55OvAfBLx06UMaghaVbjBERpA5X8XlG7gwan0JQRJsulMw5rF2tJ9wqb26NTYwqAx0mSNmmSslTlDGnapT20Eam2BCFr2lxc2wbZ7ANTMPL11757DgfXhsHpqY6zQsI6WZmoMPtG7YXyM+4SCKVa8BAXB/HlXVlm/pKrtrYLLh5sJ5PfB19Sq+cLTK9gdALnqrq2jq7QadllwyOXqKVeTKVtpHTGJGmdoP7Arxeg/V9A5xwDmBgv/skuXFyfWLp/YITYahHajifabopiQe5ZWEyT5j11n2m2xWkJYdNIs4Zndmh8/BBM24IWymAWGo6NM2WGx9Xut1JPCCn6w0DZsl6wJYzya7F/dhAtJqLStWmFrSarqU85jKXb+28+aT/eNQZIhtfm+l+ZDkCAf/ni7eJM7UoSqCvPJ06n1pk+DM+WZ27i4FhFWCMEMTnsU4RjlUXuhR1kB6Qmr1cuWKbPaSAhO98DXbHEuw6FL/TPwOBsk9OXwDUXw4fhb9jWzGwepckQyBScnkPmLep1TEF4Hxmwz8diNvUx5VpbhB6o9TppqMdmwy1L2dFXoy0npk6oa+pYQvngBrEbywkANWVGuAf69hkMpB1jyeKe92y6JWY7y+WX4VlBynfwCEKQxCm9erWw2TjtUhd0o+15sItgZaUy53zxMdofhif9LG1vXfhYM5+J8w34OC9zaxm/780eFaR7foRiJvXPE2lVWdrKCJWCaO4jAInbhkoyJoNdOFD5P4FZPsxOx0Rd/wxBiSSQJrAjWyVyrK/Av2qAHNbFTwCBPH3tIORJPXVFtmj0da3T6URamvdGEyr0o9KI0r3Tx3b6YZ2HPlarzz79c60hWmyAdovjiP/3pB+oSWPake1niZLaVGZN4qusIU/uwie8byiSOKO4QAAV8yKFp8Wuc/vtRy1l00VrhXWc/7+A54nCW711ojuaIfem3za+4u4BV5wIBpLWW7cTjDWcBiDGxmWdjI+BcxtZGG322aZWR8zK/wSx6k1sXSnd0w1yXCU/h+H/uUHs6FrGzb3yvcHhDq6DVvSI+DkLCF1/r8eNsxCJfNwDYaf18gB4gIilcStoptxin+nbfGqfxgzc8Bd1HKjRiZOeX5K4DDv3bxWK9fu70IGqBe1kwS5ozlyRDGU4oUSH67JH5JJibycse9Ncg+gtpUadtRVlT0QAHUvnp0ufoffx/4J2Etgy0FXd7iW5Rei2MPCkq7hfSAoY6b7h3eXANRKd0xRYu5oubVj1qiiV0RiczWZBC2f5PDO6ET0TyGoVAOCifbeSXh+bc4wnHAdyJ3EXps4tvtGJHwvkKnVYfMOC7A+1lKRa14uGExRWK/UtXJi6qfvVJPwkB7eOrHtZhUFT0p6gkKnGU39ZHAIzPF9dcBZR/8oJ51kTKT6aUWVLe7/bLPAILHbWb/bTwlXOkids+SG8arn9IqZ3KNl4cMIozGQWcvIDZ7ZQbff7zQKAlKr54H/iKYCm2hrOXgRxXgaxC+EkzAjuYCz+YmOiYMX0Ev2wSdf8nEhd2biqopVTcrejXv20iJ/33PJHE7fOOQuZoZo6Y9r8wmPQnuoAcz6aQOHRmAf9HngSVbOjCbvhAgZ8qc0ibGGOiBRXI6EGilszkPJSAKoCEF86YNp0zVAaihW3ecGZORfVQt9w7vFQXjfT8EC0DMgtyDJ3b5FvsYL8vDXFWVAQmskp9bWv2Q1HhpiM8WPiyD/zWP/tFgxoZqsOmikVsZ9rX4d7f8BMMRmcuipPz7rgHkzJQOdbfLyk1AdJ1RFUy57A9kg11Gay+llQe2bIwcv3D1t94N4NPKiv9SYKSALgTpxAZl1AOhWcj26m0kUkjIOaN3jLD8J0IVFN8lgQ73/5GWiFV3sGJxMgEfAelO1DSRsg+sQQK1zQWwz9yAMPtnfp3RHalQu9OcYMS9Bl3mbUf15XVFvv9FgUB5QJUUgphMeeNkiICedd/6EdJds/VpuX3+7uMm14ZCdskI3kcSjmrX5T7tlhGiR8S5A5TZt1ngUYwEafwAhGuPnZLKxJTvemEr0p7wk7Cnt5JEIj51oywqV8J/okHfDa2LYUEYve0sULbacfbXJifZ94nsGqllxSNR559Z7NpeOvwPRsIi+Hv3WplN/fxGVvqufzjyxpQ0g/AcAZ0ELTMpY1GN5Kj+qDVb3jOq6cCACRmQhU/12Ku1aq8bbwCQPqh0SOQl0lWqip5UlLXbjnPKlfSXtLHizvTd0kIwMasxGAbSABSQlfrTUzYZuDnSquQJC0Ln1tNiDoJImHoYnYlihj2DFxM3cOmAzsE8vtOhJ37tBDD7Knp3PDe5V+OsOEryy5f0nd+V4khOLYH/SmBM1T2r7htQumCGPd4Txj20DXlbhahHqwglhG+vwzBGcb8on/cEQP7kvym6iAp7OGKceGHfaFr7wyfoh873KEtCwuX4K8/7MF0TnQJ5ccnO6oag/GCrLnoO7RnxriMX2UlmxORukaZnMMMJKEvlY8ztjcDfwKHAhj7ID3txPnxpnMowE9Ziqi2VCF3dLU/gMU/8Ey0mGuBhQ8JZ/K3oBhn5dUruPaPHsaxrsDYkKP/12C3oLrKeQA0I1mInSNMx0nplAtTKC67xIfJQC8qOsQpF8jrSBhMEY3quY0gZtcHmkfqyLcBudbXgsOkF0iYoF6DVFP25H7WVyUnksZ1mGghiCp3K0PvK29OIZemY4t6cjLHZGYhwNdTywm7qiXhVAM0FC9PGK5ZHX64HgqbPT3pytxCEVin0u7Ay6yyKZP7E8n+jg/CWtRUw3nz4NsGjsinNMAPJJNJyEIABUBt31UcSwCzgjFmraDbfy98bqUEy4gY8yi8yc/tisRtrx0ZReVsH89pQV43Do9v9xmTKwXaw04/iZURrceq3ibChb7GV64P3KVpd1iwI9x1urpeIKPhrlC9vXqXLSwTgDvNnXj8c3Ql3JFLo75mX2+d7yTe9nY/cJJz5vtduNzFfzM4G80BIT5GyPrj7qHVMGhxlDRUCHmjwDlu8NGCtdVV2PWbPl2+oFPe6w/D8jLOi3STjgjKPg5W5ObQ1SD613c2obWycbshhzgvQ732g+cAsWuo5XyIV6d8+rsgmaFlatV5tqPB+0ojC1jGhJ+W+XAHlN5YDbDqsVcH9o1BVq4poIfe2o2mUNcpg11/fsRzeIlsMjAQVtcvFG6CulizzEo8frK+Rg/k9+casY7JngXlteQ0F4//XOVUNFnHpj3PavoCuWQ9oDOFWKyqSI1MQl3SlwHyZ/pO0aUOwmcwFLwHoXp4xNq6tF56/B2q9ye9oboiRZ0OEqBDUZxem/VGlsZYX+Ue7G3Ec+Vsk46Cy4V7BBWizIEUsGaY+9TuWwXK9RkkST4NASLCTK/KyPov8Kiqbm1Oah38wBOQph1fEHF3Tnlfqrm7OR8O3o4dH7Ag+z0Cd+U9Obiwf74A7ljFbopRv35y1kNFS0Qcl6dCdTgEZJJvsL2oHg0pNhWBcWmHSJgk8hwMvNrGUC/IND6IHR9TUc7CpThi7y/P1PmnA4xaJKsYiOV1Dj71y8wy7fuE8xf+SMZgG0V/CWXAeQZl5OOsAbvQWHJuXicQXwezdIBZVpYBNs64ChdpBxRVG/h3mata4HhmzCUJAc23lChtt3UGm4iFqLGkJXEK5RNcw098v6ggk3F7lqySpW51v+tTNPEOcAUd9qUgcYu66sXRlde8vHu7HR0AINYp3wf4tScE82MreTIsJYdJXgfPmDmMnBV0RhmPJN3P7P+DjNHMIbtl0aWpWx8QfKHI0yU6eADRQlEkUqlcCV6S2KZ3AqUNPoluFBLJdcHKUojHmelR6AXT4p0/+9PqeImYfmFG72A/wT8VSA4IaHTexj+UTQqDfa+dq+0JBiqKSZui2fCR3yQpdSc6RGB4ahbXbUPRQB60aUOqEuk3aBbRMZgUH8uRjpLhLoUS4GUCUwzQxQ6uhxCEnMrlWo88k5/a0DKh7Xrl/LhWhvSiguqDmIZMpm/BG6OUkEv4y2BpTGtBlO4RH24fBazCLaLzKdZ6aZ5ulTV+nLgj+OoxZ7XD/AG5B6WxU39Cht2zmNhs+IYFUDEs7/wy0fMWkasL8cifPLd5GtBISovuQvptugbmw0oSVvuzeunvIGBm+H9+v9p110AeT/wvkoDyEYvoWGo3J0ohPYOvlWkqWY66JHLeA4A2c01uRCpXbmYfpBasvIFmJWQ//QWV95dRsCGCFmuFWfMdnNy6knmoYY+iddNTP8VpwpmA3GTBg7i2O14Mqp/wiKY5AvNE3t+Ro5dDe1YGzDX9vXYCSL9LkS/elx3ULj8I3vN0fjW13C+8AqcRRqrBEnIT/ZDuhdiDXH4QiWn/UyOBbeVXM29T/MK9YJfGAGisZOHDPQ8TxlDXTC+cQW0GW0AuaeselmylMMwBXj6iWBYHXE+aeUpNnoKBf36m9WjmvNTS6RNMPlQogHAj3IhEpfBQcKG7NztUuM7SQq3q4O/AHYHGNKfk++cS1B5SLbH1oXebeA/EEj9V6XRhghCdCFuOKluHuahXTycsoXL+3QC6kU7Shsl+Fz8rdImgGx3gzD8GUbCgDXAaFwIgVBtRECjgq6dfkn6ANZxbEyw7bcXsJYKqzYX0OWkzV/tsEmj9z0pIatU0VsgPlrY17DUQAnHhEXHmztLasUMh9JVn5xXEysgFr0Pgs9IQL0L0g1nhBndh5j6EFkRHavYZwAhgSewgF2/4pWdV0c4VXxLU4toHhiwy5gpge99zPEgXm8UxH5s+1ADvbXbA9xSVfGwEMmGkmF9bpwq+Id2tSvrpEG/CohMs5boXjk7Z00M9Cae1pyoO7WaiKWGwhQffnCzocpp/ALyPHAaE0C6s3vzMeiLW0vg2Ss7sbkoXyHtdC74dasZXoKUVnI+qRhPFwu7k96eU6eo6hzCHo8fVZq6aruT1uoAAABI5VD1LpUOdaU2pmHHwGgqnbEn5mnjRL9ZJoauuCarvUS2v48AY3WkKOiKPfWGTVIH2/iVTOENuJo1P3jQn7mVgBQVY/6Kr9JqMfiv1j2+YMVW1UwodCYivH7sSSrpg/J+ujsgiDmeBKliRliEQNlvhc5353uppw+sbJd9QGMG+Aac8FPc6oq1eRfZie9A8JAK1SIJG1WP1AfunwCbchH76tfZK4OaV7NiUbRoEXy3u5BNrPtMM9Z2LhnMIQ65xqdhqvnVwdueAEE3i/+kDvO4WZpGg8LxRaThL/ydSngqYzf25vB2mMG82aVREUUsYmVXWHou9NK6y1zLnmE4MJLUcJDhZtlIfXdPAOasiLoAAdEf4aTIFe5fafeY2P35Ijyondbs9TYOJvG9kOeHTLTMMHyFUQ5XmrFCGXCtvsYZAYso2CIW7kzCQJP3T3ci/unmTi2/CVyTO9XhpvOlU2/wdeOmmShjZa0gP3EyK4KyHqsjcryl76F5ffmDAvgPC5KFaL6cQCU5AGcwCtzO7ZvSiyMnvWKYJP46q5AqToYHHX8i37bmrbxNUjE08vWXihM+Q8qMnnOX47sqQH8fMHdWLg6EAoAlSkfHs/N4zmZ1scGEyIA96tejP8f6YqV9b8E98+GbQW1jntIEBpPqeSx+AAAAA==",
+      "mime": "image/webp"
+    },
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario along with the X-ray findings is suggestive of Pancoast syndrome / superior sulcus tumor. This affects the C8, T1, and T2 nerve roots. It presents with pain that radiates to the ulnar distribution of the arm, often with the destruction of the ist and 2nd ribs. Patients with the central or endobronchial growth of the primary tumor may present with a cough, hemoptysis, wheeze, stridor, dyspnea, or post-obstructive pneumonitis. Regional spread can cause * Tracheal obstruction * Esophageal compression with dysphagia * Recurrent laryngeal paralysis with hoarseness * Phrenic nerve palsy with the elevation of the hemidiaphragm and dyspnea * Sympathetic nerve paralysis with Horner’s syndrome (enophthalmos, ptosis, miosis, and anhydrosis) 673</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "48_Neoplasms of the Lung",
+    "deck_id": 1755954606504,
+    "correctAnswer": "B. C8, T1, T2"
+  },
+  {
+    "id": 885,
+    "text": "Q7. COPD patient presented to the emergency with an acute exacerbation. On evaluation, a chest X-ray revealed a solitary pulmonary nodule. Which of the following patterns of calcification would suggest a likely malignancy in this patient?",
+    "options": [
+      {
+        "label": "A",
+        "text": "A dense central nidus",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Popcorn calcification",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Multiple punctate foci",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Asymmetric calcification",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Asymmetric calcification is suggestive of a malignant lesion. Lack of growth over a period | The growth of the lesion is ev of &gt;2 years ident in comparison with an old X-ray Patterns of calcification: Dens | Patterns of calcification: Asy e central nidusMultiple punct | mmetricLack of calcification ate fociBull's eye granulomaP opcorn ball hamartomas Associated chest symptoms a | chest symptoms like cough, h re uncommon emoptysis are common Complications are uncommo_ | Complications like atelectasis, n pneumonitis, and effusion ar e common</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "48_Neoplasms of the Lung",
+    "deck_id": 1755954606504,
+    "correctAnswer": "D. Asymmetric calcification"
+  },
+  {
+    "id": 886,
+    "text": "Q8. What is the treatment of choice in patients with adenocarcinoma of the lung with EGFR mutation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Bevacizumab",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Paclitaxel",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Imatinib",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Gefitinib",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Adenocarcinomas with EGFR mutation are exquisitely sensitive to tyrosine kinase inhibitors of the EGFR signal pathway such as gefitinib and erlotinib. Option A: Bevacizumab is a monoclonal antibody against VEGF. Option B: Paclitaxela taxane, is a plant alkaloid and chemotherapeutic agent. Option C: Imatinib is a tyrosine kinase inhibitor effective in the treatment of CML and GIST.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "48_Neoplasms of the Lung",
+    "deck_id": 1755954606504,
+    "correctAnswer": "D. Gefitinib"
+  },
+  {
+    "id": 887,
+    "text": "Q9. 55-year-old man presents with persistent cough and hemoptysis. The intern notices that he has moon-like facies and purple striae on his abdomen. On evaluation, a chest X-ray revealed mass in his right lung. Which of the following type of lung carcinoma could be the cause of this patient&apos;s features?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Adenocarcinoma",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Bronchoalveolar carcinoma",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Small cell carcinoma",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Squamous cell carcinoma",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">In the given clinical scenario the patient has features of Cushing's syndrome, secondary to small-cell lung cancer. This occurs due to ectopic ACTH production. It can also seen in pulmonary carcinoids. Most effective management is treating underlying SCLC or carcinoid.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "48_Neoplasms of the Lung",
+    "deck_id": 1755954606504,
+    "correctAnswer": "C. Small cell carcinoma"
+  },
+  {
+    "id": 888,
+    "text": "Q10. An elderly man was rushed to the ED with confusion and multiple episodes of vomiting. His wife reported that he had increased frequency of urination and constipation for the past 3 669 days. He is a known case of lung cancer. ECG showed a shortened QT interval. What could be the primary cause of his symptoms?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Ectopic secretion of ACTH",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Syndrome of inappropriate antidiuretic hormone secretion",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Ectopic secretion of PTH related peptide",
+        "correct": true
+      },
+      {
+        "label": "D",
+        "text": "Tumor lysis syndrome",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The primary cause of his symptoms is ectopic secretion of PTH related peptide. Lung cancers are associated with several paraneoplastic syndromes. Squamous cell lung cancer is associated with hypercalcemia due to ectopic PTH related peptide. Hypercalcemia may present as vomiting, 674 abdominal pain, constipation, increased frequency of urination, kidney stones, bone pain and shortened QT interval.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "48_Neoplasms of the Lung",
+    "deck_id": 1755954606504,
+    "correctAnswer": "C. Ectopic secretion of PTH related peptide"
+  },
+  {
+    "id": 889,
+    "text": "Q11. 62-year-old woman presents with vomiting, diarrhea, and decreased urine output since morning. On the previous day, she received chemotherapy for her stage 4 lung cancer. On examination, she is drowsy, HR-110/min and RR-30/min. All of the following biochemical findings can be seen in this patient except:",
+    "options": [
+      {
+        "label": "A",
+        "text": "Hyperuricemia",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "Hypercalcemia",
+        "correct": true
+      },
+      {
+        "label": "C",
+        "text": "Hyperkalemia",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Hyperphosphatemia",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">The given clinical scenario is suggestive of tumor lysis syndrome (TLS). It is associated with hypocalcemia, not hypercalcemia. TLS is caused by the destruction of a large number of rapidly proliferating neoplastic cells. It is usually seen within 1-5 days of receiving chemotherapy. It has also been observed with the administration of glucocorticoids, letrozole, tamoxifen, rituximab and gemtuzumab. Rarely, spontaneous necrosis of malignancies causes TLS. Clinical features: * Nausea, vomiting, diarrhea, lethargy * Pruritus, renal colicky pain, oliguria * Muscle cramps, carpopedal spasm, tetany Biochemical findings: * Hyperuricemia * Hyperkalemia * Hypocalcemia * Hyperphosphatemia Due to these biochemical changes, there is an increased risk of arrhythmias, acidosis, and acute kidney injury.</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "48_Neoplasms of the Lung",
+    "deck_id": 1755954606504,
+    "correctAnswer": "B. Hypercalcemia"
+  },
+  {
+    "id": 890,
+    "text": "Q12. Which of the following is not used in the management of patients with tumor lysis syndrome?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sodium bicarbonate",
+        "correct": true
+      },
+      {
+        "label": "B",
+        "text": "Rasburicase",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "Aggressive hydration",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "Febuxostat",
+        "correct": false
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">Sodium bicarbonate is not recommended in the treatment of tumor lysis syndrome (TLS). Urinary alkalinization by sodium bicarbonate decreases the solubility of xanthine, hypoxanthine, and calcium phosphate. This potentially increases the risk of intratubular crystallization. Management of TLS includes: « Aggressive hydration ¢ Allopurinol * Rasburicase - recombinant urate oxidase * Febuxostat - non-purine selective xanthine oxidase inhibitor</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "48_Neoplasms of the Lung",
+    "deck_id": 1755954606504,
+    "correctAnswer": "A. Sodium bicarbonate"
+  },
+  {
+    "id": 891,
+    "text": "Q13. Which of the following patients with non-small lung carcinoma is a suitable candidate to undergo a potentially curative surgical resection:",
+    "options": [
+      {
+        "label": "A",
+        "text": "60-year-old smoker with a tumor within 2cm of carina ee ee ee rr ee ee ee ee ee ee ee ee ee ee ee ee a ee ee Detailed Explanations Solution to Question 1: The most common cancer seen in Indian men is lip and oral cavity cancer, not lung cancer. Most common cancer: ¢ In men globallyLung cancer ¢ In Indian menLip and oral cavity cancer * In women globallyBreast cancer * In Indian womenBreast cancer Tobacco smoking is a primary cause of the development of lung cancer. It increases 10 fold greater risk of developing lung cancer compared to those who have never smoked. It is the most common cause of cancer death. Solution to Question 2: 671",
+        "correct": false
+      },
+      {
+        "label": "B",
+        "text": "45-year-old woman with malignant pleural effusion",
+        "correct": false
+      },
+      {
+        "label": "C",
+        "text": "55-year-old non-smoker with tumor involving the main pulmonary artery",
+        "correct": false
+      },
+      {
+        "label": "D",
+        "text": "57-year old light smoker with ipsilateral mediastinal node metastases 670",
+        "correct": true
+      }
+    ],
+    "imageData": null,
+    "explanationHTML": "<div class=\"explanation\">675 Patients with ipsilateral mediastinal node metastases are suitable candidates for curative resection. In patients with NSCLC, the following are contraindications to potentially curative resection: * Extra-thoracic metastases * Vocal cord involvement ¢ Superior vena cava syndrome * Involvement of the main pulmonary artery * Cardiac tamponade * Phrenic nerve paralysis * Malignant pleural effusion * Tumor within 2 cm of the carina * Metastasis to the contralateral lung * Metastases to supraclavicular lymph nodes * Contralateral mediastinal node metastases 676</div><div class=\"telegram-link\"><small><a href=\"http://t.me/Friendly_neighborhood_medico_bot\"> </a></small></div>",
+    "subdeck": "48_Neoplasms of the Lung",
+    "deck_id": 1755954606504,
+    "correctAnswer": "D. 57-year old light smoker with ipsilateral mediastinal node metastases 670"
+  }
+];
+        let currentQuestion = 0;
+        let answers = [];
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let answeredQuestions = new Set();
+        let isTestMode = localStorage.getItem('testMode') === 'true' || false;
+
+        console.log('Quiz loaded with', questions.length, 'questions');
+        console.log('Test mode:', isTestMode);
+
+        // Hide stats bar if test mode is enabled
+        if (isTestMode) {
+            document.addEventListener('DOMContentLoaded', () => {
+                document.getElementById('stats-bar').style.display = 'none';
+            });
+        }
+
+        // Auto-start quiz
+        startQuiz();
+
+        function startQuiz() {
+            answers = new Array(questions.length).fill(null);
+            correctCount = 0;
+            incorrectCount = 0;
+            answeredQuestions = new Set();
+            currentQuestion = 0;
+            showQuestion(0);
+            updateStats();
+        }
+
+        function showQuestion(index) {
+            currentQuestion = index;
+            const question = questions[index];
+
+            document.getElementById('question-number').textContent = `Question ${index + 1} of ${questions.length}`;
+            document.getElementById('question-text').innerHTML = question.text;
+            document.getElementById('question-status').textContent = answers[index] ? 'Question answered' : 'Click an option to answer';
+
+            const imagesContainer = document.getElementById('question-images');
+            imagesContainer.innerHTML = '';
+
+            if (question.imageData) {
+                const img = document.createElement('img');
+                img.src = `data:${question.imageData.mime};base64,${question.imageData.data}`;
+                img.className = 'medical-image';
+                img.alt = 'Medical Question Image';
+                imagesContainer.appendChild(img);
+            }
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-card w-full p-6 text-left bg-white rounded-xl shadow-lg';
+                button.innerHTML = `<span class="font-bold text-blue-600 mr-4">${option.label}.</span>${option.text}`;
+
+                if (!isTestMode && answers[index] !== null) {
+                    button.disabled = true;
+                    if (option.correct) {
+                        button.classList.add('correct');
+                    } else if (answers[index] === option.label) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(option.label);
+                }
+
+                if (answers[index] === option.label) {
+                    button.classList.add('selected');
+                }
+
+                optionsContainer.appendChild(button);
+            });
+
+            // Show feedback only in normal mode and if answered
+            if (!isTestMode && answers[index] !== null) {
+                showFeedback(index);
+            } else {
+                document.getElementById('feedback-section').classList.add('hidden');
+            }
+
+            document.getElementById('prev-btn').disabled = index === 0;
+
+            if (answers[index] !== null) {
+                if (index === questions.length - 1) {
+                    document.getElementById('next-btn').classList.add('hidden');
+                    document.getElementById('finish-btn').classList.remove('hidden');
+                } else {
+                    document.getElementById('next-btn').classList.remove('hidden');
+                    document.getElementById('finish-btn').classList.add('hidden');
+                }
+            } else {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+
+            const progress = ((index + 1) / questions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function selectAnswer(label) {
+            const question = questions[currentQuestion];
+            const correctOption = question.options.find(opt => opt.correct);
+            const isCorrect = correctOption && label === correctOption.label;
+
+            if (!answeredQuestions.has(currentQuestion)) {
+                answeredQuestions.add(currentQuestion);
+                if (isCorrect) {
+                    correctCount++;
+                } else {
+                    incorrectCount++;
+                }
+            }
+
+            answers[currentQuestion] = label;
+            updateStats();
+            
+            showQuestion(currentQuestion);
+        }
+
+        function showFeedback(questionIndex) {
+            const question = questions[questionIndex];
+            const userAnswer = answers[questionIndex];
+            const correctOption = question.options.find(opt => opt.correct);
+            const userOption = question.options.find(opt => opt.label === userAnswer);
+            const isCorrect = correctOption && userAnswer === correctOption.label;
+
+            const feedbackSection = document.getElementById('feedback-section');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackMessage = document.getElementById('feedback-message');
+
+            if (isCorrect) {
+                feedbackSection.className = 'bg-green-50 border border-green-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '✅';
+                feedbackMessage.textContent = 'Correct!';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-green-700';
+            } else {
+                feedbackSection.className = 'bg-red-50 border border-red-200 mb-8 p-6 rounded-2xl';
+                feedbackIcon.textContent = '❌';
+                feedbackMessage.textContent = 'Incorrect';
+                feedbackMessage.className = 'text-2xl font-bold mb-2 text-red-700';
+            }
+
+            document.getElementById('user-answer-display').innerHTML = `<span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Unknown'}</span>`;
+            document.getElementById('correct-answer-display').textContent = question.correctAnswer;
+
+            const explanationSection = document.getElementById('explanation-section');
+            if (question.explanationHTML && question.explanationHTML.trim()) {
+                document.getElementById('explanation-content').innerHTML = question.explanationHTML;
+                explanationSection.classList.remove('hidden');
+            } else {
+                explanationSection.classList.add('hidden');
+            }
+
+            feedbackSection.classList.remove('hidden');
+        }
+
+        function updateStats() {
+            const totalAnswered = correctCount + incorrectCount;
+            const accuracy = totalAnswered === 0 ? 0 : Math.round((correctCount / totalAnswered) * 100);
+
+            document.getElementById('correct-stats').textContent = correctCount;
+            document.getElementById('incorrect-stats').textContent = incorrectCount;
+            document.getElementById('accuracy-stats').textContent = `${accuracy}%`;
+            document.getElementById('progress-stats').textContent = `${totalAnswered}/${questions.length}`;
+        }
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        };
+        
+        document.getElementById('next-btn').onclick = () => {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        };
+        
+        document.getElementById('finish-btn').onclick = showFinalResults;
+
+        function showFinalResults() {
+            if (isTestMode) {
+                showTestModeResults();
+            } else {
+                showNormalModeResults();
+            }
+        }
+
+        function showTestModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('test-results').classList.remove('hidden');
+
+            document.getElementById('test-final-correct').textContent = correctCount;
+            document.getElementById('test-final-incorrect').textContent = incorrectCount;
+            document.getElementById('test-final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('test-grade-icon').textContent = gradeIcon;
+
+            // Show detailed review
+            const reviewContainer = document.getElementById('test-review-details');
+            reviewContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const userAnswer = answers[index];
+                const correctOption = question.options.find(opt => opt.correct);
+                const userOption = question.options.find(opt => opt.label === userAnswer);
+                const isCorrect = correctOption && userAnswer === correctOption.label;
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = `border-l-4 p-4 bg-white rounded-lg shadow-sm ${isCorrect ? 'border-green-500' : 'border-red-500'}`;
+                
+                reviewCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-bold text-gray-800">Question ${index + 1}</h4>
+                        <span class="text-2xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${question.text}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <strong class="text-gray-600">Your Answer:</strong><br>
+                            <span class="${isCorrect ? 'text-green-600' : 'text-red-600'}">${userAnswer}. ${userOption?.text || 'Not answered'}</span>
+                        </div>
+                        <div>
+                            <strong class="text-gray-600">Correct Answer:</strong><br>
+                            <span class="text-green-600">${question.correctAnswer}</span>
+                        </div>
+                    </div>
+                    ${question.explanationHTML ? `
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg">
+                            <strong class="text-blue-800">Explanation:</strong>
+                            <div class="mt-2 explanation-content">${question.explanationHTML}</div>
+                        </div>
+                    ` : ''}
+                `;
+                
+                reviewContainer.appendChild(reviewCard);
+            });
+        }
+
+        function showNormalModeResults() {
+            const accuracy = (correctCount + incorrectCount === 0) ? 0 : Math.round((correctCount / (correctCount + incorrectCount)) * 100);
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('final-results').classList.remove('hidden');
+
+            document.getElementById('final-correct').textContent = correctCount;
+            document.getElementById('final-incorrect').textContent = incorrectCount;
+            document.getElementById('final-accuracy').textContent = `${accuracy}%`;
+
+            let gradeIcon = '🎯';
+            if (accuracy >= 90) {
+                gradeIcon = '🏆';
+            } else if (accuracy >= 80) {
+                gradeIcon = '🎉';
+            } else if (accuracy >= 70) {
+                gradeIcon = '👍';
+            } else if (accuracy >= 60) {
+                gradeIcon = '📚';
+            } else {
+                gradeIcon = '💪';
+            }
+
+            document.getElementById('final-grade-icon').textContent = gradeIcon;
+        }
+    </script>
+</body>
+</html>
