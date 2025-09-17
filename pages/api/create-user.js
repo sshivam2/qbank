@@ -1,39 +1,60 @@
-// pages/api/create-user.js
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end('Method not allowed')
-  const adminSecret = req.headers['x-admin-secret']
-  if (adminSecret !== process.env.ADMIN_SECRET) return res.status(401).end('Unauthorized')
+// create-user.js
+// User creation functionality
 
-  const { email, password, full_name, role, sendReset } = req.body || {}
-  if (!email) return res.status(400).json({ error: 'Email required' })
+import crypto from 'crypto';
 
+// Simple in-memory storage - replace with actual database
+let users = [];
+
+export async function createUser(username, password) {
   try {
-    const r = await fetch(`${process.env.SUPABASE_URL}/auth/v1/admin/users`, {
-      method: 'POST',
-      headers: {
-        apikey: process.env.SUPABASE_SERVICE_KEY,
-        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ email, password, user_metadata: { full_name, role } })
-    })
-    const data = await r.json()
-    if (!r.ok) return res.status(r.status).json({ error: data })
-
-    if (sendReset) {
-      await fetch(`${process.env.SUPABASE_URL}/auth/v1/recover`, {
-        method: 'POST',
-        headers: {
-          apikey: process.env.SUPABASE_ANON_KEY,
-          Authorization: `Bearer ${process.env.SUPABASE_ANON_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email })
-      })
+    // Check if user already exists
+    const existingUser = users.find(user => user.username === username);
+    if (existingUser) {
+      return { success: false, message: 'User already exists' };
     }
 
-    res.status(200).json({ user: data })
-  } catch (err) {
-    res.status(500).json({ error: err.message })
+    // Hash password (in production, use bcrypt)
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hashedPassword = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+
+    // Create user object
+    const user = {
+      id: crypto.randomUUID(),
+      username,
+      password: hashedPassword,
+      salt,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Store user (replace with database operation)
+    users.push(user);
+
+    // Return user without password
+    const { password: _, salt: __, ...userWithoutPassword } = user;
+    return { success: true, user: userWithoutPassword };
+
+  } catch (error) {
+    console.error('Error creating user:', error);
+    return { success: false, message: 'Failed to create user' };
+  }
+}
+
+export async function validateUser(username, password) {
+  try {
+    const user = users.find(u => u.username === username);
+    if (!user) return null;
+
+    const hashedPassword = crypto.pbkdf2Sync(password, user.salt, 1000, 64, 'sha512').toString('hex');
+    
+    if (hashedPassword === user.password) {
+      const { password: _, salt: __, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error validating user:', error);
+    return null;
   }
 }
