@@ -1,5 +1,8 @@
 // middleware.js
 import { NextResponse } from 'next/server';
+console.log('req.cookies entries:', [...request.cookies.entries()]);
+console.log('sessionid raw:', request.cookies.get('sessionid')?.value);
+
 
 function safeJsonParse(s) {
   try { return JSON.parse(s); } catch { return null; }
