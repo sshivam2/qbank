@@ -12,12 +12,12 @@ function base64UrlDecode(input) {
   if (pad) input += '='.repeat(4 - pad);
   try {
     if (typeof globalThis.atob === 'function') return globalThis.atob(input);
-    // fallback for environments without atob (unlikely on Vercel Edge)
     return Buffer.from(input, 'base64').toString('utf8');
   } catch { return null; }
 }
 
 function jwtIsExpired(token) {
+  if (!token || typeof token !== 'string') return false;
   const parts = token.split('.');
   if (parts.length !== 3) return false;
   const payload = base64UrlDecode(parts[1]);
@@ -32,7 +32,7 @@ function jwtIsExpired(token) {
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
-  // safe logging
+  // safe debug logging (remove in production)
   try {
     console.log('cookies object:', Object.fromEntries(request.cookies));
     console.log('sessionid raw:', request.cookies.get('sessionid')?.value);
