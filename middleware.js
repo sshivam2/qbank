@@ -2,35 +2,45 @@
 import { NextResponse } from 'next/server';
 
 export async function middleware(request) {
-  console.log('Middleware started for:', request.nextUrl.pathname);
+  const pathname = request.nextUrl.pathname;
   
-  try {
-    const pathname = request.nextUrl.pathname;
-    console.log('Processing pathname:', pathname);
+  // Add extensive logging
+  console.log('=== MIDDLEWARE DEBUG ===');
+  console.log('Pathname:', pathname);
+  console.log('Full URL:', request.url);
+  
+  if (pathname === '/' || pathname === '/index.html') {
+    const cookieHeader = request.headers.get('cookie');
+    console.log('Raw cookie header:', cookieHeader);
     
-    if (pathname === '/' || pathname === '/index.html') {
-      console.log('Checking cookies for protected route');
-      
-      const cookies = request.headers.get('cookie') || '';
-      console.log('Cookie header:', cookies ? 'present' : 'missing');
-      
-      if (!cookies.includes('sessionid')) {
-        console.log('No session cookie, redirecting to login');
-        return NextResponse.redirect(new URL('/login.html', request.url));
-      }
-      
-      console.log('Session cookie found, allowing access');
+    if (!cookieHeader) {
+      console.log('❌ No cookie header found - redirecting to login');
+      return NextResponse.redirect(new URL('/login.html', request.url));
     }
     
-    console.log('Middleware completed successfully');
-    return NextResponse.next();
+    // Parse and log all cookies
+    const cookies = {};
+    cookieHeader.split(';').forEach(cookie => {
+      const [key, value] = cookie.trim().split('=');
+      if (key && value) {
+        cookies[key] = value;
+      }
+    });
     
-  } catch (error) {
-    console.error('Middleware error:', error);
-    console.error('Error stack:', error.stack);
-    // Return a simple response instead of crashing
-    return NextResponse.redirect(new URL('/login.html', request.url));
+    console.log('Parsed cookies:', cookies);
+    console.log('sessionid exists:', !!cookies.sessionid);
+    console.log('sessionid value:', cookies.sessionid);
+    
+    if (!cookies.sessionid || cookies.sessionid === 'undefined') {
+      console.log('❌ No valid sessionid - redirecting to login');
+      return NextResponse.redirect(new URL('/login.html', request.url));
+    }
+    
+    console.log('✅ Valid session found - allowing access');
   }
+  
+  console.log('=== END MIDDLEWARE DEBUG ===');
+  return NextResponse.next();
 }
 
 export const config = {
