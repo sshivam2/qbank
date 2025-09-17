@@ -10,10 +10,11 @@ function base64UrlDecode(input) {
   input = input.replace(/-/g, '+').replace(/_/g, '/');
   const pad = input.length % 4;
   if (pad) input += '='.repeat(4 - pad);
-  if (typeof globalThis.atob === 'function') {
-    try { return globalThis.atob(input); } catch { return null; }
-  }
-  return null;
+  try {
+    if (typeof globalThis.atob === 'function') return globalThis.atob(input);
+    // fallback for environments without atob (unlikely on Vercel Edge)
+    return Buffer.from(input, 'base64').toString('utf8');
+  } catch { return null; }
 }
 
 function jwtIsExpired(token) {
@@ -25,17 +26,15 @@ function jwtIsExpired(token) {
     const obj = JSON.parse(payload);
     if (!obj.exp) return false;
     return Math.floor(Date.now() / 1000) >= obj.exp;
-  } catch {
-    return false;
-  }
+  } catch { return false; }
 }
 
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
-  // DEBUG logs here only
+  // safe logging
   try {
-    console.log('req.cookies entries:', [...request.cookies.entries()]);
+    console.log('cookies object:', Object.fromEntries(request.cookies));
     console.log('sessionid raw:', request.cookies.get('sessionid')?.value);
   } catch (e) {
     console.log('cookie logging failed', e);
