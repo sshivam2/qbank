@@ -1,39 +1,29 @@
 // pages/api/set-session.js
-import { serialize } from 'cookie';
+// Call this after successful authentication to set cookie server-side.
+import cookie from 'cookie';
 
-const sessionCookieName = 'sessionid'; // Make sure this matches middleware
+export default function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  const { accessToken } = req.body || {};
+  if (!accessToken) return res.status(400).json({ error: 'Missing accessToken' });
 
-  try {
-    const { access_token } = req.body;
+  const payload = {
+    accessToken,
+    loginTime: Date.now()
+  };
 
-    if (!access_token) {
-      return res.status(400).json({ error: 'Access token is required' });
-    }
+  const value = encodeURIComponent(JSON.stringify(payload));
+  const isProd = process.env.NODE_ENV === 'production';
 
-    const sessionData = {
-      accessToken: access_token,
-      loginTime: Date.now(),
-    };
+  const cookieHeader = cookie.serialize('sessionid', value, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 60 * 60 * 24 * 7 // 7 days; adjust as needed
+  });
 
-    // Create cookie with exact name middleware expects
-    const cookie = serialize(sessionCookieName, JSON.stringify(sessionData), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/', // Ensure path is root
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    });
-
-    res.setHeader('Set-Cookie', cookie);
-    return res.status(200).json({ success: true, message: 'Session set successfully' });
-
-  } catch (error) {
-    console.error('Set session error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
-  }
+  res.setHeader('Set-Cookie', cookieHeader);
+  return res.status(200).json({ ok: true });
 }
