@@ -1,18 +1,20 @@
-// pages/api/auth-check.js
-export default async function handler(req, res) {
-  const cookieHeader = req.headers.cookie || ''
-  const m = cookieHeader.match(/sb-access-token=([^;]+)/)
-  const token = m ? m[1] : null
-  if (!token) return res.status(401).json({ ok: false })
+// auth-check.js
+// Middleware function checks if user is authenticated
+// Checks session cookie and validates user
 
+import { getSession } from './set-session.js';
+
+export async function authCheck(req) {
   try {
-    const r = await fetch(`${process.env.SUPABASE_URL}/auth/v1/user`, {
-      headers: { Authorization: `Bearer ${token}`, apikey: process.env.SUPABASE_ANON_KEY }
-    })
-    if (!r.ok) return res.status(401).json({ ok: false })
-    const user = await r.json()
-    return res.status(200).json({ ok: true, user })
-  } catch (e) {
-    return res.status(502).json({ ok: false })
+    // Supports both Node.js and Web API request objects
+    const session = await getSession(req);
+    if (!session) {
+      return { authenticated: false, message: 'User not authenticated' };
+    }
+    // Additional checks can be added here (token expiry, user validation, etc.)
+    return { authenticated: true, session };
+  } catch (error) {
+    console.error('Auth check error:', error);
+    return { authenticated: false, message: error.message };
   }
 }
