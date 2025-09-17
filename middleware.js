@@ -1,5 +1,5 @@
 // middleware.js
-// Next.js middleware for protecting routes (Edge Runtime compatible)
+// Edge Runtime compatible middleware (no external imports)
 
 import { NextResponse } from 'next/server';
 
@@ -26,7 +26,7 @@ function getSessionFromRequest(request) {
     const sessionData = JSON.parse(sessionString);
     
     // Basic session validation
-    if (!sessionData.userId || !sessionData.loginTime) {
+    if (!sessionData.accessToken || !sessionData.loginTime) {
       return null;
     }
 
@@ -51,13 +51,14 @@ export async function middleware(request) {
 
     // Skip authentication for public routes
     const publicPaths = [
-      '/login',
-      '/register', 
+      '/login.html',
+      '/api/set-session',
       '/api/login',
       '/api/register',
+      '/api/logout',
       '/_next',
       '/favicon.ico',
-      '/public'
+      '/bg.webp'
     ];
 
     // Check if current path is public
@@ -67,19 +68,41 @@ export async function middleware(request) {
       return NextResponse.next();
     }
 
-    // Check authentication for protected routes
+    // For the root path /, allow access but check session for user info
+    if (pathname === '/') {
+      const session = getSessionFromRequest(request);
+      
+      if (session) {
+        // Add user info to headers for API routes to use
+        const requestHeaders = new Headers(request.headers);
+        requestHeaders.set('x-user-authenticated', 'true');
+        requestHeaders.set('x-access-token', session.accessToken);
+
+        return NextResponse.next({
+          request: {
+            headers: requestHeaders,
+          }
+        });
+      }
+      
+      // No session, redirect to login
+      const loginUrl = new URL('/login.html', request.url);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // For all other routes, check authentication
     const session = getSessionFromRequest(request);
     
     if (!session) {
       // Redirect to login page
-      const loginUrl = new URL('/login', request.url);
+      const loginUrl = new URL('/login.html', request.url);
       return NextResponse.redirect(loginUrl);
     }
 
-    // Add session data to request headers for use in API routes
+    // Add session data to request headers for API routes
     const requestHeaders = new Headers(request.headers);
-    requestHeaders.set('x-user-id', session.userId);
-    requestHeaders.set('x-username', session.username);
+    requestHeaders.set('x-user-authenticated', 'true');
+    requestHeaders.set('x-access-token', session.accessToken);
 
     return NextResponse.next({
       request: {
@@ -90,7 +113,7 @@ export async function middleware(request) {
   } catch (error) {
     console.error('Middleware error:', error);
     // Redirect to login on any error
-    const loginUrl = new URL('/login', request.url);
+    const loginUrl = new URL('/login.html', request.url);
     return NextResponse.redirect(loginUrl);
   }
 }
@@ -102,8 +125,7 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public folder
      */
-    '/((?!_next/static|_next/image|favicon.ico|public).*)',
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 };
